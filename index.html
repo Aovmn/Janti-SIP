@@ -1,0 +1,407 @@
+// ===============================
+// LOGIN SEDERHANA
+// ===============================
+const loginForm = document.getElementById("loginForm");
+const guestBtn = document.getElementById("guestBtn");
+const loginScreen = document.getElementById("loginScreen");
+const mainContent = document.getElementById("mainContent");
+
+if (loginForm) {
+  loginForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    if (email && password) {
+      loginScreen.style.display = "none";
+      mainContent.style.display = "block";
+      initMaps();
+    } else {
+      alert("Silakan isi email dan password.");
+    }
+  });
+}
+
+if (guestBtn) {
+  guestBtn.addEventListener("click", function () {
+    loginScreen.style.display = "none";
+    mainContent.style.display = "block";
+    initMaps();
+  });
+}
+
+// ===============================
+// PETA UTAMA + MINI MAP
+// ===============================
+let map;
+let heroMiniMap;
+let admLayer;
+let penggunaanLahanLayer;
+let statusHakLayer;
+
+let osmBase;
+let satelliteBase;
+
+function initMaps() {
+  if (!map) {
+    createMainMap();
+  }
+
+  if (!heroMiniMap) {
+    createMiniMap();
+  }
+
+  setupLayerControls();
+  setupNavigation();
+  setupNavbar();
+}
+
+// ===============================
+// BASEMAP
+// ===============================
+function createMainMap() {
+  map = L.map("map", {
+    zoomControl: true
+  }).setView([-7.694, 110.615], 16);
+
+  osmBase = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors"
+  });
+
+  satelliteBase = L.tileLayer(
+    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+    {
+      attribution: "Tiles &copy; Esri"
+    }
+  );
+
+  osmBase.addTo(map);
+
+  loadGeoJsonLayers();
+}
+
+function createMiniMap() {
+  const miniMapContainer = document.getElementById("heroMiniMap");
+  if (!miniMapContainer) return;
+
+  heroMiniMap = L.map("heroMiniMap", {
+    zoomControl: false,
+    attributionControl: false,
+    dragging: false,
+    scrollWheelZoom: false,
+    doubleClickZoom: false,
+    boxZoom: false,
+    keyboard: false,
+    tap: false,
+    touchZoom: false
+  }).setView([-7.694, 110.615], 15);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    attribution: "&copy; OpenStreetMap contributors"
+  }).addTo(heroMiniMap);
+
+  fetch("./Admin.geojson")
+    .then(response => response.json())
+    .then(data => {
+      const miniAdm = L.geoJSON(data, {
+        style: {
+          color: "#ff7800",
+          weight: 2,
+          fillColor: "#ffb347",
+          fillOpacity: 0.15
+        }
+      }).addTo(heroMiniMap);
+
+      heroMiniMap.fitBounds(miniAdm.getBounds());
+    })
+    .catch(error => console.error("Gagal memuat Admin.geojson untuk mini map:", error));
+}
+
+// ===============================
+// LOAD GEOJSON
+// ===============================
+function loadGeoJsonLayers() {
+  Promise.all([
+    fetch("./Admin.geojson").then(res => res.json()),
+    fetch("./Penggunaan Lahan.geojson").then(res => res.json()),
+    fetch("./Status Hak.geojson").then(res => res.json())
+  ])
+    .then(([adminData, penggunaanLahanData, statusHakData]) => {
+      admLayer = L.geoJSON(adminData, {
+        style: {
+          color: "#e74c3c",
+          weight: 3,
+          fillOpacity: 0
+        },
+        onEachFeature: function (feature, layer) {
+          const props = feature.properties || {};
+          let popupContent = "<b>Batas Administrasi</b><br>";
+          Object.keys(props).forEach(key => {
+            popupContent += `<b>${key}</b>: ${props[key]}<br>`;
+          });
+          layer.bindPopup(popupContent);
+        }
+      }).addTo(map);
+
+      penggunaanLahanLayer = L.geoJSON(penggunaanLahanData, {
+        style: function (feature) {
+          const kategori = getKategoriValue(feature);
+          return {
+            color: getPenggunaanLahanColor(kategori),
+            weight: 1,
+            fillColor: getPenggunaanLahanColor(kategori),
+            fillOpacity: 0.6
+          };
+        },
+        onEachFeature: function (feature, layer) {
+          const props = feature.properties || {};
+          let popupContent = "<b>Penggunaan Lahan</b><br>";
+          Object.keys(props).forEach(key => {
+            popupContent += `<b>${key}</b>: ${props[key]}<br>`;
+          });
+          layer.bindPopup(popupContent);
+        }
+      }).addTo(map);
+
+      statusHakLayer = L.geoJSON(statusHakData, {
+        style: function (feature) {
+          const status = getStatusHakValue(feature);
+          return {
+            color: getStatusHakBorderColor(status),
+            weight: 1.5,
+            fillColor: getStatusHakColor(status),
+            fillOpacity: 0.75
+          };
+        },
+        onEachFeature: function (feature, layer) {
+          const props = feature.properties || {};
+          let popupContent = "<b>Status Hak Tanah</b><br>";
+          Object.keys(props).forEach(key => {
+            popupContent += `<b>${key}</b>: ${props[key]}<br>`;
+          });
+          layer.bindPopup(popupContent);
+        }
+      }).addTo(map);
+
+      const allLayers = L.featureGroup([admLayer, penggunaanLahanLayer, statusHakLayer]);
+      map.fitBounds(allLayers.getBounds());
+    })
+    .catch(error => {
+      console.error("Gagal memuat file GeoJSON:", error);
+      alert("Ada file GeoJSON yang gagal dimuat. Cek nama file dan lokasi file di GitHub.");
+    });
+}
+
+// ===============================
+// HELPERS ATRIBUT
+// ===============================
+function getKategoriValue(feature) {
+  const props = feature.properties || {};
+  return (
+    props.penggunaan ||
+    props.PENGGUNAAN ||
+    props.gunaan ||
+    props.GUNAAN ||
+    props.kategori ||
+    props.KATEGORI ||
+    props.nama ||
+    props.NAMA ||
+    ""
+  ).toString().trim();
+}
+
+function getStatusHakValue(feature) {
+  const props = feature.properties || {};
+  return (
+    props.status ||
+    props.STATUS ||
+    props.hak ||
+    props.HAK ||
+    props.jenis_hak ||
+    props.JENIS_HAK ||
+    props.keterangan ||
+    props.KETERANGAN ||
+    ""
+  ).toString().trim();
+}
+
+// ===============================
+// WARNA STATUS HAK
+// ===============================
+function getStatusHakColor(status) {
+  const s = status.toLowerCase();
+
+  if (s.includes("hak milik")) return "#E8873A";
+  if (s.includes("hak pakai")) return "#B5D44A";
+  if (s.includes("hak wakaf")) return "#7A4E2D";
+  if (s.includes("kosong")) return "#B0B0B0";
+  if (s.includes("tidak ada data")) return "#2E2E2E";
+
+  return "#999999";
+}
+
+function getStatusHakBorderColor(status) {
+  const s = status.toLowerCase();
+
+  if (s.includes("hak milik")) return "#c96b1f";
+  if (s.includes("hak pakai")) return "#8aab1e";
+  if (s.includes("hak wakaf")) return "#5a3418";
+  if (s.includes("kosong")) return "#888888";
+  if (s.includes("tidak ada data")) return "#111111";
+
+  return "#666666";
+}
+
+// ===============================
+// WARNA PENGGUNAAN LAHAN
+// ===============================
+function getPenggunaanLahanColor(kategori) {
+  const k = kategori.toLowerCase();
+
+  if (k.includes("apotek")) return "#E8508C";
+  if (k.includes("area parkir")) return "#3C5A28";
+  if (k.includes("bangunan hunian")) return "#E88040";
+  if (k.includes("gereja")) return "#C8C8C8";
+  if (k.includes("jalan")) return "#E82020";
+  if (k.includes("kantor pemerintahan")) return "#D8E898";
+  if (k.includes("kolam")) return "#C8E8F8";
+  if (k.includes("lapangan tidak diperkeras")) return "#B8D8A0";
+  if (k.includes("masjid")) return "#286828";
+  if (k.includes("pabrik")) return "#784878";
+  if (k.includes("pekarangan")) return "#F8D8B8";
+  if (k.includes("pemakaman")) return "#386838";
+  if (k.includes("pendidikan dasar")) return "#F0A868";
+  if (k.includes("lapangan diperkeras")) return "#D8D8B8";
+  if (k.includes("rumah toko")) return "#F8E8C8";
+  if (k.includes("sawah")) return "#70C840";
+  if (k.includes("semak belukar")) return "#A8D870";
+  if (k.includes("sungai")) return "#6898E8";
+  if (k.includes("tempat hiburan")) return "#8858C8";
+  if (k.includes("tempat penimbunan")) return "#C8A870";
+
+  return "#cccccc";
+}
+
+// ===============================
+// KONTROL LAYER
+// ===============================
+function setupLayerControls() {
+  const admToggle = document.getElementById("admLayerToggle");
+  const penggunaanToggle = document.getElementById("wmsLayerToggle");
+  const tanahToggle = document.getElementById("tanahLayerToggle");
+
+  const osmRadio = document.getElementById("osmBase");
+  const satelliteRadio = document.getElementById("satelliteBase");
+
+  const collapseBtn = document.getElementById("collapseBtn");
+  const layerPanel = document.getElementById("layerPanel");
+  const panelBody = document.getElementById("panelBody");
+
+  if (admToggle) {
+    admToggle.addEventListener("change", function () {
+      if (!admLayer) return;
+      if (this.checked) {
+        map.addLayer(admLayer);
+      } else {
+        map.removeLayer(admLayer);
+      }
+    });
+  }
+
+  if (penggunaanToggle) {
+    penggunaanToggle.addEventListener("change", function () {
+      if (!penggunaanLahanLayer) return;
+      if (this.checked) {
+        map.addLayer(penggunaanLahanLayer);
+      } else {
+        map.removeLayer(penggunaanLahanLayer);
+      }
+    });
+  }
+
+  if (tanahToggle) {
+    tanahToggle.addEventListener("change", function () {
+      if (!statusHakLayer) return;
+      if (this.checked) {
+        map.addLayer(statusHakLayer);
+      } else {
+        map.removeLayer(statusHakLayer);
+      }
+    });
+  }
+
+  if (osmRadio) {
+    osmRadio.addEventListener("change", function () {
+      if (this.checked) {
+        if (map.hasLayer(satelliteBase)) {
+          map.removeLayer(satelliteBase);
+        }
+        if (!map.hasLayer(osmBase)) {
+          osmBase.addTo(map);
+        }
+      }
+    });
+  }
+
+  if (satelliteRadio) {
+    satelliteRadio.addEventListener("change", function () {
+      if (this.checked) {
+        if (map.hasLayer(osmBase)) {
+          map.removeLayer(osmBase);
+        }
+        if (!map.hasLayer(satelliteBase)) {
+          satelliteBase.addTo(map);
+        }
+      }
+    });
+  }
+
+  if (collapseBtn && layerPanel && panelBody) {
+    collapseBtn.addEventListener("click", function () {
+      layerPanel.classList.toggle("collapsed");
+      panelBody.classList.toggle("hidden");
+      this.innerHTML = layerPanel.classList.contains("collapsed")
+        ? '<i class="fas fa-chevron-right"></i>'
+        : '<i class="fas fa-chevron-left"></i>';
+    });
+  }
+}
+
+// ===============================
+// NAVBAR & SCROLL
+// ===============================
+function setupNavigation() {
+  document.querySelectorAll('a[href^="#"]').forEach(link => {
+    link.addEventListener("click", function (e) {
+      const targetId = this.getAttribute("href");
+      const targetEl = document.querySelector(targetId);
+
+      if (targetEl) {
+        e.preventDefault();
+        targetEl.scrollIntoView({ behavior: "smooth" });
+      }
+    });
+  });
+}
+
+function setupNavbar() {
+  const navToggle = document.getElementById("navToggle");
+  const navMenu = document.getElementById("navMenu");
+  const navbar = document.getElementById("navbar");
+
+  if (navToggle && navMenu) {
+    navToggle.addEventListener("click", () => {
+      navMenu.classList.toggle("show");
+    });
+  }
+
+  window.addEventListener("scroll", () => {
+    if (!navbar) return;
+    if (window.scrollY > 50) {
+      navbar.classList.add("scrolled");
+    } else {
+      navbar.classList.remove("scrolled");
+    }
+  });
+}
