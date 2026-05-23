@@ -1,407 +1,267 @@
-// ===============================
-// LOGIN SEDERHANA
-// ===============================
-const loginForm = document.getElementById("loginForm");
-const guestBtn = document.getElementById("guestBtn");
-const loginScreen = document.getElementById("loginScreen");
-const mainContent = document.getElementById("mainContent");
-
-if (loginForm) {
-  loginForm.addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
-
-    if (email && password) {
-      loginScreen.style.display = "none";
-      mainContent.style.display = "block";
-      initMaps();
-    } else {
-      alert("Silakan isi email dan password.");
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SIPETRA Janti</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      color: #222;
     }
-  });
-}
-
-if (guestBtn) {
-  guestBtn.addEventListener("click", function () {
-    loginScreen.style.display = "none";
-    mainContent.style.display = "block";
-    initMaps();
-  });
-}
-
-// ===============================
-// PETA UTAMA + MINI MAP
-// ===============================
-let map;
-let heroMiniMap;
-let admLayer;
-let penggunaanLahanLayer;
-let statusHakLayer;
-
-let osmBase;
-let satelliteBase;
-
-function initMaps() {
-  if (!map) {
-    createMainMap();
-  }
-
-  if (!heroMiniMap) {
-    createMiniMap();
-  }
-
-  setupLayerControls();
-  setupNavigation();
-  setupNavbar();
-}
-
-// ===============================
-// BASEMAP
-// ===============================
-function createMainMap() {
-  map = L.map("map", {
-    zoomControl: true
-  }).setView([-7.694, 110.615], 16);
-
-  osmBase = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "&copy; OpenStreetMap contributors"
-  });
-
-  satelliteBase = L.tileLayer(
-    "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-    {
-      attribution: "Tiles &copy; Esri"
+    .header {
+      background: #0f766e;
+      color: white;
+      padding: 20px;
+      text-align: center;
     }
-  );
+    .header h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+    }
+    .header p { margin: 0; }
+    .controls {
+      background: white;
+      padding: 16px 20px;
+      border-bottom: 1px solid #ddd;
+    }
+    .controls h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+    }
+    .control-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 10px;
+    }
+    .control-group label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      background: #f8fafc;
+      padding: 8px 12px;
+      border: 1px solid #dbe3ea;
+      border-radius: 8px;
+    }
+    #map {
+      width: 100%;
+      height: 80vh;
+    }
+    .leaflet-popup-content {
+      font-size: 14px;
+      line-height: 1.5;
+      max-width: 260px;
+    }
+    .note {
+      padding: 12px 20px;
+      background: #ecfeff;
+      border-top: 1px solid #bae6fd;
+      color: #155e75;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>SIPETRA Janti</h1>
+    <p>Sistem Informasi Pertanahan Desa Janti</p>
+  </header>
 
-  osmBase.addTo(map);
+  <section class="controls">
+    <h2>Kontrol Layer</h2>
 
-  loadGeoJsonLayers();
-}
+    <div class="control-group">
+      <label><input type="radio" name="basemap" id="osmBase" checked> OpenStreetMap</label>
+      <label><input type="radio" name="basemap" id="satelliteBase"> Citra Satelit</label>
+    </div>
 
-function createMiniMap() {
-  const miniMapContainer = document.getElementById("heroMiniMap");
-  if (!miniMapContainer) return;
+    <div class="control-group">
+      <label><input type="checkbox" id="admLayerToggle" checked> Batas Administrasi</label>
+      <label><input type="checkbox" id="wmsLayerToggle" checked> Penggunaan Lahan</label>
+      <label><input type="checkbox" id="tanahLayerToggle" checked> Status Hak</label>
+    </div>
+  </section>
 
-  heroMiniMap = L.map("heroMiniMap", {
-    zoomControl: false,
-    attributionControl: false,
-    dragging: false,
-    scrollWheelZoom: false,
-    doubleClickZoom: false,
-    boxZoom: false,
-    keyboard: false,
-    tap: false,
-    touchZoom: false
-  }).setView([-7.694, 110.615], 15);
+  <div class="note">
+    File ini membaca GeoJSON dari file yang sejajar di repo GitHub: <b>Admin.geojson</b>, <b>Penggunaan Lahan.geojson</b>, dan <b>Status Hak.geojson</b>.
+  </div>
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: "&copy; OpenStreetMap contributors"
-  }).addTo(heroMiniMap);
+  <main>
+    <div id="map"></div>
+  </main>
 
-  fetch("./Admin.geojson")
-    .then(response => response.json())
-    .then(data => {
-      const miniAdm = L.geoJSON(data, {
-        style: {
-          color: "#ff7800",
-          weight: 2,
-          fillColor: "#ffb347",
-          fillOpacity: 0.15
-        }
-      }).addTo(heroMiniMap);
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const map = L.map("map").setView([-7.694, 110.615], 16);
 
-      heroMiniMap.fitBounds(miniAdm.getBounds());
-    })
-    .catch(error => console.error("Gagal memuat Admin.geojson untuk mini map:", error));
-}
+    const osmBase = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: "&copy; OpenStreetMap contributors"
+    });
 
-// ===============================
-// LOAD GEOJSON
-// ===============================
-function loadGeoJsonLayers() {
-  Promise.all([
-    fetch("./Admin.geojson").then(res => res.json()),
-    fetch("./Penggunaan Lahan.geojson").then(res => res.json()),
-    fetch("./Status Hak.geojson").then(res => res.json())
-  ])
-    .then(([adminData, penggunaanLahanData, statusHakData]) => {
+    const satelliteBase = L.tileLayer(
+      "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
+      { attribution: "Tiles &copy; Esri" }
+    );
+
+    osmBase.addTo(map);
+
+    let admLayer;
+    let penggunaanLahanLayer;
+    let statusHakLayer;
+
+    Promise.all([
+      fetch("./Admin.geojson").then(res => res.json()),
+      fetch("./Penggunaan Lahan.geojson").then(res => res.json()),
+      fetch("./Status Hak.geojson").then(res => res.json())
+    ])
+    .then(([adminData, penggunaanData, statusData]) => {
       admLayer = L.geoJSON(adminData, {
         style: {
           color: "#e74c3c",
           weight: 3,
           fillOpacity: 0
         },
-        onEachFeature: function (feature, layer) {
-          const props = feature.properties || {};
-          let popupContent = "<b>Batas Administrasi</b><br>";
-          Object.keys(props).forEach(key => {
-            popupContent += `<b>${key}</b>: ${props[key]}<br>`;
-          });
-          layer.bindPopup(popupContent);
+        onEachFeature: function(feature, layer) {
+          layer.bindPopup(buildPopup("Batas Administrasi", feature.properties));
         }
       }).addTo(map);
 
-      penggunaanLahanLayer = L.geoJSON(penggunaanLahanData, {
-        style: function (feature) {
-          const kategori = getKategoriValue(feature);
+      penggunaanLahanLayer = L.geoJSON(penggunaanData, {
+        style: function(feature) {
+          const kategori = getKategoriValue(feature).toLowerCase();
           return {
-            color: getPenggunaanLahanColor(kategori),
+            color: getPenggunaanColor(kategori),
             weight: 1,
-            fillColor: getPenggunaanLahanColor(kategori),
+            fillColor: getPenggunaanColor(kategori),
             fillOpacity: 0.6
           };
         },
-        onEachFeature: function (feature, layer) {
-          const props = feature.properties || {};
-          let popupContent = "<b>Penggunaan Lahan</b><br>";
-          Object.keys(props).forEach(key => {
-            popupContent += `<b>${key}</b>: ${props[key]}<br>`;
-          });
-          layer.bindPopup(popupContent);
+        onEachFeature: function(feature, layer) {
+          layer.bindPopup(buildPopup("Penggunaan Lahan", feature.properties));
         }
       }).addTo(map);
 
-      statusHakLayer = L.geoJSON(statusHakData, {
-        style: function (feature) {
-          const status = getStatusHakValue(feature);
+      statusHakLayer = L.geoJSON(statusData, {
+        style: function(feature) {
+          const status = getStatusValue(feature).toLowerCase();
           return {
-            color: getStatusHakBorderColor(status),
+            color: getStatusBorderColor(status),
             weight: 1.5,
-            fillColor: getStatusHakColor(status),
+            fillColor: getStatusColor(status),
             fillOpacity: 0.75
           };
         },
-        onEachFeature: function (feature, layer) {
-          const props = feature.properties || {};
-          let popupContent = "<b>Status Hak Tanah</b><br>";
-          Object.keys(props).forEach(key => {
-            popupContent += `<b>${key}</b>: ${props[key]}<br>`;
-          });
-          layer.bindPopup(popupContent);
+        onEachFeature: function(feature, layer) {
+          layer.bindPopup(buildPopup("Status Hak", feature.properties));
         }
       }).addTo(map);
 
       const allLayers = L.featureGroup([admLayer, penggunaanLahanLayer, statusHakLayer]);
-      map.fitBounds(allLayers.getBounds());
+      if (allLayers.getLayers().length > 0) {
+        map.fitBounds(allLayers.getBounds());
+      }
     })
     .catch(error => {
-      console.error("Gagal memuat file GeoJSON:", error);
-      alert("Ada file GeoJSON yang gagal dimuat. Cek nama file dan lokasi file di GitHub.");
+      console.error("Gagal memuat GeoJSON:", error);
+      alert("GeoJSON gagal dimuat. Pastikan file Admin.geojson, Penggunaan Lahan.geojson, dan Status Hak.geojson ada di folder yang sama dengan file HTML ini.");
     });
-}
 
-// ===============================
-// HELPERS ATRIBUT
-// ===============================
-function getKategoriValue(feature) {
-  const props = feature.properties || {};
-  return (
-    props.penggunaan ||
-    props.PENGGUNAAN ||
-    props.gunaan ||
-    props.GUNAAN ||
-    props.kategori ||
-    props.KATEGORI ||
-    props.nama ||
-    props.NAMA ||
-    ""
-  ).toString().trim();
-}
-
-function getStatusHakValue(feature) {
-  const props = feature.properties || {};
-  return (
-    props.status ||
-    props.STATUS ||
-    props.hak ||
-    props.HAK ||
-    props.jenis_hak ||
-    props.JENIS_HAK ||
-    props.keterangan ||
-    props.KETERANGAN ||
-    ""
-  ).toString().trim();
-}
-
-// ===============================
-// WARNA STATUS HAK
-// ===============================
-function getStatusHakColor(status) {
-  const s = status.toLowerCase();
-
-  if (s.includes("hak milik")) return "#E8873A";
-  if (s.includes("hak pakai")) return "#B5D44A";
-  if (s.includes("hak wakaf")) return "#7A4E2D";
-  if (s.includes("kosong")) return "#B0B0B0";
-  if (s.includes("tidak ada data")) return "#2E2E2E";
-
-  return "#999999";
-}
-
-function getStatusHakBorderColor(status) {
-  const s = status.toLowerCase();
-
-  if (s.includes("hak milik")) return "#c96b1f";
-  if (s.includes("hak pakai")) return "#8aab1e";
-  if (s.includes("hak wakaf")) return "#5a3418";
-  if (s.includes("kosong")) return "#888888";
-  if (s.includes("tidak ada data")) return "#111111";
-
-  return "#666666";
-}
-
-// ===============================
-// WARNA PENGGUNAAN LAHAN
-// ===============================
-function getPenggunaanLahanColor(kategori) {
-  const k = kategori.toLowerCase();
-
-  if (k.includes("apotek")) return "#E8508C";
-  if (k.includes("area parkir")) return "#3C5A28";
-  if (k.includes("bangunan hunian")) return "#E88040";
-  if (k.includes("gereja")) return "#C8C8C8";
-  if (k.includes("jalan")) return "#E82020";
-  if (k.includes("kantor pemerintahan")) return "#D8E898";
-  if (k.includes("kolam")) return "#C8E8F8";
-  if (k.includes("lapangan tidak diperkeras")) return "#B8D8A0";
-  if (k.includes("masjid")) return "#286828";
-  if (k.includes("pabrik")) return "#784878";
-  if (k.includes("pekarangan")) return "#F8D8B8";
-  if (k.includes("pemakaman")) return "#386838";
-  if (k.includes("pendidikan dasar")) return "#F0A868";
-  if (k.includes("lapangan diperkeras")) return "#D8D8B8";
-  if (k.includes("rumah toko")) return "#F8E8C8";
-  if (k.includes("sawah")) return "#70C840";
-  if (k.includes("semak belukar")) return "#A8D870";
-  if (k.includes("sungai")) return "#6898E8";
-  if (k.includes("tempat hiburan")) return "#8858C8";
-  if (k.includes("tempat penimbunan")) return "#C8A870";
-
-  return "#cccccc";
-}
-
-// ===============================
-// KONTROL LAYER
-// ===============================
-function setupLayerControls() {
-  const admToggle = document.getElementById("admLayerToggle");
-  const penggunaanToggle = document.getElementById("wmsLayerToggle");
-  const tanahToggle = document.getElementById("tanahLayerToggle");
-
-  const osmRadio = document.getElementById("osmBase");
-  const satelliteRadio = document.getElementById("satelliteBase");
-
-  const collapseBtn = document.getElementById("collapseBtn");
-  const layerPanel = document.getElementById("layerPanel");
-  const panelBody = document.getElementById("panelBody");
-
-  if (admToggle) {
-    admToggle.addEventListener("change", function () {
-      if (!admLayer) return;
-      if (this.checked) {
-        map.addLayer(admLayer);
-      } else {
-        map.removeLayer(admLayer);
-      }
-    });
-  }
-
-  if (penggunaanToggle) {
-    penggunaanToggle.addEventListener("change", function () {
-      if (!penggunaanLahanLayer) return;
-      if (this.checked) {
-        map.addLayer(penggunaanLahanLayer);
-      } else {
-        map.removeLayer(penggunaanLahanLayer);
-      }
-    });
-  }
-
-  if (tanahToggle) {
-    tanahToggle.addEventListener("change", function () {
-      if (!statusHakLayer) return;
-      if (this.checked) {
-        map.addLayer(statusHakLayer);
-      } else {
-        map.removeLayer(statusHakLayer);
-      }
-    });
-  }
-
-  if (osmRadio) {
-    osmRadio.addEventListener("change", function () {
-      if (this.checked) {
-        if (map.hasLayer(satelliteBase)) {
-          map.removeLayer(satelliteBase);
-        }
-        if (!map.hasLayer(osmBase)) {
-          osmBase.addTo(map);
+    function buildPopup(title, properties) {
+      let html = `<b>${title}</b><br>`;
+      if (properties) {
+        for (const key in properties) {
+          html += `<b>${key}</b>: ${properties[key]}<br>`;
         }
       }
-    });
-  }
-
-  if (satelliteRadio) {
-    satelliteRadio.addEventListener("change", function () {
-      if (this.checked) {
-        if (map.hasLayer(osmBase)) {
-          map.removeLayer(osmBase);
-        }
-        if (!map.hasLayer(satelliteBase)) {
-          satelliteBase.addTo(map);
-        }
-      }
-    });
-  }
-
-  if (collapseBtn && layerPanel && panelBody) {
-    collapseBtn.addEventListener("click", function () {
-      layerPanel.classList.toggle("collapsed");
-      panelBody.classList.toggle("hidden");
-      this.innerHTML = layerPanel.classList.contains("collapsed")
-        ? '<i class="fas fa-chevron-right"></i>'
-        : '<i class="fas fa-chevron-left"></i>';
-    });
-  }
-}
-
-// ===============================
-// NAVBAR & SCROLL
-// ===============================
-function setupNavigation() {
-  document.querySelectorAll('a[href^="#"]').forEach(link => {
-    link.addEventListener("click", function (e) {
-      const targetId = this.getAttribute("href");
-      const targetEl = document.querySelector(targetId);
-
-      if (targetEl) {
-        e.preventDefault();
-        targetEl.scrollIntoView({ behavior: "smooth" });
-      }
-    });
-  });
-}
-
-function setupNavbar() {
-  const navToggle = document.getElementById("navToggle");
-  const navMenu = document.getElementById("navMenu");
-  const navbar = document.getElementById("navbar");
-
-  if (navToggle && navMenu) {
-    navToggle.addEventListener("click", () => {
-      navMenu.classList.toggle("show");
-    });
-  }
-
-  window.addEventListener("scroll", () => {
-    if (!navbar) return;
-    if (window.scrollY > 50) {
-      navbar.classList.add("scrolled");
-    } else {
-      navbar.classList.remove("scrolled");
+      return html;
     }
-  });
-}
+
+    function getKategoriValue(feature) {
+      const p = feature.properties || {};
+      return p.penggunaan || p.PENGGUNAAN || p.kategori || p.KATEGORI || p.nama || p.NAMA || "";
+    }
+
+    function getStatusValue(feature) {
+      const p = feature.properties || {};
+      return p.status || p.STATUS || p.hak || p.HAK || p.jenis_hak || p.JENIS_HAK || "";
+    }
+
+    function getStatusColor(status) {
+      if (status.includes("hak milik")) return "#E8873A";
+      if (status.includes("hak pakai")) return "#B5D44A";
+      if (status.includes("hak wakaf")) return "#7A4E2D";
+      if (status.includes("kosong")) return "#B0B0B0";
+      if (status.includes("tidak ada data")) return "#2E2E2E";
+      return "#999999";
+    }
+
+    function getStatusBorderColor(status) {
+      if (status.includes("hak milik")) return "#c96b1f";
+      if (status.includes("hak pakai")) return "#8aab1e";
+      if (status.includes("hak wakaf")) return "#5a3418";
+      if (status.includes("kosong")) return "#888888";
+      if (status.includes("tidak ada data")) return "#111111";
+      return "#666666";
+    }
+
+    function getPenggunaanColor(kategori) {
+      if (kategori.includes("apotek")) return "#E8508C";
+      if (kategori.includes("area parkir")) return "#3C5A28";
+      if (kategori.includes("bangunan hunian")) return "#E88040";
+      if (kategori.includes("gereja")) return "#C8C8C8";
+      if (kategori.includes("jalan")) return "#E82020";
+      if (kategori.includes("kantor pemerintahan")) return "#D8E898";
+      if (kategori.includes("kolam")) return "#C8E8F8";
+      if (kategori.includes("lapangan tidak diperkeras")) return "#B8D8A0";
+      if (kategori.includes("masjid")) return "#286828";
+      if (kategori.includes("pabrik")) return "#784878";
+      if (kategori.includes("pekarangan")) return "#F8D8B8";
+      if (kategori.includes("pemakaman")) return "#386838";
+      if (kategori.includes("pendidikan dasar")) return "#F0A868";
+      if (kategori.includes("lapangan diperkeras")) return "#D8D8B8";
+      if (kategori.includes("rumah toko")) return "#F8E8C8";
+      if (kategori.includes("sawah")) return "#70C840";
+      if (kategori.includes("semak belukar")) return "#A8D870";
+      if (kategori.includes("sungai")) return "#6898E8";
+      if (kategori.includes("tempat hiburan")) return "#8858C8";
+      if (kategori.includes("tempat penimbunan")) return "#C8A870";
+      return "#cccccc";
+    }
+
+    document.getElementById("admLayerToggle").addEventListener("change", function() {
+      if (!admLayer) return;
+      this.checked ? map.addLayer(admLayer) : map.removeLayer(admLayer);
+    });
+
+    document.getElementById("wmsLayerToggle").addEventListener("change", function() {
+      if (!penggunaanLahanLayer) return;
+      this.checked ? map.addLayer(penggunaanLahanLayer) : map.removeLayer(penggunaanLahanLayer);
+    });
+
+    document.getElementById("tanahLayerToggle").addEventListener("change", function() {
+      if (!statusHakLayer) return;
+      this.checked ? map.addLayer(statusHakLayer) : map.removeLayer(statusHakLayer);
+    });
+
+    document.getElementById("osmBase").addEventListener("change", function() {
+      if (this.checked) {
+        if (map.hasLayer(satelliteBase)) map.removeLayer(satelliteBase);
+        if (!map.hasLayer(osmBase)) map.addLayer(osmBase);
+      }
+    });
+
+    document.getElementById("satelliteBase").addEventListener("change", function() {
+      if (this.checked) {
+        if (map.hasLayer(osmBase)) map.removeLayer(osmBase);
+        if (!map.hasLayer(satelliteBase)) map.addLayer(satelliteBase);
+      }
+    });
+  </script>
+</body>
+</html>
