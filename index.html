@@ -6,474 +6,161 @@
   <title>SIPETRA Janti</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Work+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script defer src="https://unpkg.com/lucide@latest"></script>
   <style>
     :root {
-      --bg: #f7f6f2;
-      --surface: #fbfaf7;
-      --surface-2: #f2efe9;
+      --bg: #f6f4ef;
+      --surface: #fcfbf8;
+      --surface-2: #f1ede6;
       --text: #26231d;
-      --muted: #6f6b63;
-      --line: rgba(38, 35, 29, 0.1);
+      --muted: #6e6a62;
+      --line: rgba(38,35,29,.1);
       --primary: #0d6c73;
-      --primary-deep: #0a4e53;
-      --accent: #d68d4f;
-      --success: #5e8a38;
-      --radius: 22px;
-      --radius-sm: 14px;
-      --shadow: 0 10px 30px rgba(36, 32, 27, 0.08);
-      --shadow-lg: 0 24px 60px rgba(36, 32, 27, 0.12);
+      --primary-deep: #0b4f53;
+      --accent: #d29357;
+      --shadow: 0 12px 32px rgba(37, 32, 25, .08);
+      --radius: 24px;
+      --radius-sm: 16px;
       --content: 1180px;
-      --font-body: 'Work Sans', system-ui, sans-serif;
+      --font-body: 'Inter', system-ui, sans-serif;
       --font-display: 'Instrument Serif', Georgia, serif;
     }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      font-family:var(--font-body);
+      color:var(--text);
+      background:linear-gradient(180deg,#f7f5f1 0%,#f2efe8 100%);
+      line-height:1.6;
+    }
+    a{text-decoration:none;color:inherit}
+    .container{width:min(var(--content),calc(100% - 32px));margin-inline:auto}
+    .nav{
+      position:sticky;top:0;z-index:100;
+      backdrop-filter:blur(10px);
+      background:rgba(247,245,241,.84);
+      border-bottom:1px solid rgba(38,35,29,.08)
+    }
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px 0}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:700}
+    .brand-mark{
+      width:42px;height:42px;border-radius:14px;display:grid;place-items:center;
+      background:linear-gradient(135deg,var(--primary),var(--primary-deep));color:#fff;box-shadow:var(--shadow)
+    }
+    .brand small{display:block;font-weight:500;color:var(--muted)}
+    .nav-links{display:flex;gap:10px;flex-wrap:wrap}
+    .nav-links a{padding:10px 14px;border-radius:999px;color:var(--muted);font-size:14px}
+    .nav-links a:hover{background:#fff;box-shadow:var(--shadow);color:var(--text)}
 
-    * { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      font-family: var(--font-body);
-      background: linear-gradient(180deg, #f8f7f3 0%, #f3f0ea 100%);
-      color: var(--text);
-      line-height: 1.6;
+    .hero,.section{padding:34px 0 28px}
+    .hero-wrap,.panel,.basic-card,.map-shell,.contact-card,.footer-card{
+      background:rgba(255,255,255,.76);
+      border:1px solid rgba(38,35,29,.08);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow)
     }
-    a { color: inherit; text-decoration: none; }
-    img { max-width: 100%; display: block; }
+    .hero-wrap{
+      display:grid;grid-template-columns:1.1fr .9fr;gap:22px;padding:30px;overflow:hidden
+    }
+    .eyebrow{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 14px;border-radius:999px;
+      background:rgba(13,108,115,.08);color:var(--primary-deep);
+      border:1px solid rgba(13,108,115,.12);font-size:13px;font-weight:600
+    }
+    h1{
+      margin:18px 0 0;font-family:var(--font-display);
+      font-size:clamp(2.8rem,5vw,5.3rem);line-height:.95;letter-spacing:-.04em;max-width:10ch
+    }
+    .hero-copy p,.section-copy p,.panel p,.basic-card p,.contact-card p,.footer-card p{color:var(--muted);margin:14px 0 0}
+    .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
+    .btn{display:inline-flex;align-items:center;gap:10px;padding:13px 18px;border-radius:999px;font-weight:600;font-size:14px}
+    .btn-primary{background:var(--primary);color:#fff}
+    .btn-primary:hover{background:var(--primary-deep)}
+    .btn-secondary{background:#fff;border:1px solid var(--line)}
+    .metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:26px}
+    .metric{padding:16px;border-radius:18px;background:rgba(255,255,255,.74);border:1px solid rgba(38,35,29,.08)}
+    .metric strong{display:block;font-size:1.3rem}
+    .metric span{font-size:13px;color:var(--muted)}
+    .hero-side{display:grid;gap:16px}
+    .panel{padding:20px}
+    .icon-line{display:flex;gap:10px;align-items:center;font-weight:700}
 
-    .container {
-      width: min(var(--content), calc(100% - 32px));
-      margin-inline: auto;
-    }
+    .section-head{display:flex;justify-content:space-between;gap:18px;align-items:end;margin-bottom:18px}
+    .section-head h2,.map-intro h2{margin:12px 0 0;font-size:clamp(1.9rem,3vw,3rem);line-height:1.02;font-family:var(--font-display);font-weight:400;letter-spacing:-.03em}
+    .basic-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:22px}
+    .basic-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+    .basic-card{padding:22px}
+    .basic-title{display:flex;gap:10px;align-items:center;font-weight:700;margin-bottom:8px}
+    .basic-side{padding:24px;display:grid;gap:14px}
+    .info-row{display:flex;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px dashed rgba(38,35,29,.12)}
+    .info-row span{color:var(--muted)}
+    .info-row strong{text-align:right}
 
-    .nav {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      backdrop-filter: blur(12px);
-      background: rgba(247, 246, 242, 0.82);
-      border-bottom: 1px solid rgba(38, 35, 29, 0.08);
-    }
-    .nav-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      padding: 14px 0;
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-    }
-    .brand-mark {
-      width: 42px;
-      height: 42px;
-      border-radius: 14px;
-      display: grid;
-      place-items: center;
-      background: linear-gradient(135deg, var(--primary), var(--primary-deep));
-      color: #fff;
-      box-shadow: var(--shadow);
-    }
-    .brand small {
-      display: block;
-      color: var(--muted);
-      font-weight: 500;
-      letter-spacing: 0;
-    }
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .nav-links a {
-      padding: 10px 14px;
-      border-radius: 999px;
-      color: var(--muted);
-      font-size: 14px;
-    }
-    .nav-links a:hover,
-    .nav-links a.active {
-      background: #fff;
-      color: var(--text);
-      box-shadow: var(--shadow);
-    }
+    .map-shell{overflow:hidden}
+    .map-top{display:flex;justify-content:space-between;gap:20px;align-items:start;padding:24px 24px 0}
+    .chip-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:end}
+    .chip{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:14px;color:var(--muted)}
+    .map-layout{display:grid;grid-template-columns:310px 1fr;min-height:680px;margin-top:18px}
+    .sidebar{background:rgba(246,244,239,.92);border-right:1px solid rgba(38,35,29,.08);padding:22px;display:grid;gap:20px;align-content:start}
+    .sidebar h3{margin:0 0 10px;font-size:1rem}
+    .sidebar-group{display:grid;gap:10px}
+    .control{display:flex;align-items:center;gap:10px;padding:11px 12px;border-radius:14px;background:#fff;border:1px solid rgba(38,35,29,.08);font-size:14px}
+    .legend-box{padding:14px;border-radius:16px;background:#fff;border:1px solid rgba(38,35,29,.08)}
+    .legend-box + .legend-box{margin-top:12px}
+    .legend-label{font-weight:700;font-size:14px;margin-bottom:10px}
+    .legend-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
+    .legend-item + .legend-item{margin-top:8px}
+    .swatch{width:16px;height:16px;border-radius:5px;border:1px solid rgba(0,0,0,.12);flex:0 0 auto}
+    #map{width:100%;height:100%;min-height:680px}
 
-    .hero {
-      padding: 44px 0 32px;
-    }
-    .hero-grid {
-      display: grid;
-      grid-template-columns: 1.15fr 0.85fr;
-      gap: 28px;
-      align-items: stretch;
-    }
-    .hero-copy,
-    .hero-panel,
-    .card,
-    .info-panel,
-    .map-shell,
-    .footer-card {
-      background: rgba(255,255,255,0.74);
-      border: 1px solid rgba(38, 35, 29, 0.08);
-      box-shadow: var(--shadow);
-      border-radius: var(--radius);
-    }
-    .hero-copy {
-      padding: 34px;
-      position: relative;
-      overflow: hidden;
-    }
-    .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(13, 108, 115, 0.09);
-      color: var(--primary-deep);
-      border: 1px solid rgba(13, 108, 115, 0.12);
-      padding: 8px 14px;
-      border-radius: 999px;
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 18px;
-    }
-    h1 {
-      margin: 0;
-      font-family: var(--font-display);
-      font-size: clamp(2.8rem, 5vw, 5.4rem);
-      line-height: 0.95;
-      letter-spacing: -0.04em;
-      max-width: 11ch;
-    }
-    .hero-copy p {
-      margin: 18px 0 0;
-      color: var(--muted);
-      max-width: 58ch;
-      font-size: 1.02rem;
-    }
-    .hero-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-top: 26px;
-    }
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      padding: 13px 18px;
-      border-radius: 999px;
-      font-weight: 600;
-      font-size: 15px;
-      border: 1px solid transparent;
-    }
-    .btn-primary {
-      background: var(--primary);
-      color: #fff;
-      box-shadow: var(--shadow);
-    }
-    .btn-primary:hover { background: var(--primary-deep); }
-    .btn-secondary {
-      background: #fff;
-      border-color: var(--line);
-    }
-    .hero-metrics {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 14px;
-      margin-top: 28px;
-    }
-    .metric {
-      background: rgba(255,255,255,0.72);
-      border: 1px solid rgba(38, 35, 29, 0.08);
-      border-radius: 18px;
-      padding: 16px;
-    }
-    .metric strong {
-      display: block;
-      font-size: 1.35rem;
-      margin-bottom: 4px;
-    }
-    .metric span {
-      color: var(--muted);
-      font-size: 14px;
-    }
+    .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+    .contact-card,.footer-card{padding:24px}
+    .contact-list,.footer-list{display:grid;gap:12px;margin-top:18px}
+    .contact-item,.footer-item{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;background:#fff;border:1px solid rgba(38,35,29,.08);border-radius:16px}
+    .contact-item strong,.footer-item strong{display:block;font-size:14px;margin-bottom:4px}
+    .contact-item span,.footer-item span{font-size:14px;color:var(--muted)}
 
-    .hero-panel {
-      padding: 20px;
-      display: grid;
-      gap: 18px;
-      align-content: start;
-    }
-    .mini-card {
-      background: linear-gradient(180deg, #fff 0%, #f5f3ee 100%);
-      border: 1px solid rgba(38, 35, 29, 0.08);
-      border-radius: 18px;
-      padding: 18px;
-    }
-    .mini-card h3,
-    .section-head h2,
-    .map-intro h2,
-    .footer-card h3 {
-      margin: 0 0 10px;
-      font-size: 1.1rem;
-    }
-    .mini-card p,
-    .section-head p,
-    .contact-copy p,
-    .footer-card p,
-    .map-intro p {
-      margin: 0;
-      color: var(--muted);
-    }
-    .icon-line {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-      font-weight: 600;
-    }
-    .icon-line i,
-    .info-title i,
-    .contact-item i,
-    .footer-row i {
-      width: 18px;
-      height: 18px;
-      color: var(--primary);
-      flex: 0 0 auto;
-    }
+    footer{padding:0 0 40px}
+    .footer-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:22px}
+    .footer-card h3{margin:12px 0 0;font-family:var(--font-display);font-size:2.1rem;font-weight:400;line-height:1.02}
 
-    .section {
-      padding: 18px 0 48px;
+    .custom-popup .leaflet-popup-content-wrapper{
+      border-radius:20px;
+      background:#fffdf9;
+      box-shadow:0 18px 48px rgba(26,24,20,.16);
+      border:1px solid rgba(38,35,29,.08)
     }
-    .section-head {
-      display: flex;
-      justify-content: space-between;
-      gap: 20px;
-      align-items: end;
-      margin-bottom: 22px;
-    }
-    .info-grid {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 24px;
-    }
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 16px;
-    }
-    .card {
-      padding: 22px;
-    }
-    .info-title {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-      font-weight: 700;
-    }
-    .card p { color: var(--muted); margin: 0; }
-    .info-panel {
-      padding: 24px;
-      display: grid;
-      gap: 16px;
-    }
-    .info-list {
-      display: grid;
-      gap: 14px;
-    }
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      padding-bottom: 12px;
-      border-bottom: 1px dashed rgba(38, 35, 29, 0.12);
-    }
-    .info-row span:first-child { color: var(--muted); }
-    .info-row strong { text-align: right; }
+    .custom-popup .leaflet-popup-tip{background:#fffdf9}
+    .leaflet-popup-content{margin:0!important;width:280px!important;font-family:var(--font-body)}
+    .popup-card{padding:16px}
+    .popup-head{display:flex;justify-content:space-between;gap:10px;align-items:start;margin-bottom:12px}
+    .popup-title{font-weight:700;font-size:16px;line-height:1.2}
+    .popup-badge{padding:6px 10px;border-radius:999px;background:rgba(13,108,115,.08);color:var(--primary-deep);font-size:11px;font-weight:700;white-space:nowrap}
+    .popup-grid{display:grid;gap:8px}
+    .popup-row{display:grid;grid-template-columns:92px 1fr;gap:10px;padding:8px 0;border-top:1px dashed rgba(38,35,29,.09)}
+    .popup-row:first-child{border-top:0;padding-top:0}
+    .popup-key{font-size:12px;color:var(--muted);font-weight:600;text-transform:capitalize}
+    .popup-value{font-size:13px;color:var(--text);word-break:break-word}
 
-    .map-shell {
-      overflow: hidden;
-      padding: 0;
+    @media (max-width:1050px){
+      .hero-wrap,.basic-grid,.map-layout,.contact-grid,.footer-grid{grid-template-columns:1fr}
+      .map-top,.section-head{flex-direction:column;align-items:start}
+      .chip-row{justify-content:start}
+      .sidebar{border-right:0;border-bottom:1px solid rgba(38,35,29,.08)}
     }
-    .map-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 18px;
-      align-items: start;
-      padding: 24px 24px 0;
-    }
-    .map-toolbar {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: end;
-    }
-    .chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 14px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: #fff;
-      color: var(--muted);
-      font-size: 14px;
-    }
-    .map-layout {
-      display: grid;
-      grid-template-columns: 290px 1fr;
-      gap: 0;
-      margin-top: 18px;
-      min-height: 620px;
-    }
-    .sidebar {
-      padding: 22px;
-      background: rgba(248, 247, 243, 0.92);
-      border-right: 1px solid rgba(38, 35, 29, 0.08);
-      display: grid;
-      align-content: start;
-      gap: 20px;
-    }
-    .sidebar h3 {
-      margin: 0 0 10px;
-      font-size: 1rem;
-    }
-    .sidebar-group {
-      display: grid;
-      gap: 10px;
-    }
-    .control {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 14px;
-      padding: 10px 12px;
-      border-radius: 14px;
-      background: #fff;
-      border: 1px solid rgba(38, 35, 29, 0.08);
-    }
-    .legend {
-      display: grid;
-      gap: 10px;
-    }
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 14px;
-      color: var(--muted);
-    }
-    .swatch {
-      width: 16px;
-      height: 16px;
-      border-radius: 5px;
-      border: 1px solid rgba(0,0,0,0.12);
-      flex: 0 0 auto;
-    }
-    #map {
-      width: 100%;
-      height: 100%;
-      min-height: 620px;
-    }
-
-    .contact-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-    }
-    .contact-copy,
-    .footer-card {
-      padding: 24px;
-    }
-    .contact-list,
-    .footer-stack {
-      display: grid;
-      gap: 14px;
-      margin-top: 18px;
-    }
-    .contact-item,
-    .footer-row {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      padding: 14px 16px;
-      background: #fff;
-      border: 1px solid rgba(38, 35, 29, 0.08);
-      border-radius: 16px;
-    }
-    .contact-item strong,
-    .footer-row strong {
-      display: block;
-      margin-bottom: 4px;
-      font-size: 14px;
-    }
-    .contact-item span,
-    .footer-row span,
-    .footer-row a {
-      color: var(--muted);
-      font-size: 14px;
-      line-height: 1.5;
-    }
-
-    footer {
-      padding: 0 0 44px;
-    }
-    .footer-grid {
-      display: grid;
-      grid-template-columns: 1.1fr 0.9fr;
-      gap: 24px;
-    }
-    .footer-card h3 {
-      font-family: var(--font-display);
-      font-size: 2rem;
-      font-weight: 400;
-      margin-bottom: 10px;
-    }
-
-    .leaflet-popup-content {
-      font-family: var(--font-body);
-      line-height: 1.55;
-    }
-
-    @media (max-width: 1080px) {
-      .hero-grid,
-      .info-grid,
-      .contact-grid,
-      .footer-grid,
-      .map-layout {
-        grid-template-columns: 1fr;
-      }
-      .map-top,
-      .section-head {
-        flex-direction: column;
-        align-items: start;
-      }
-      .map-toolbar { justify-content: start; }
-      .sidebar { border-right: 0; border-bottom: 1px solid rgba(38, 35, 29, 0.08); }
-    }
-
-    @media (max-width: 720px) {
-      .nav-inner { align-items: start; flex-direction: column; }
-      .nav-links { width: 100%; overflow-x: auto; flex-wrap: nowrap; }
-      .hero-copy,
-      .hero-panel,
-      .card,
-      .info-panel,
-      .contact-copy,
-      .footer-card { padding: 20px; }
-      .hero-metrics,
-      .cards-grid { grid-template-columns: 1fr; }
-      .map-top { padding: 18px 18px 0; }
-      .sidebar { padding: 18px; }
-      #map { min-height: 480px; }
-      h1 { max-width: 9ch; }
+    @media (max-width:720px){
+      .nav-inner{flex-direction:column;align-items:start}
+      .nav-links{overflow:auto;flex-wrap:nowrap;width:100%}
+      .hero-wrap,.panel,.basic-card,.basic-side,.contact-card,.footer-card{padding:20px}
+      .metric-grid,.basic-cards{grid-template-columns:1fr}
+      .map-top{padding:18px 18px 0}
+      .sidebar{padding:18px}
+      #map{min-height:520px}
+      h1{max-width:9ch}
     }
   </style>
 </head>
@@ -481,17 +168,17 @@
   <nav class="nav">
     <div class="container nav-inner">
       <a href="#beranda" class="brand">
-        <span class="brand-mark" aria-hidden="true">
+        <span class="brand-mark">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z" fill="currentColor"/>
-            <circle cx="12" cy="9" r="2.7" fill="#0d6c73"/>
+            <circle cx="12" cy="9" r="2.6" fill="#0d6c73"/>
           </svg>
         </span>
         <span>SIPETRA Janti<small>Sistem Informasi Pertanahan Desa</small></span>
       </a>
       <div class="nav-links">
         <a href="#beranda">Beranda</a>
-        <a href="#informasi">Informasi</a>
+        <a href="#dasar-desa">Informasi Desa</a>
         <a href="#peta">Peta Interaktif</a>
         <a href="#kontak">Kontak</a>
       </div>
@@ -499,79 +186,72 @@
   </nav>
 
   <header id="beranda" class="hero">
-    <div class="container hero-grid">
-      <section class="hero-copy">
-        <div class="eyebrow"><i data-lucide="map"></i> WebGIS Desa Janti · Klaten</div>
-        <h1>Data pertanahan yang lebih terbuka dan mudah dijelajahi.</h1>
-        <p>SIPETRA Janti menghadirkan halaman beranda yang informatif, profil wilayah singkat, informasi kontak, dan peta interaktif untuk menampilkan batas administrasi, penggunaan lahan, serta status hak tanah dalam satu tampilan web yang rapi.</p>
+    <div class="container hero-wrap">
+      <div class="hero-copy">
+        <div class="eyebrow"><i data-lucide="layout-template"></i> Beranda SIPETRA Janti</div>
+        <h1>Website informasi pertanahan desa yang dibuat lebih runtut dan mudah dipahami.</h1>
+        <p>Halaman ini dimulai dari pengenalan website, lalu informasi dasar Desa Janti, kemudian masuk ke peta interaktif, dan ditutup dengan bagian kontak agar alur bacanya terasa lebih natural sebagai landing page informasional. Landing page yang baik memang sebaiknya menjelaskan isi situs, mengelompokkan informasi, dan memberi langkah berikutnya dengan jelas.</p>
         <div class="hero-actions">
-          <a class="btn btn-primary" href="#peta"><i data-lucide="compass"></i> Buka peta interaktif</a>
-          <a class="btn btn-secondary" href="#kontak"><i data-lucide="phone-call"></i> Lihat kontak</a>
+          <a href="#dasar-desa" class="btn btn-primary"><i data-lucide="arrow-down"></i> Mulai dari informasi desa</a>
+          <a href="#peta" class="btn btn-secondary"><i data-lucide="map"></i> Langsung ke peta</a>
         </div>
-        <div class="hero-metrics">
+        <div class="metric-grid">
           <div class="metric"><strong>3</strong><span>Layer utama peta</span></div>
           <div class="metric"><strong>1.325</strong><span>Bidang tanah</span></div>
           <div class="metric"><strong>163 Ha</strong><span>Luas wilayah</span></div>
         </div>
-      </section>
-
-      <aside class="hero-panel">
-        <div class="mini-card">
-          <div class="icon-line"><i data-lucide="landmark"></i> Gambaran singkat</div>
-          <p>Website ini memadukan informasi desa, data spasial, dan navigasi yang lebih nyaman agar pengguna tidak langsung dilempar ke peta sejak awal. [web:162][web:163]</p>
+      </div>
+      <div class="hero-side">
+        <div class="panel">
+          <div class="icon-line"><i data-lucide="book-open-text"></i> Website ini tentang apa?</div>
+          <p>SIPETRA Janti adalah website WebGIS desa yang menampilkan data pertanahan secara lebih ringkas, visual, dan mudah diakses melalui browser tanpa harus membuka sistem pemetaan yang rumit.</p>
         </div>
-        <div class="mini-card">
-          <div class="icon-line"><i data-lucide="layers-3"></i> Isi utama</div>
-          <p>Pengunjung bisa mulai dari beranda, lanjut membaca informasi wilayah, lalu masuk ke bagian peta untuk mengeksplorasi data GeoJSON secara interaktif. [web:71][web:146]</p>
+        <div class="panel">
+          <div class="icon-line"><i data-lucide="scan-eye"></i> Apa yang bisa dilihat?</div>
+          <p>Pengunjung dapat membaca pengantar situs, melihat informasi dasar desa, lalu mengeksplorasi batas administrasi, penggunaan lahan, dan status hak tanah pada peta interaktif. Leaflet mendukung penayangan GeoJSON dengan popup dan gaya layer yang dapat dikustomisasi melalui HTML, CSS, dan opsi popup.</p>
         </div>
-        <div class="mini-card">
-          <div class="icon-line"><i data-lucide="sparkles"></i> Tampilan</div>
-          <p>Ikon dibuat dengan Lucide yang memang cocok untuk website statis dan bisa dipakai tanpa framework berat. [web:164][web:170]</p>
-        </div>
-      </aside>
+      </div>
     </div>
   </header>
 
-  <section id="informasi" class="section">
+  <section id="dasar-desa" class="section">
     <div class="container">
       <div class="section-head">
-        <div>
-          <div class="eyebrow"><i data-lucide="info"></i> Informasi utama</div>
-          <h2>Desa, layanan, dan tujuan website</h2>
-          <p>Bagian ini memberi konteks sebelum pengguna masuk ke peta. Hero dan contact section memang umum dipakai untuk membantu orientasi pengguna pada landing page informasional. [web:158][web:162]</p>
+        <div class="section-copy">
+          <div class="eyebrow"><i data-lucide="landmark"></i> Informasi dasar desa</div>
+          <h2>Pengantar wilayah sebelum masuk ke peta interaktif</h2>
+          <p>Urutan seperti ini membantu pengguna memahami konteks wilayah lebih dulu, lalu baru melihat data spasialnya. Best practice landing page juga menekankan pentingnya konten statis yang menjelaskan layanan, informasi dasar, dan arah navigasi yang jelas.</p>
         </div>
       </div>
 
-      <div class="info-grid">
-        <div class="cards-grid">
-          <article class="card">
-            <div class="info-title"><i data-lucide="building-2"></i> Profil wilayah</div>
-            <p>Desa Janti berada di Kecamatan Polanharjo, Kabupaten Klaten, dengan karakter wilayah yang mendukung pengembangan informasi pertanahan berbasis web agar lebih mudah diakses masyarakat dan pemerintah desa.</p>
+      <div class="basic-grid">
+        <div class="basic-cards">
+          <article class="basic-card">
+            <div class="basic-title"><i data-lucide="map-pinned"></i> Lokasi administratif</div>
+            <p>Desa Janti berada di Kecamatan Polanharjo, Kabupaten Klaten, Provinsi Jawa Tengah, dan menjadi wilayah yang tepat untuk ditampilkan dalam format WebGIS desa.</p>
           </article>
-          <article class="card">
-            <div class="info-title"><i data-lucide="folder-kanban"></i> Fungsi SIPETRA</div>
-            <p>SIPETRA dirancang sebagai wajah digital data pertanahan desa: menampilkan batas administrasi, penggunaan lahan, dan status hak tanah dalam satu alur baca yang lebih terstruktur.</p>
+          <article class="basic-card">
+            <div class="basic-title"><i data-lucide="badge-info"></i> Tujuan website</div>
+            <p>Website ini berfungsi sebagai sarana penyajian data pertanahan secara terbuka, lebih mudah dipahami, dan lebih menarik secara visual untuk pengguna umum maupun pihak desa.</p>
           </article>
-          <article class="card">
-            <div class="info-title"><i data-lucide="scan-search"></i> Akses cepat</div>
-            <p>Pengguna dapat menjelajah informasi dasar terlebih dahulu, lalu berpindah ke peta interaktif untuk melihat detail atribut setiap fitur melalui popup yang muncul saat layer dipilih. [web:71][web:150]</p>
+          <article class="basic-card">
+            <div class="basic-title"><i data-lucide="layers-3"></i> Isi data</div>
+            <p>Layer utama yang ditampilkan meliputi batas administrasi, penggunaan lahan, dan status hak tanah yang dimuat dari file GeoJSON statis di repository.</p>
           </article>
-          <article class="card">
-            <div class="info-title"><i data-lucide="shield-check"></i> Transparansi data</div>
-            <p>Website seperti ini membantu penyajian data spasial yang lebih terbuka dan mudah ditelusuri, terutama untuk kebutuhan informasi publik dan pengenalan wilayah.</p>
+          <article class="basic-card">
+            <div class="basic-title"><i data-lucide="mouse-pointer-click"></i> Cara membaca</div>
+            <p>Pengguna bisa menyalakan atau mematikan layer, mengganti basemap, lalu klik fitur pada peta untuk melihat popup atribut yang dibuat lebih rapi dan mudah dibaca. Popup di Leaflet memang bisa diisi HTML kustom dan dipercantik dengan CSS.</p>
           </article>
         </div>
 
-        <aside class="info-panel">
-          <h3>Ringkasan wilayah</h3>
-          <div class="info-list">
-            <div class="info-row"><span>Nama wilayah</span><strong>Desa Janti</strong></div>
-            <div class="info-row"><span>Kecamatan</span><strong>Polanharjo</strong></div>
-            <div class="info-row"><span>Kabupaten</span><strong>Klaten</strong></div>
-            <div class="info-row"><span>Luas wilayah</span><strong>163 Ha</strong></div>
-            <div class="info-row"><span>Bidang tanah</span><strong>1.325 bidang</strong></div>
-            <div class="info-row"><span>Fokus utama</span><strong>Informasi pertanahan digital</strong></div>
-          </div>
+        <aside class="basic-side panel">
+          <div class="icon-line"><i data-lucide="file-chart-column"></i> Ringkasan cepat</div>
+          <div class="info-row"><span>Nama desa</span><strong>Desa Janti</strong></div>
+          <div class="info-row"><span>Kecamatan</span><strong>Polanharjo</strong></div>
+          <div class="info-row"><span>Kabupaten</span><strong>Klaten</strong></div>
+          <div class="info-row"><span>Luas wilayah</span><strong>163 Ha</strong></div>
+          <div class="info-row"><span>Bidang tanah</span><strong>1.325 bidang</strong></div>
+          <div class="info-row"><span>Fungsi utama</span><strong>Informasi pertanahan digital</strong></div>
         </aside>
       </div>
     </div>
@@ -581,13 +261,14 @@
     <div class="container map-shell">
       <div class="map-top">
         <div class="map-intro">
-          <div class="eyebrow"><i data-lucide="map-pinned"></i> Peta interaktif</div>
-          <h2>Eksplorasi layer spasial Desa Janti</h2>
-          <p>Layer GeoJSON dimuat langsung dari file statis di repo, lalu ditampilkan ke Leaflet memakai `fetch()` dan `L.geoJSON(...)`, yang merupakan pola umum untuk peta statis di GitHub Pages. [web:71][web:146][web:148]</p>
+          <div class="eyebrow"><i data-lucide="map"></i> Peta interaktif</div>
+          <h2>Masuk ke eksplorasi data spasial</h2>
+          <p>Layer dimuat dari file GeoJSON lokal melalui `fetch()` lalu dipetakan menggunakan `L.geoJSON(...)`, yang merupakan pola umum untuk peta statis berbasis Leaflet. Legenda dan popup di bawah ini juga dikustomisasi agar tampil lebih jelas dan lebih nyaman dibaca.</p>
         </div>
-        <div class="map-toolbar">
-          <span class="chip"><i data-lucide="layers"></i> 3 layer aktif</span>
-          <span class="chip"><i data-lucide="mouse-pointer-click"></i> Klik fitur untuk detail</span>
+        <div class="chip-row">
+          <span class="chip"><i data-lucide="file-json"></i> GeoJSON statis</span>
+          <span class="chip"><i data-lucide="panel-left"></i> Legenda diperbaiki</span>
+          <span class="chip"><i data-lucide="message-square-more"></i> Popup lebih rapi</span>
         </div>
       </div>
 
@@ -611,45 +292,58 @@
           </div>
 
           <div>
-            <h3>Legenda singkat</h3>
-            <div class="legend">
-              <div class="legend-item"><span class="swatch" style="background:#e74c3c"></span> Batas administrasi</div>
-              <div class="legend-item"><span class="swatch" style="background:#70C840"></span> Sawah / lahan hijau</div>
+            <h3>Legenda peta</h3>
+            <div class="legend-box">
+              <div class="legend-label">Batas administrasi</div>
+              <div class="legend-item"><span class="swatch" style="background:#e74c3c"></span> Garis batas desa</div>
+            </div>
+            <div class="legend-box">
+              <div class="legend-label">Status hak tanah</div>
               <div class="legend-item"><span class="swatch" style="background:#E8873A"></span> Hak milik</div>
               <div class="legend-item"><span class="swatch" style="background:#B5D44A"></span> Hak pakai</div>
               <div class="legend-item"><span class="swatch" style="background:#7A4E2D"></span> Hak wakaf</div>
+              <div class="legend-item"><span class="swatch" style="background:#B0B0B0"></span> Kosong</div>
+              <div class="legend-item"><span class="swatch" style="background:#2E2E2E"></span> Tidak ada data</div>
+            </div>
+            <div class="legend-box">
+              <div class="legend-label">Penggunaan lahan</div>
+              <div class="legend-item"><span class="swatch" style="background:#70C840"></span> Sawah</div>
+              <div class="legend-item"><span class="swatch" style="background:#6898E8"></span> Sungai</div>
+              <div class="legend-item"><span class="swatch" style="background:#E88040"></span> Bangunan hunian</div>
+              <div class="legend-item"><span class="swatch" style="background:#F8D8B8"></span> Pekarangan</div>
+              <div class="legend-item"><span class="swatch" style="background:#286828"></span> Masjid</div>
+              <div class="legend-item"><span class="swatch" style="background:#cccccc"></span> Kategori lain</div>
             </div>
           </div>
         </aside>
 
-        <div id="map" aria-label="Peta interaktif SIPETRA Janti"></div>
+        <div id="map"></div>
       </div>
     </div>
   </section>
 
   <section id="kontak" class="section">
     <div class="container contact-grid">
-      <div class="contact-copy hero-copy" style="padding:24px;">
-        <div class="eyebrow"><i data-lucide="contact"></i> Kontak & akses</div>
-        <h2 style="font-family:var(--font-display);font-size:clamp(2rem,4vw,3.4rem);line-height:1;letter-spacing:-0.03em;margin:0 0 14px;">Butuh informasi lebih lanjut?</h2>
-        <p>Bagian kontak penting untuk website informasional karena memberi jalur komunikasi yang jelas dan membuat halaman terasa lengkap, bukan hanya kumpulan layer peta. [web:158][web:163][web:169]</p>
+      <div class="contact-card">
+        <div class="eyebrow"><i data-lucide="contact-round"></i> Informasi kontak</div>
+        <h2 style="margin:12px 0 0;font-size:clamp(1.9rem,3vw,3rem);line-height:1.02;font-family:var(--font-display);font-weight:400;letter-spacing:-.03em;">Bagian akhir untuk akses informasi lebih lanjut</h2>
+        <p>Bagian kontak diletakkan di akhir agar alurnya selesai dengan rapi: pengunjung tahu website ini apa, memahami informasi dasar desa, melihat peta interaktif, lalu menemukan kanal kontak. Contact section memang sering dipakai sebagai penutup yang jelas pada landing page informasional.</p>
         <div class="contact-list">
           <div class="contact-item"><i data-lucide="map-pin"></i><div><strong>Alamat</strong><span>Desa Janti, Kecamatan Polanharjo, Kabupaten Klaten, Jawa Tengah</span></div></div>
           <div class="contact-item"><i data-lucide="phone"></i><div><strong>Telepon</strong><span>+62 857 1269 2071</span></div></div>
           <div class="contact-item"><i data-lucide="mail"></i><div><strong>Email</strong><span>sipetrajanti.id</span></div></div>
-          <div class="contact-item"><i data-lucide="clock-3"></i><div><strong>Layanan</strong><span>Informasi wilayah, data pertanahan, dan navigasi WebGIS desa</span></div></div>
+          <div class="contact-item"><i data-lucide="clock-3"></i><div><strong>Layanan</strong><span>Informasi wilayah, pertanahan, dan navigasi WebGIS desa</span></div></div>
         </div>
       </div>
-
       <div class="footer-card">
-        <div class="eyebrow"><i data-lucide="layout-grid"></i> Tautan cepat</div>
-        <h3>Akses bagian utama website</h3>
-        <p>Susunan beranda, informasi, peta, dan kontak membuat alur kunjungan lebih natural dibanding langsung membuka map sebagai layar pertama. [web:162][web:166]</p>
-        <div class="footer-stack">
-          <a href="#beranda" class="footer-row"><i data-lucide="house"></i><div><strong>Beranda</strong><span>Ringkasan SIPETRA dan tombol masuk ke peta</span></div></a>
-          <a href="#informasi" class="footer-row"><i data-lucide="file-text"></i><div><strong>Informasi desa</strong><span>Profil wilayah dan tujuan layanan</span></div></a>
-          <a href="#peta" class="footer-row"><i data-lucide="map"></i><div><strong>Peta interaktif</strong><span>Eksplorasi GeoJSON dan popup atribut</span></div></a>
-          <a href="#kontak" class="footer-row"><i data-lucide="messages-square"></i><div><strong>Kontak</strong><span>Informasi alamat dan akses komunikasi</span></div></a>
+        <div class="eyebrow"><i data-lucide="route"></i> Alur halaman</div>
+        <h3>Beranda → informasi desa → peta → kontak</h3>
+        <p>Urutan ini sekarang dibuat lebih linear sesuai permintaanmu, jadi pengguna tidak langsung masuk ke map, tetapi memahami konteks dulu sebelum melihat data spasial.</p>
+        <div class="footer-list">
+          <div class="footer-item"><i data-lucide="house"></i><div><strong>Beranda</strong><span>Menjelaskan SIPETRA dan isi website</span></div></div>
+          <div class="footer-item"><i data-lucide="building-2"></i><div><strong>Informasi dasar desa</strong><span>Memberi konteks wilayah dan fungsi sistem</span></div></div>
+          <div class="footer-item"><i data-lucide="map"></i><div><strong>Peta interaktif</strong><span>Eksplorasi layer dan popup atribut</span></div></div>
+          <div class="footer-item"><i data-lucide="phone-call"></i><div><strong>Kontak</strong><span>Informasi akses komunikasi</span></div></div>
         </div>
       </div>
     </div>
@@ -658,16 +352,16 @@
   <footer>
     <div class="container footer-grid">
       <div class="footer-card">
-        <div class="eyebrow"><i data-lucide="badge-info"></i> SIPETRA Janti</div>
-        <h3>WebGIS desa yang lebih ramah dilihat.</h3>
-        <p>Versi ini dibuat lebih lengkap dengan beranda, informasi, ikon tambahan, kontak, dan peta interaktif dalam satu halaman statis yang tetap cocok untuk GitHub Pages. GitHub Pages memang cocok untuk menyajikan website statis dari repository, sementara Leaflet mendukung penayangan GeoJSON langsung di browser. [web:49][web:71][web:148]</p>
+        <div class="eyebrow"><i data-lucide="badge-info"></i> Catatan website</div>
+        <h3>Tetap ringan, tapi tampil lebih enak.</h3>
+        <p>File ini tetap berupa static HTML satu halaman yang cocok untuk GitHub Pages, sementara peta memakai Leaflet dan GeoJSON statis dari repository. GitHub Pages cocok untuk hosting file statis, dan Leaflet menyediakan popup, kontrol, serta konten HTML kustom untuk peta interaktif.</p>
       </div>
       <div class="footer-card">
-        <div class="eyebrow"><i data-lucide="database-zap"></i> Sumber data</div>
-        <div class="footer-stack">
-          <div class="footer-row"><i data-lucide="file-json"></i><div><strong>Admin.geojson</strong><span>Batas administrasi desa</span></div></div>
-          <div class="footer-row"><i data-lucide="trees"></i><div><strong>Penggunaan Lahan.geojson</strong><span>Layer penggunaan lahan</span></div></div>
-          <div class="footer-row"><i data-lucide="scroll-text"></i><div><strong>Status Hak.geojson</strong><span>Layer status hak tanah</span></div></div>
+        <div class="eyebrow"><i data-lucide="database"></i> Sumber layer</div>
+        <div class="footer-list">
+          <div class="footer-item"><i data-lucide="file-json"></i><div><strong>Admin.geojson</strong><span>Batas administrasi</span></div></div>
+          <div class="footer-item"><i data-lucide="trees"></i><div><strong>Penggunaan Lahan.geojson</strong><span>Layer penggunaan lahan</span></div></div>
+          <div class="footer-item"><i data-lucide="scroll-text"></i><div><strong>Status Hak.geojson</strong><span>Layer status hak tanah</span></div></div>
         </div>
       </div>
     </div>
@@ -704,7 +398,7 @@
           fillOpacity: 0
         },
         onEachFeature: (feature, layer) => {
-          layer.bindPopup(buildPopup('Batas Administrasi', feature.properties));
+          layer.bindPopup(buildPopup('Batas Administrasi', feature.properties), { className: 'custom-popup', maxWidth: 320 });
         }
       }).addTo(map);
 
@@ -715,11 +409,11 @@
             color: getPenggunaanColor(kategori),
             weight: 1,
             fillColor: getPenggunaanColor(kategori),
-            fillOpacity: 0.62
+            fillOpacity: 0.64
           };
         },
         onEachFeature: (feature, layer) => {
-          layer.bindPopup(buildPopup('Penggunaan Lahan', feature.properties));
+          layer.bindPopup(buildPopup('Penggunaan Lahan', feature.properties), { className: 'custom-popup', maxWidth: 320 });
         }
       }).addTo(map);
 
@@ -730,11 +424,11 @@
             color: getStatusBorderColor(status),
             weight: 1.2,
             fillColor: getStatusColor(status),
-            fillOpacity: 0.74
+            fillOpacity: 0.78
           };
         },
         onEachFeature: (feature, layer) => {
-          layer.bindPopup(buildPopup('Status Hak', feature.properties));
+          layer.bindPopup(buildPopup('Status Hak Tanah', feature.properties), { className: 'custom-popup', maxWidth: 320 });
         }
       }).addTo(map);
 
@@ -746,14 +440,33 @@
       alert('GeoJSON gagal dimuat. Pastikan file Admin.geojson, Penggunaan Lahan.geojson, dan Status Hak.geojson ada di folder yang sama dengan file HTML ini.');
     });
 
+    function formatLabel(key) {
+      return key.replace(/_/g, ' ').replace(/\b\w/g, m => m.toUpperCase());
+    }
+
     function buildPopup(title, properties) {
-      let html = `<strong>${title}</strong><br>`;
-      if (properties) {
-        for (const key in properties) {
-          html += `<b>${key}</b>: ${properties[key]}<br>`;
-        }
+      const entries = Object.entries(properties || {}).filter(([_, value]) => value !== null && value !== undefined && String(value).trim() !== '');
+      const shown = entries.slice(0, 8);
+      let rows = shown.map(([key, value]) => `
+        <div class="popup-row">
+          <div class="popup-key">${formatLabel(key)}</div>
+          <div class="popup-value">${value}</div>
+        </div>
+      `).join('');
+
+      if (!rows) {
+        rows = `<div class="popup-row"><div class="popup-key">Informasi</div><div class="popup-value">Tidak ada atribut yang tersedia.</div></div>`;
       }
-      return html;
+
+      return `
+        <div class="popup-card">
+          <div class="popup-head">
+            <div class="popup-title">${title}</div>
+            <div class="popup-badge">Detail</div>
+          </div>
+          <div class="popup-grid">${rows}</div>
+        </div>
+      `;
     }
 
     function getKategoriValue(feature) {
@@ -772,7 +485,7 @@
       if (status.includes('hak wakaf')) return '#7A4E2D';
       if (status.includes('kosong')) return '#B0B0B0';
       if (status.includes('tidak ada data')) return '#2E2E2E';
-      return '#9b9b9b';
+      return '#9a9a9a';
     }
 
     function getStatusBorderColor(status) {
@@ -839,12 +552,6 @@
 
     window.addEventListener('load', () => {
       if (window.lucide) lucide.createIcons();
-      document.querySelectorAll('.nav-links a').forEach(link => {
-        link.addEventListener('click', () => {
-          document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
-          link.classList.add('active');
-        });
-      });
     });
   </script>
 </body>
