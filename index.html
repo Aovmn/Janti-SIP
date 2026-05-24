@@ -148,17 +148,11 @@
     .popup-head{display:flex;justify-content:space-between;gap:10px;align-items:start;margin-bottom:12px}
     .popup-title{font-weight:700;font-size:16px;line-height:1.2;color:var(--primary-deep);font-family:var(--font-display)}
     .popup-badge{padding:5px 10px;border-radius:999px;background:rgba(0,136,204,.14);color:var(--primary-deep);font-size:11px;font-weight:700;white-space:nowrap;border:1px solid rgba(0,136,204,.25)}
-    .popup-highlight{padding:10px 12px;border-radius:12px;background:linear-gradient(135deg,#e6f4fa 0%,#ffffff 100%);border:1px solid rgba(0,136,204,.18);margin-bottom:12px;display:flex;align-items:center;gap:10px}
-    .popup-highlight-dot{width:14px;height:14px;border-radius:5px;flex-shrink:0;border:1px solid rgba(0,0,0,.12)}
-    .popup-highlight strong{display:block;font-size:11px;color:var(--muted);margin-bottom:2px;text-transform:uppercase;letter-spacing:.04em}
-    .popup-highlight span{font-size:14px;color:var(--text);font-weight:600}
     .popup-grid{display:grid;gap:0}
     .popup-row{display:grid;grid-template-columns:105px 1fr;gap:10px;padding:7px 0;border-top:1px dashed rgba(26,37,48,.1)}
     .popup-row:first-child{border-top:0;padding-top:0}
     .popup-key{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;line-height:1.5}
     .popup-value{font-size:13px;color:var(--text);font-weight:600;word-break:break-word;line-height:1.5}
-    .popup-maps-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;background:linear-gradient(135deg,var(--primary),var(--sogan));color:#fff!important;border-radius:12px;font-size:13px;font-weight:700;text-decoration:none;margin-top:13px;transition:opacity .2s;text-shadow:0 1px 2px rgba(0,0,0,.18)}
-    .popup-maps-btn:hover{opacity:.88}
     .popup-section{margin-top:10px;padding-top:10px;border-top:1px dashed rgba(26,37,48,.12)}
     .popup-section:first-of-type{margin-top:0;padding-top:0;border-top:none}
     .popup-section-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:flex;align-items:center;gap:5px}
@@ -416,7 +410,6 @@
       return props.tipe_hak || props.TIPE_HAK || props.status || props.STATUS || props.hak || props.HAK || props.jenis_hak || props.JENIS_HAK || '';
     }
 
-    // Fungsi helper penyesuai susunan tumpukan layer (PL ditaruh paling depan)
     function orderLayers() {
       if (zntLayer && map.hasLayer(zntLayer)) zntLayer.bringToBack();
       if (statusHakLayer && map.hasLayer(statusHakLayer)) statusHakLayer.bringToBack();
@@ -445,7 +438,8 @@
       return null;
     }
 
-    function buildUnifiedPopup(latlng, clickedProperties, fallbackLayerType) {
+    // Pembaruan Struktur Popup Terpadu: 1. Lokasi, 2. Penggunaan Lahan, 3. Status Hak, 4. ZNT[cite: 2]
+    function buildUnifiedPopup(latlng, clickedProperties) {
       let lokasiDesa = '', lokasiKec = '', lokasiKab = '';
       let currentProps = clickedProperties;
 
@@ -495,15 +489,16 @@
         nilaiVal ? row('Nilai (Rp/m²)', Number(nilaiVal).toLocaleString('id-ID')) : '',
       ].join('');
 
+      // Desain pop-up urut berurutan ke bawah dalam satu card[cite: 2]
       return `<div class="popup-card">
         <div class="popup-head">
           <div class="popup-title">Informasi Bidang Tanah</div>
           <div class="popup-badge">Detail</div>
         </div>
-        ${section('📍', 'Lokasi', lokasiContent)}
-        ${section('🌾', 'Penggunaan Lahan', penggunaanContent)}
-        ${section('📜', 'Status Hak', statusContent)}
-        ${section('🏷️', 'ZNT', zntContent)}
+        ${section('📍 1.', 'Lokasi', lokasiContent)}
+        ${section('🌾 2.', 'Penggunaan Lahan', penggunaanContent)}
+        ${section('📜 3.', 'Status Hak', statusContent)}
+        ${section('🏷️ 4.', 'Zona Nilai Tanah', zntContent)}
       </div>`;
     }
 
@@ -520,7 +515,6 @@
       }
     });
 
-    // Palet warna baru: versi cerah / vibran 
     function getPenggunaanColor(kategori) {
       if (kategori.includes('apotek'))                   return '#ff3399';
       if (kategori.includes('area parkir'))              return '#996633';
@@ -619,7 +613,7 @@
         }).addTo(map);
       }
 
-      // 4. Layer Penggunaan Lahan (PL) - Dimuat & ditambahkan paling terakhir agar berada di atas
+      // 4. Layer Penggunaan Lahan (PL) - Ditambahkan terakhir agar tumpukan visual berada di atas
       penggunaanLahanLayer = L.geoJSON(penggunaanData, {
         style: (feature) => {
           const kat = getKategoriValue(feature.properties || {}).toLowerCase();
@@ -630,7 +624,6 @@
         onEachFeature: setupLayerInteractions
       }).addTo(map);
 
-      // Jalankan fungsi re-order layer tumpukan agar PL tetap paling atas
       orderLayers();
 
       const allLayers = L.featureGroup([penggunaanLahanLayer, statusHakLayer].filter(l => l !== undefined));
@@ -641,7 +634,7 @@
       alert('GeoJSON gagal dimuat. Pastikan penamaan file sudah persis sama.');
     });
 
-    // Controller Toggle Checkbox Layer
+    // Toggle Checkbox Layer
     document.getElementById('admLayerToggle').addEventListener('change', function() {
       if (!admLayer) return; this.checked ? map.addLayer(admLayer) : map.removeLayer(admLayer); orderLayers();
     });
@@ -655,7 +648,7 @@
       if (!zntLayer) return; this.checked ? map.addLayer(zntLayer) : map.removeLayer(zntLayer); orderLayers();
     });
 
-    // Controller Input Slider Transparansi (Opacity)
+    // Slider Transparansi (Opacity)
     document.getElementById('admOpacity').addEventListener('input', function() {
       if (!admLayer) return;
       const val = parseFloat(this.value);
