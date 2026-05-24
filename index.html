@@ -340,7 +340,7 @@
         <h3>Data pertanahan Desa Janti.</h3>
         <p>Data spasial yang ditampilkan bersumber dari hasil pengukuran dan pendataan pertanahan Desa Janti yang disajikan dalam format GeoJSON.</p>
         <div class="footer-list">
-          <div class="footer-item"><i data-lucide="file-json"></i><div><strong>Admin.geojson</strong><span>Batas administrasi desa</span></div></div>
+          <div class="footer-item"><i data-lucide="file-json"></i><div><strong>Batas Administrasi.geojson</strong><span>Batas administrasi desa</span></div></div>
           <div class="footer-item"><i data-lucide="trees"></i><div><strong>Penggunaan Lahan.geojson</strong><span>Klasifikasi penggunaan lahan</span></div></div>
           <div class="footer-item"><i data-lucide="scroll-text"></i><div><strong>Status Hak.geojson</strong><span>Status hak kepemilikan tanah</span></div></div>
         </div>
@@ -358,7 +358,7 @@
       <div class="footer-card">
         <div class="eyebrow"><i data-lucide="database"></i> Sumber layer</div>
         <div class="footer-list">
-          <div class="footer-item"><i data-lucide="file-json"></i><div><strong>Admin.geojson</strong><span>Batas administrasi</span></div></div>
+          <div class="footer-item"><i data-lucide="file-json"></i><div><strong>Batas Administrasi.geojson</strong><span>Batas administrasi</span></div></div>
           <div class="footer-item"><i data-lucide="trees"></i><div><strong>Penggunaan Lahan.geojson</strong><span>Layer penggunaan lahan</span></div></div>
           <div class="footer-item"><i data-lucide="scroll-text"></i><div><strong>Status Hak.geojson</strong><span>Layer status hak tanah</span></div></div>
         </div>
@@ -376,7 +376,6 @@
     let admLayer, penggunaanLahanLayer, statusHakLayer, zntLayer;
 
     // ============ LOOKUP TABLES ============
-    // Setiap fitur disimpan dengan geometry-nya untuk spatial lookup
     let penggunaanFeatures = [];
     let statusFeatures = [];
     let zntFeatures = [];
@@ -393,7 +392,7 @@
       'KECAMATAN':'Kecamatan','kecamatan':'Kecamatan',
       'KABUPATEN':'Kabupaten','kabupaten':'Kabupaten',
       'NAMA':'Nama','nama':'Nama',
-      // Penggunaan lahan — field utama V4_JB
+      // Penggunaan lahan
       'V4_JB':'Penggunaan Lahan','v4_jb':'Penggunaan Lahan',
       'penggunaan':'Penggunaan Lahan','PENGGUNAAN':'Penggunaan Lahan',
       'TEMA':'Penggunaan Lahan','tema':'Penggunaan Lahan',
@@ -402,17 +401,17 @@
       'LUAS':'Luas (Ha)','luas':'Luas (Ha)',
       'LUAS_M2':'Luas (m²)','luas_m2':'Luas (m²)',
       // Status hak
+      'tipe_hak':'Status Hak','TIPE_HAK':'Status Hak',
       'status':'Status Hak','STATUS':'Status Hak',
       'hak':'Jenis Hak','HAK':'Jenis Hak',
       'jenis_hak':'Jenis Hak','JENIS_HAK':'Jenis Hak',
-      'tipe_hak':'Tipe Hak','TIPE_HAK':'Tipe Hak',
       'no_hak':'No. Hak','NO_HAK':'No. Hak',
       'pemegang':'Pemegang Hak','PEMEGANG':'Pemegang Hak',
       'nib':'NIB','NIB':'NIB',
       'nik':'NIK','NIK':'NIK',
       'no_sertifikat':'No. Sertifikat',
       // ZNT
-      'znt':'Nilai ZNT','ZNT':'Nilai ZNT',
+      'ZNT':'Nilai ZNT','znt':'Nilai ZNT',
       'zona':'Zona','ZONA':'Zona',
       'nilai_tanah':'Nilai Tanah (Rp/m²)','NILAI_TANAH':'Nilai Tanah (Rp/m²)',
       'njop':'NJOP (Rp/m²)','NJOP':'NJOP (Rp/m²)',
@@ -427,13 +426,13 @@
       return key.replace(/_/g, ' ').replace(/\b\w/g, m => m.toUpperCase());
     }
 
-    // ============ AMBIL NILAI PENGGUNAAN ============
+    // ============ AMBIL NILAI ATRIBUT ============
     function getKategoriValue(props) {
       return props.V4_JB || props.v4_jb || props.penggunaan || props.PENGGUNAAN || props.TEMA || props.tema || props.kategori || props.KATEGORI || props.JENIS || props.jenis || props.nama || props.NAMA || '';
     }
 
     function getStatusValue(props) {
-      return props.status || props.STATUS || props.hak || props.HAK || props.jenis_hak || props.JENIS_HAK || props.tipe_hak || props.TIPE_HAK || '';
+      return props.tipe_hak || props.TIPE_HAK || props.status || props.STATUS || props.hak || props.HAK || props.jenis_hak || props.JENIS_HAK || '';
     }
 
     function getZntValue(props) {
@@ -444,23 +443,8 @@
       return props.nilai_tanah || props.NILAI_TANAH || props.njop || props.NJOP || '';
     }
 
-    // ============ SPATIAL LOOKUP — cari fitur yang intersect dengan titik klik ============
-    function findByLatLng(latlng, features, getValue) {
-      for (const f of features) {
-        try {
-          const layer = L.geoJSON(f);
-          const bounds = layer.getBounds();
-          if (bounds.contains(latlng)) {
-            return getValue(f.properties || {});
-          }
-        } catch(e) {}
-      }
-      return null;
-    }
-
     // ============ POPUP TERPADU ============
     function buildUnifiedPopup(latlng) {
-      // Lokasi dari ADM
       let lokasiDesa = '', lokasiKec = '', lokasiKab = '';
       for (const f of admFeatures) {
         try {
@@ -475,7 +459,6 @@
         } catch(e) {}
       }
 
-      // Penggunaan lahan
       let penggunaanVal = '';
       for (const f of penggunaanFeatures) {
         try {
@@ -487,7 +470,6 @@
         } catch(e) {}
       }
 
-      // Status hak
       let statusVal = '';
       for (const f of statusFeatures) {
         try {
@@ -499,7 +481,6 @@
         } catch(e) {}
       }
 
-      // ZNT
       let zntVal = '', nilaiVal = '';
       for (const f of zntFeatures) {
         try {
@@ -556,7 +537,6 @@
       </div>`;
     }
 
-    // ============ KLIK PETA ============
     map.on('click', function(e) {
       const popup = buildUnifiedPopup(e.latlng);
       L.popup({ className: 'custom-popup', maxWidth: 340 })
@@ -616,7 +596,7 @@
 
     // ============ LOAD GEOJSON ============
     Promise.all([
-      fetch('./Admin.geojson').then(r => r.json()),
+      fetch('./Batas Administrasi.geojson').then(r => r.json()),
       fetch('./Penggunaan Lahan.geojson').then(r => r.json()),
       fetch('./Status Hak.geojson').then(r => r.json()),
       fetch('./ZNT.geojson').then(r => r.json()).catch(() => ({ features: [] })),
@@ -627,12 +607,12 @@
       statusFeatures    = statusData.features || [];
       zntFeatures       = zntData.features || [];
 
-      // Batas administrasi
+      // Batas administrasi dibikin polylines (Garis Batas) dengan menonaktifkan fill
       admLayer = L.geoJSON(adminData, {
-        style: { color: '#7d3b32', weight: 3.2, fillColor: '#f2d8bf', fillOpacity: 0.08 },
+        style: { color: '#7d3b32', weight: 3.5, fillOpacity: 0 },
       }).addTo(map);
 
-      // Penggunaan lahan — warna dari V4_JB
+      // Penggunaan lahan
       penggunaanLahanLayer = L.geoJSON(penggunaanData, {
         style: (feature) => {
           const kat = getKategoriValue(feature.properties || {}).toLowerCase();
@@ -649,7 +629,7 @@
         },
       }).addTo(map);
 
-      // ZNT (opsional)
+      // ZNT
       if (zntFeatures.length > 0) {
         zntLayer = L.geoJSON(zntData, {
           style: { color: '#314a67', weight: 1, fillColor: '#314a67', fillOpacity: 0.12 },
@@ -661,7 +641,7 @@
     })
     .catch((error) => {
       console.error('Gagal memuat GeoJSON:', error);
-      alert('GeoJSON gagal dimuat. Pastikan file Admin.geojson, Penggunaan Lahan.geojson, dan Status Hak.geojson ada di folder yang sama.');
+      alert('GeoJSON gagal dimuat. Pastikan file Batas Administrasi.geojson, Penggunaan Lahan.geojson, dan Status Hak.geojson ada di folder yang sama.');
     });
 
     // ============ TOGGLE LAYER ============
@@ -695,6 +675,5 @@
     });
     window.addEventListener('load', () => { if (window.lucide) lucide.createIcons(); });
   </script>
-
 </body>
 </html>
