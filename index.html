@@ -6,7 +6,7 @@
   <title>SIPETRA Janti - Batik Keraton</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght=500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script defer src="https://unpkg.com/lucide@latest"></script>
   <style>
@@ -44,8 +44,7 @@
         linear-gradient(180deg, var(--bg) 0%, #eef6f9 48%, #f3f8fa 100%);
     }
     body::before{
-      content:"";
-      position:fixed; inset:0; pointer-events:none; opacity:.16; z-index:0;
+      content:""; position:fixed; inset:0; pointer-events:none; opacity:.16; z-index:0;
       background-image:
         radial-gradient(circle at 25px 25px, rgba(0,136,204,.08) 2px, transparent 2.5px),
         radial-gradient(circle at 0 0, rgba(0,183,134,.06) 1px, transparent 1.5px);
@@ -59,8 +58,7 @@
     .brand{display:flex;align-items:center;gap:12px;font-weight:700}
     .brand-mark{
       width:46px;height:46px;border-radius:15px;display:grid;place-items:center;color:#fff;box-shadow:var(--shadow);
-      background:
-        linear-gradient(135deg,var(--primary),var(--sogan));
+      background: linear-gradient(135deg,var(--primary),var(--sogan));
       position:relative; overflow:hidden;
     }
     .brand-mark::before{
@@ -410,12 +408,13 @@
 
     function getStatusValue(props) {
       if(!props) return '';
-      // Membaca kolom variasi penamaan pada file geojson status hak tanah
+      // Mengunci field ke target 'tipe_hak' dengan fallback variasi penulisan lainnya
       return props.tipe_hak || props.TIPE_HAK || props.status || props.STATUS || props.hak || props.HAK || props.jenis_hak || props.JENIS_HAK || props.Status_Hak || props.status_hak || '';
     }
 
     function getZntValue(props) {
       if(!props) return '';
+      // Mengunci field ke target 'ZNT' dengan fallback variasi penulisan lainnya
       return props.ZNT || props.znt || props.zona || props.ZONA || props.kode_znt || props.KODE_ZNT || '';
     }
 
@@ -431,7 +430,7 @@
       if (admLayer && map.hasLayer(admLayer)) admLayer.bringToFront();
     }
 
-    // Fungsi deteksi koordinat spasial murni untuk menggabungkan seluruh isi layer
+    // Fungsi pencari fitur spasial murni (menggunakan library Leaflet GeoJSON bounds)
     function findFeatureAtLatLng(latlng, features) {
       for (const f of features) {
         try {
@@ -445,8 +444,9 @@
       return null;
     }
 
-    // Fungsi Utama Pembuat Satu Kesatuan Isi Jendela Popup Terpadu (1. Lokasi, 2. PL, 3. Status, 4. ZNT)
+    // Fungsi Pembuat Jendela Popup Terpadu (Menghilangkan Penomoran 1,2,3,4)
     function triggerUnifiedPopup(latlng) {
+      // Pencarian paralel menyeluruh tanpa interupsi
       const pLahan = findFeatureAtLatLng(latlng, penggunaanFeatures) || {};
       const pStatus = findFeatureAtLatLng(latlng, statusFeatures) || {};
       const pZNT = findFeatureAtLatLng(latlng, zntFeatures) || {};
@@ -456,8 +456,8 @@
       const lokasiKec  = pAdm.WADMKC || pAdm.wadmkc || pAdm.KECAMATAN || pAdm.kecamatan || pLahan.KECAMATAN || 'Polanharjo';
       const lokasiKab  = pAdm.WADMKAB || pAdm.wadmkab || pAdm.KABUPATEN || pAdm.kabupaten || pLahan.KABUPATEN || 'Klaten';
 
-      const penggunaanVal = getKategoriValue(pLahan) || getKategoriValue(pStatus);
-      const statusVal     = getStatusValue(pStatus) || getStatusValue(pLahan);
+      const penggunaanVal = getKategoriValue(pLahan);
+      const statusVal     = getStatusValue(pStatus);
       const zntVal        = getZntValue(pZNT);
       const nilaiVal      = getNilaiTanah(pZNT);
 
@@ -483,6 +483,7 @@
         ${row('Nilai (Rp/m²)', nilaiVal ? Number(nilaiVal).toLocaleString('id-ID') : '–')}
       `;
 
+      // Menghilangkan angka 1., 2., 3., 4. pada subjudul popup-section-title
       const popupContent = `
         <div class="popup-card">
           <div class="popup-head">
@@ -490,19 +491,19 @@
             <div class="popup-badge">Terintegrasi</div>
           </div>
           <div class="popup-section">
-            <div class="popup-section-title">📍 1. Lokasi</div>
+            <div class="popup-section-title">📍 Lokasi</div>
             <div class="popup-grid">${lokasiContent}</div>
           </div>
           <div class="popup-section">
-            <div class="popup-section-title">🌾 2. Penggunaan Lahan</div>
+            <div class="popup-section-title">🌾 Penggunaan Lahan</div>
             <div class="popup-grid">${penggunaanContent}</div>
           </div>
           <div class="popup-section">
-            <div class="popup-section-title">📜 3. Status Hak</div>
+            <div class="popup-section-title">📜 Status Hak</div>
             <div class="popup-grid">${statusContent}</div>
           </div>
           <div class="popup-section">
-            <div class="popup-section-title">🏷️ 4. Zona Nilai Tanah</div>
+            <div class="popup-section-title">🏷️ Zona Nilai Tanah</div>
             <div class="popup-grid">${zntContent}</div>
           </div>
         </div>
@@ -514,7 +515,7 @@
         .openOn(map);
     }
 
-    // Interseptor klik peta global (Klik di layer mana pun akan merujuk ke generator popup yang sama)
+    // Interseptor klik peta global
     map.on('click', function(e) {
       triggerUnifiedPopup(e.latlng);
     });
@@ -543,7 +544,6 @@
       return '#e6e6e6';
     }
 
-    // Sinkronisasi penuh dengan kode Legenda Status Hak Tanah di Sidebar HTML
     function getStatusColor(status) {
       if (status.includes('milik') || status.includes('hm')) return '#ffaa00';
       if (status.includes('pakai') || status.includes('hp')) return '#00ff66';
@@ -592,7 +592,7 @@
         onEachFeature: setupLayerInteractions
       }).addTo(map);
 
-      // Layer Status Hak Tanah (Warna disinkronkan penuh ke Legenda)
+      // Layer Status Hak Tanah
       statusHakLayer = L.geoJSON(statusData, {
         style: (feature) => {
           const st = getStatusValue(feature.properties).toLowerCase();
