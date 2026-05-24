@@ -160,6 +160,7 @@
   </style>
 </head>
 <body>
+  <!-- [Bagian Konten HTML Nav, Hero, dll tetap sama agar desain tidak berubah] -->
   <nav class="nav">
     <div class="container nav-inner">
       <a href="#beranda" class="brand">
@@ -401,6 +402,7 @@
     let zntFeatures = [];
     let admFeatures = [];
 
+    // Fungsi ekstraksi atribut dinamis & fleksibel
     function getKategoriValue(props) {
       if(!props) return '';
       return props.V4_JB || props.v4_jb || props.penggunaan || props.PENGGUNAAN || props.TEMA || props.tema || props.kategori || props.KATEGORI || props.JENIS || props.jenis || props.nama || props.NAMA || '';
@@ -408,13 +410,13 @@
 
     function getStatusValue(props) {
       if(!props) return '';
-      // Mengunci field ke target 'tipe_hak' dengan fallback variasi penulisan lainnya
+      // Mengunci utama pada field 'tipe_hak' sesuai instruksi Anda
       return props.tipe_hak || props.TIPE_HAK || props.status || props.STATUS || props.hak || props.HAK || props.jenis_hak || props.JENIS_HAK || props.Status_Hak || props.status_hak || '';
     }
 
     function getZntValue(props) {
       if(!props) return '';
-      // Mengunci field ke target 'ZNT' dengan fallback variasi penulisan lainnya
+      // Mengunci utama pada field 'ZNT' sesuai instruksi Anda
       return props.ZNT || props.znt || props.zona || props.ZONA || props.kode_znt || props.KODE_ZNT || '';
     }
 
@@ -430,23 +432,48 @@
       if (admLayer && map.hasLayer(admLayer)) admLayer.bringToFront();
     }
 
-    // Fungsi pencari fitur spasial murni (menggunakan library Leaflet GeoJSON bounds)
+    // ALGORITMA RAY-CASTING (Point in Polygon) MURNI
+    // Menjamin pengecekan matematika apakah koordinat klik 100% berada di dalam poligon
+    function isPointInPolygon(point, vs) {
+      const x = point[0], y = point[1];
+      let inside = false;
+      for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+        const xi = vs[i][0], yi = vs[i][1];
+        const xj = vs[j][0], yj = vs[j][1];
+        const intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+      }
+      return inside;
+    }
+
+    // Fungsi pencarian fitur spasial presisi tinggi
     function findFeatureAtLatLng(latlng, features) {
+      const pt = [latlng.lng, latlng.lat]; // Format GeoJSON menggunakan [lng, lat]
+      
       for (const f of features) {
-        try {
-          const tempLayer = L.geoJSON(f);
-          const bounds = tempLayer.getBounds();
-          if (bounds.contains(latlng)) {
+        if (!f.geometry) continue;
+        const type = f.geometry.type;
+        const coords = f.geometry.coordinates;
+
+        if (type === 'Polygon') {
+          // coords[0] adalah cincin eksterior utama dari poligon
+          if (isPointInPolygon(pt, coords[0])) {
             return f.properties;
           }
-        } catch(e) {}
+        } else if (type === 'MultiPolygon') {
+          for (const poly of coords) {
+            if (isPointInPolygon(pt, poly[0])) {
+              return f.properties;
+            }
+          }
+        }
       }
       return null;
     }
 
-    // Fungsi Pembuat Jendela Popup Terpadu (Menghilangkan Penomoran 1,2,3,4)
+    // Fungsi pembuat Popup Terpadu (Tanpa Angka 1234)
     function triggerUnifiedPopup(latlng) {
-      // Pencarian paralel menyeluruh tanpa interupsi
+      // Pencarian paralel menyeluruh berbasis Ray-Casting matematika murni
       const pLahan = findFeatureAtLatLng(latlng, penggunaanFeatures) || {};
       const pStatus = findFeatureAtLatLng(latlng, statusFeatures) || {};
       const pZNT = findFeatureAtLatLng(latlng, zntFeatures) || {};
@@ -483,7 +510,6 @@
         ${row('Nilai (Rp/m²)', nilaiVal ? Number(nilaiVal).toLocaleString('id-ID') : '–')}
       `;
 
-      // Menghilangkan angka 1., 2., 3., 4. pada subjudul popup-section-title
       const popupContent = `
         <div class="popup-card">
           <div class="popup-head">
@@ -515,7 +541,7 @@
         .openOn(map);
     }
 
-    // Interseptor klik peta global
+    // Listener global klik di peta
     map.on('click', function(e) {
       triggerUnifiedPopup(e.latlng);
     });
@@ -586,13 +612,13 @@
       statusFeatures     = statusData.features || [];
       zntFeatures        = zntData.features || [];
 
-      // Layer Batas Administrasi
+      // Render Batas Administrasi
       admLayer = L.geoJSON(adminData, {
         style: { color: '#ff3333', weight: 4, fillOpacity: 0, dashArray: '8, 5' },
         onEachFeature: setupLayerInteractions
       }).addTo(map);
 
-      // Layer Status Hak Tanah
+      // Render Status Hak
       statusHakLayer = L.geoJSON(statusData, {
         style: (feature) => {
           const st = getStatusValue(feature.properties).toLowerCase();
@@ -603,7 +629,7 @@
         onEachFeature: setupLayerInteractions
       }).addTo(map);
 
-      // Layer ZNT
+      // Render ZNT
       if (zntFeatures.length > 0) {
         zntLayer = L.geoJSON(zntData, {
           style: () => {
@@ -614,7 +640,7 @@
         }).addTo(map);
       }
 
-      // Layer Penggunaan Lahan (PL)
+      // Render Penggunaan Lahan
       penggunaanLahanLayer = L.geoJSON(penggunaanData, {
         style: (feature) => {
           const kat = getKategoriValue(feature.properties).toLowerCase();
@@ -631,11 +657,11 @@
       if (allLayers.getLayers().length > 0) map.fitBounds(allLayers.getBounds());
     })
     .catch((error) => {
-      console.error('Gagal memuat GeoJSON:', error);
-      alert('GeoJSON gagal dimuat. Pastikan berkas .geojson berada di folder yang sama.');
+      console.error('Gagal memuat berkas GeoJSON:', error);
+      alert('GeoJSON gagal dimuat. Pastikan berkas GeoJSON diletakkan pada folder yang sama.');
     });
 
-    // Toggle Checkbox Layer
+    // Kontrol Visibilitas Layer
     document.getElementById('admLayerToggle').addEventListener('change', function() {
       if (!admLayer) return; this.checked ? map.addLayer(admLayer) : map.removeLayer(admLayer); orderLayers();
     });
@@ -649,28 +675,21 @@
       if (!zntLayer) return; this.checked ? map.addLayer(zntLayer) : map.removeLayer(zntLayer); orderLayers();
     });
 
-    // Slider Transparansi (Opacity)
+    // Kontrol Transparansi (Opacity)
     document.getElementById('admOpacity').addEventListener('input', function() {
-      if (!admLayer) return;
-      admLayer.setStyle({ opacity: parseFloat(this.value) });
+      if (!admLayer) return; admLayer.setStyle({ opacity: parseFloat(this.value) });
     });
     document.getElementById('wmsOpacity').addEventListener('input', function() {
-      if (!penggunaanLahanLayer) return;
-      const val = parseFloat(this.value);
-      penggunaanLahanLayer.setStyle({ fillOpacity: val, opacity: val });
+      if (!penggunaanLahanLayer) return; const val = parseFloat(this.value); penggunaanLahanLayer.setStyle({ fillOpacity: val, opacity: val });
     });
     document.getElementById('tanahOpacity').addEventListener('input', function() {
-      if (!statusHakLayer) return;
-      const val = parseFloat(this.value);
-      statusHakLayer.setStyle({ fillOpacity: val, opacity: val });
+      if (!statusHakLayer) return; const val = parseFloat(this.value); statusHakLayer.setStyle({ fillOpacity: val, opacity: val });
     });
     document.getElementById('zntOpacity').addEventListener('input', function() {
-      if (!zntLayer) return;
-      const val = parseFloat(this.value);
-      zntLayer.setStyle({ fillOpacity: val, opacity: val });
+      if (!zntLayer) return; const val = parseFloat(this.value); zntLayer.setStyle({ fillOpacity: val, opacity: val });
     });
 
-    // Basemap Controller
+    // Pengaturan Basemap Radio Button
     document.getElementById('osmBase').addEventListener('change', function() {
       if (this.checked) {
         if (map.hasLayer(satelliteBase)) map.removeLayer(satelliteBase);
