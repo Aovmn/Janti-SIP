@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SIPETRA Janti - Full Screen WebGIS</title>
+  <title>SIPETRA Janti</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script defer src="https://unpkg.com/lucide@latest"></script>
   <style>
     :root {
       --bg: #fbf8f3;
@@ -24,117 +23,95 @@
       --font-display: 'Cormorant Garamond', Georgia, serif;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body, html { width: 100%; height: 100%; font-family: var(--font-body); color: var(--text); background: var(--bg); overflow: hidden; }
+    body { font-family: var(--font-body); color: var(--text); background: var(--bg); line-height: 1.5; padding: 24px; }
     
-    /* Full Screen Layout */
-    .app-container { display: flex; flex-direction: column; width: 100%; height: 100vh; }
+    .container { max-width: 1400px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px; }
     
-    .nav { 
-      height: 70px; background: #ffffff; border-bottom: 1px solid var(--line); 
-      display: flex; align-items: center; justify-content: space-between; padding: 0 24px; z-index: 1000;
-    }
-    .brand { display: flex; align-items: center; gap: 12px; font-weight: 700; text-decoration: none; color: inherit; }
-    .brand-mark {
-      width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: #fff;
-      background: linear-gradient(135deg, #6f4a2f, #8b5e3c);
-    }
-    .brand small { display: block; font-weight: 500; color: var(--muted); font-size: 11px; }
+    .header { display: flex; align-items: center; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-mark { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; color: #fff; background: linear-gradient(135deg, #6f4a2f, #8b5e3c); font-weight: 700; }
+    .brand h1 { font-family: var(--font-display); font-size: 28px; color: var(--primary-deep); }
+    
+    .grid { display: grid; grid-template-columns: 320px 1fr; gap: 24px; min-height: 650px; }
+    
+    .sidebar { background: var(--surface); border-radius: var(--radius); padding: 24px; border: 1px solid var(--line); box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 24px; }
+    .sidebar-section h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); margin-bottom: 12px; }
+    
+    .control-group { display: flex; flex-direction: column; gap: 12px; }
+    .control-item { display: flex; flex-direction: column; gap: 6px; padding: 12px; background: #faf8f5; border: 1px solid var(--line); border-radius: 10px; }
+    .control-label { display: flex; align-items: center; gap: 10px; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+    
+    /* Slider Transparansi */
+    .opacity-slider-container { display: flex; align-items: center; gap: 8px; margin-top: 6px; padding-top: 6px; border-top: 1px dashed rgba(0,0,0,0.05); }
+    .opacity-slider-container span { font-size: 11px; color: var(--muted); min-width: 30px; }
+    .opacity-slider { flex: 1; accent-color: var(--primary); cursor: pointer; height: 4px; }
 
-    .main-layout { display: flex; flex: 1; height: calc(100vh - 70px); width: 100%; position: relative; }
+    #map { background: #eee; border-radius: var(--radius); border: 1px solid var(--line); box-shadow: var(--shadow); height: 100%; min-height: 650px; }
     
-    /* Sidebar */
-    .sidebar { 
-      width: 340px; height: 100%; background: #ffffff; border-right: 1px solid var(--line); 
-      display: flex; flex-direction: column; z-index: 999; box-shadow: 4px 0 20px rgba(0,0,0,0.02);
-    }
-    .sidebar-header { padding: 20px; border-bottom: 1px solid var(--line); }
-    .sidebar-header h2 { font-family: var(--font-display); font-size: 24px; color: var(--primary-deep); }
-    .sidebar-header p { font-size: 13px; color: var(--muted); margin-top: 4px; }
-    
-    .sidebar-content { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
-    .sidebar-section h3 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 10px; }
-    .sidebar-group { display: flex; flex-direction: column; gap: 8px; }
-    
-    .control { 
-      display: flex; align-items: center; gap: 10px; padding: 12px; border-radius: 10px; 
-      background: #fdfbf7; border: 1px solid var(--line); font-size: 13.5px; cursor: pointer; transition: all 0.2s;
-    }
-    .control:hover { background: #f7f2ea; border-color: rgba(46,36,29,0.2); }
-    .control input { cursor: pointer; }
-
-    /* Legend Box */
-    .legend-box { padding: 14px; border-radius: 12px; background: #faf8f5; border: 1px solid var(--line); }
-    .legend-label { font-weight: 700; font-size: 13px; margin-bottom: 10px; color: var(--primary-deep); }
-    .legend-item { display: flex; align-items: center; gap: 10px; font-size: 12.5px; color: var(--muted); margin-bottom: 6px; }
-    .legend-item:last-child { margin-bottom: 0; }
-    .swatch { width: 16px; height: 16px; border-radius: 4px; border: 1px solid rgba(0,0,0,0.1); flex-shrink: 0; }
-
-    /* Map Space */
-    #map { flex: 1; height: 100%; width: 100%; background: #eee; }
-
     /* Custom Popup Styles */
-    .custom-popup .leaflet-popup-content-wrapper { border-radius: 16px; background: #fffaf4; border: 1px solid rgba(197,154,74,0.3); padding: 0; overflow: hidden; width: 290px; box-shadow: var(--shadow); }
+    .custom-popup .leaflet-popup-content-wrapper { border-radius: 14px; background: #fffaf4; border: 1px solid rgba(197,154,74,0.3); padding: 0; overflow: hidden; width: 280px; }
     .custom-popup .leaflet-popup-tip { background: #fffaf4; }
-    .leaflet-popup-content { margin: 0 !important; width: 100% !important; font-family: var(--font-body); }
+    .leaflet-popup-content { margin: 0 !important; width: 100% !important; }
     .popup-card { padding: 16px; }
-    .popup-title { font-weight: 700; font-size: 15px; color: var(--primary-deep); font-family: var(--font-display); margin-bottom: 10px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+    .popup-title { font-weight: 700; font-size: 16px; color: var(--primary-deep); font-family: var(--font-display); margin-bottom: 8px; border-bottom: 1px solid var(--line); padding-bottom: 4px; }
     .popup-section { margin-top: 8px; padding-top: 8px; border-top: 1px dashed rgba(46,36,29,0.1); }
     .popup-section:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
-    .popup-section-title { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
-    .popup-row { display: grid; grid-template-columns: 100px 1fr; gap: 8px; padding: 4px 0; }
-    .popup-key { font-size: 11px; color: var(--muted); text-transform: uppercase; }
+    .popup-section-title { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-bottom: 4px; }
+    .popup-row { display: grid; grid-template-columns: 90px 1fr; gap: 8px; padding: 2px 0; }
+    .popup-key { font-size: 11px; color: var(--muted); }
     .popup-value { font-size: 13px; font-weight: 600; color: var(--text); }
-
-    @media (max-width: 768px) {
-      .main-layout { flex-direction: column-reverse; }
-      .sidebar { width: 100%; height: 300px; }
-      #map { height: calc(100% - 300px); }
-    }
   </style>
 </head>
 <body>
 
-  <div class="app-container">
-    <nav class="nav">
-      <a href="#" class="brand">
-        <span class="brand-mark">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z" fill="currentColor"/><circle cx="12" cy="9" r="2.5" fill="#fff"/></svg>
-        </span>
-        <div>SIPETRA Janti<small>Sistem Informasi Pertanahan Desa</small></div>
-      </a>
-    </nav>
-
-    <div class="main-layout">
-      <aside class="sidebar">
-        <div class="sidebar-header">
-          <h2>Peta Interaktif Desa</h2>
-          <p>Klik pada area bidang peta untuk memunculkan ringkasan info pertanahan secara lengkap.</p>
+  <div class="container">
+    <header class="header">
+      <div class="brand">
+        <div class="brand-mark">S</div>
+        <div>
+          <h1>SIPETRA Janti</h1>
+          <p style="font-size: 12px; color: var(--muted)">Sistem Informasi Pertanahan Desa</p>
         </div>
-        <div class="sidebar-content">
-          <div class="sidebar-section">
-            <h3>Basemap</h3>
-            <div class="sidebar-group">
-              <label class="control"><input type="radio" name="basemap" id="osmBase" checked> OpenStreetMap</label>
-              <label class="control"><input type="radio" name="basemap" id="satelliteBase"> Citra Satelit</label>
-            </div>
+      </div>
+    </header>
+
+    <div class="grid">
+      <aside class="sidebar">
+        <div class="sidebar-section">
+          <h2>Basemap</h2>
+          <div class="control-group">
+            <label class="control-label"><input type="radio" name="basemap" id="osmBase" checked> OpenStreetMap</label>
+            <label class="control-label"><input type="radio" name="basemap" id="satelliteBase"> Citra Satelit</label>
           </div>
-          <div class="sidebar-section">
-            <h3>Layer Data</h3>
-            <div class="sidebar-group">
-              <label class="control"><input type="checkbox" id="admLayerToggle" checked> Batas Administrasi Desa</label>
-              <label class="control"><input type="checkbox" id="wmsLayerToggle" checked> Penggunaan Lahan</label>
-              <label class="control"><input type="checkbox" id="tanahLayerToggle" checked> Status Hak Tanah</label>
+        </div>
+
+        <div class="sidebar-section">
+          <h2>Layer Utama & Transparansi</h2>
+          <div class="control-group">
+            
+            <!-- Pengaturan Administrasi -->
+            <div class="control-item">
+              <label class="control-label"><input type="checkbox" id="admLayerToggle" checked> Batas Administrasi</label>
             </div>
-          </div>
-          <div class="sidebar-section">
-            <h3>Legenda</h3>
-            <div class="legend-box">
-              <div class="legend-label">Status Hak</div>
-              <div class="legend-item"><span class="swatch" style="background:#FFD043"></span> Hak Milik</div>
-              <div class="legend-item"><span class="swatch" style="background:#99FF33"></span> Hak Pakai</div>
-              <div class="legend-item"><span class="swatch" style="background:#A16B55"></span> Hak Wakaf</div>
-              <div class="legend-item"><span class="swatch" style="background:#D4CFC7"></span> Kosong / Tidak Ada Data</div>
+
+            <!-- Pengaturan Penggunaan Lahan -->
+            <div class="control-item">
+              <label class="control-label"><input type="checkbox" id="wmsLayerToggle" checked> Penggunaan Lahan</label>
+              <div class="opacity-slider-container">
+                <span>Trans:</span>
+                <input type="range" id="wmsOpacity" class="opacity-slider" min="0" max="1" step="0.1" value="0.85">
+              </div>
             </div>
+
+            <!-- Pengaturan Status Hak -->
+            <div class="control-item">
+              <label class="control-label"><input type="checkbox" id="tanahLayerToggle" checked> Status Hak Tanah</label>
+              <div class="opacity-slider-container">
+                <span>Trans:</span>
+                <input type="range" id="tanahOpacity" class="opacity-slider" min="0" max="1" step="0.1" value="0.7">
+              </div>
+            </div>
+
           </div>
         </div>
       </aside>
@@ -154,25 +131,28 @@
     let admLayer, penggunaanLahanLayer, statusHakLayer;
     let penggunaanFeatures = [], statusFeatures = [], zntFeatures = [], admFeatures = [];
 
-    // Pemetaan warna cerah baru
+    // Nilai Default Opacity Cerah
+    let opacityLahan = 0.85;
+    let opacityStatus = 0.70;
+
+    // Palet warna cerah kontras tinggi dengan garis tepi putih (#ffffff)
     function getPenggunaanColor(kat) {
-      if (kat.includes('sawah')) return '#73E600';
-      if (kat.includes('bangunan') || kat.includes('hunian')) return '#FF5500';
-      if (kat.includes('pekarangan')) return '#FFAA00';
-      if (kat.includes('jalan')) return '#E1E1E1';
-      if (kat.includes('sungai') || kat.includes('kolam')) return '#00C5FF';
-      if (kat.includes('masjid') || kat.includes('gereja')) return '#E600A9';
-      return '#C2B2A2';
+      if (kat.includes('sawah')) return '#66FF00';      // Hijau Neon Sawah
+      if (kat.includes('bangunan') || kat.includes('hunian')) return '#FF3300'; // Merah Cerah Rumah
+      if (kat.includes('pekarangan')) return '#FFCC00';   // Kuning Pekarangan
+      if (kat.includes('jalan')) return '#D1D1D1';        // Abu Terang Jalan
+      if (kat.includes('sungai') || kat.includes('kolam')) return '#00CCFF'; // Biru Cyan Air
+      if (kat.includes('masjid') || kat.includes('gereja')) return '#FF00CC'; // Pink Fasum/Ibadah
+      return '#BFA38A';
     }
 
     function getStatusColor(st) {
-      if (st.includes('milik')) return '#FFD043'; // Kuning Cerah
-      if (st.includes('pakai')) return '#99FF33'; // Hijau Cerah
-      if (st.includes('wakaf')) return '#A16B55'; // Cokelat Muda
-      return '#D4CFC7';
+      if (st.includes('milik')) return '#FFEB3B'; // Kuning Emas Cerah
+      if (st.includes('pakai')) return '#00E676'; // Hijau Cerah Lembut
+      if (st.includes('wakaf')) return '#FF9100'; // Oranye Terang
+      return '#CFD8DC';
     }
 
-    // Fungsi deteksi spasial data di background (ZNT diload tapi tidak digambar di peta)
     function findFeatureAtLatLng(latlng, features) {
       for (const f of features) {
         try {
@@ -192,14 +172,12 @@
       const desa = pAdm.NAMOBJ || pAdm.DESA || clickedProps.DESA || 'Janti';
       const lahanVal = clickedProps.V4_JB || clickedProps.penggunaan || pLahan.V4_JB || pLahan.penggunaan || '–';
       const statusVal = clickedProps.tipe_hak || clickedProps.status || pStatus.tipe_hak || pStatus.status || '–';
-      
-      // Ambil data ZNT walaupun layernya tidak terlihat di peta
       const zntVal = pZNT.ZNT || pZNT.znt || clickedProps.ZNT || '–';
       const nilaiVal = pZNT.nilai_tanah || pZNT.NJOP || clickedProps.nilai_tanah || null;
 
       return `
         <div class="popup-card">
-          <div class="popup-title">Detail Bidang Tanah</div>
+          <div class="popup-title">Informasi Bidang</div>
           <div class="popup-section">
             <div class="popup-section-title">📍 Lokasi</div>
             <div class="popup-row"><div class="popup-key">Desa</div><div class="popup-value">${desa}</div></div>
@@ -210,9 +188,9 @@
             <div class="popup-row"><div class="popup-key">Status Hak</div><div class="popup-value">${statusVal}</div></div>
           </div>
           <div class="popup-section">
-            <div class="popup-section-title">🏷️ Info Nilai (ZNT)</div>
+            <div class="popup-section-title">🏷️ Info ZNT (Tersembunyi)</div>
             <div class="popup-row"><div class="popup-key">Kode Zona</div><div class="popup-value">${zntVal}</div></div>
-            ${nilaiVal ? `<div class="popup-row"><div class="popup-key">Estimasi</div><div class="popup-value">Rp ${Number(nilaiVal).toLocaleString('id-ID')}/m²</div></div>` : ''}
+            ${nilaiVal ? `<div class="popup-row"><div class="popup-key">Nilai Tanah</div><div class="popup-value">Rp ${Number(nilaiVal).toLocaleString('id-ID')}/m²</div></div>` : ''}
           </div>
         </div>`;
     }
@@ -221,11 +199,11 @@
       layer.on('click', function(e) {
         L.DomEvent.stopPropagation(e);
         const content = buildUnifiedPopup(e.latlng, feature.properties || {});
-        L.popup({ className: 'custom-popup', maxWidth: 300 }).setLatLng(e.latlng).setContent(content).openOn(map);
+        L.popup({ className: 'custom-popup', maxWidth: 280 }).setLatLng(e.latlng).setContent(content).openOn(map);
       });
     }
 
-    // Sinkronisasi data AJAX
+    // Ajax Loader Data GeoJSON
     Promise.all([
       fetch('./Batas Administrasi.geojson').then(r => r.json()),
       fetch('./Penggunaan Lahan.geojson').then(r => r.json()),
@@ -236,47 +214,77 @@
       admFeatures = adminData.features || [];
       penggunaanFeatures = penggunaanData.features || [];
       statusFeatures = statusData.features || [];
-      zntFeatures = zntData.features || []; // Data disimpan di memory, tidak dimasukkan ke map layer!
+      zntFeatures = zntData.features || [];
 
-      // Layer 1: Batas Administrasi (Garis Luar Saja)
+      // 1. Layer Batas Admin (Paling bawah dasar)
       admLayer = L.geoJSON(adminData, {
-        style: { color: '#a83232', weight: 3, fillOpacity: 0, dashArray: '6, 4' },
+        style: { color: '#e60000', weight: 3, fillOpacity: 0, dashArray: '6, 4' },
         onEachFeature: setupClick
       }).addTo(map);
 
-      // Layer 2: Penggunaan Lahan (Warna Cerah, Opacity Tinggi)
-      penggunaanLahanLayer = L.geoJSON(penggunaanData, {
-        style: (f) => {
-          const kat = (f.properties.V4_JB || f.properties.penggunaan || '').toLowerCase();
-          return { color: '#ffffff', weight: 0.5, fillColor: getPenggunaanColor(kat), fillOpacity: 0.85 };
-        },
-        onEachFeature: setupClick
-      }).addTo(map);
-
-      // Layer 3: Status Hak
+      // 2. Layer Status Hak Tanah
       statusHakLayer = L.geoJSON(statusData, {
         style: (f) => {
           const st = (f.properties.tipe_hak || f.properties.status || '').toLowerCase();
-          return { color: '#ffffff', weight: 0.8, fillColor: getStatusColor(st), fillOpacity: 0.80 };
+          return { color: '#ffffff', weight: 0.8, fillColor: getStatusColor(st), fillOpacity: opacityStatus };
         },
         onEachFeature: setupClick
       }).addTo(map);
 
-      // Otomatis zoom ke objek desa
+      // 3. Layer Penggunaan Lahan (Dinaikkan ke paling atas)
+      penggunaanLahanLayer = L.geoJSON(penggunaanData, {
+        style: (f) => {
+          const kat = (f.properties.V4_JB || f.properties.penggunaan || '').toLowerCase();
+          return { color: '#ffffff', weight: 0.6, fillColor: getPenggunaanColor(kat), fillOpacity: opacityLahan };
+        },
+        onEachFeature: setupClick
+      }).addTo(map);
+
+      // Memaksa layer penggunaan lahan berada di atas status hak tanah secara mutlak
+      penggunaanLahanLayer.bringToFront();
+
       const group = L.featureGroup([penggunaanLahanLayer, statusHakLayer].filter(l => l !== undefined));
       if (group.getLayers().length > 0) map.fitBounds(group.getBounds());
     })
-    .catch(err => console.error("Gagal memuat file spasial:", err));
+    .catch(err => console.error("Ada kendala pembacaan file spasial:", err));
 
-    // Kontrol UI Sidebar Switcher
+    // Event Handler untuk Switch On/Off Layer
     document.getElementById('admLayerToggle').addEventListener('change', function() { if(admLayer) this.checked ? map.addLayer(admLayer) : map.removeLayer(admLayer); });
-    document.getElementById('wmsLayerToggle').addEventListener('change', function() { if(penggunaanLahanLayer) this.checked ? map.addLayer(penggunaanLahanLayer) : map.removeLayer(penggunaanLahanLayer); });
-    document.getElementById('tanahLayerToggle').addEventListener('change', function() { if(statusHakLayer) this.checked ? map.addLayer(statusHakLayer) : map.removeLayer(statusHakLayer); });
+    document.getElementById('wmsLayerToggle').addEventListener('change', function() { 
+      if(penggunaanLahanLayer) {
+        if(this.checked) {
+          map.addLayer(penggunaanLahanLayer);
+          penggunaanLahanLayer.bringToFront();
+        } else {
+          map.removeLayer(penggunaanLahanLayer);
+        }
+      }
+    });
+    document.getElementById('tanahLayerToggle').addEventListener('change', function() { 
+      if(statusHakLayer) {
+        this.checked ? map.addLayer(statusHakLayer) : map.removeLayer(statusHakLayer);
+        if(penggunaanLahanLayer && map.hasLayer(penggunaanLahanLayer)) penggunaanLahanLayer.bringToFront();
+      }
+    });
     
-    document.getElementById('osmBase').addEventListener('change', function() { if(this.checked) { map.removeLayer(satelliteBase); map.addLayer(osmBase); } });
-    document.getElementById('satelliteBase').addEventListener('change', function() { if(this.checked) { map.removeLayer(osmBase); map.addLayer(satelliteBase); } });
-    
-    window.addEventListener('load', () => { if (window.lucide) lucide.createIcons(); });
+    // Event Handler Pengatur Transparansi (Slider)
+    document.getElementById('wmsOpacity').addEventListener('input', function() {
+      opacityLahan = parseFloat(this.value);
+      if (penggunaanLahanLayer) {
+        penggunaanLahanLayer.setStyle({ fillOpacity: opacityLahan });
+      }
+    });
+
+    document.getElementById('tanahOpacity').addEventListener('input', function() {
+      opacityStatus = parseFloat(this.value);
+      if (statusHakLayer) {
+        statusHakLayer.setStyle({ fillOpacity: opacityStatus });
+      }
+    });
+
+    // Switch Basemap
+    document.getElementById('osmBase').addEventListener('change', function() { if(this.checked) { map.removeLayer(satelliteBase); map.addLayer(osmBase); if(penggunaanLahanLayer) penggunaanLahanLayer.bringToFront(); } });
+    document.getElementById('satelliteBase').addEventListener('change', function() { if(this.checked) { map.removeLayer(osmBase); map.addLayer(satelliteBase); if(penggunaanLahanLayer) penggunaanLahanLayer.bringToFront(); } });
   </script>
 </body>
 </html>
