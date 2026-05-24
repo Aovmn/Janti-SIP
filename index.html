@@ -195,7 +195,7 @@
           <a href="#peta" class="btn btn-secondary"><i data-lucide="map"></i> Buka peta interaktif</a>
         </div>
         <div class="metric-grid">
-          <div class="metric"><strong>3</strong><span>Layer peta</span></div>
+          <div class="metric"><strong>4</strong><span>Layer peta</span></div>
           <div class="metric"><strong>1.325</strong><span>Bidang tanah</span></div>
           <div class="metric"><strong>163 Ha</strong><span>Luas wilayah</span></div>
         </div>
@@ -203,7 +203,7 @@
       <div class="hero-side">
         <div class="panel">
           <div class="icon-line"><i data-lucide="layers-3"></i> Data spasial tersedia</div>
-          <p>Peta memuat tiga layer utama: batas administrasi desa, penggunaan lahan, dan status hak tanah yang dapat diaktifkan atau dinonaktifkan sesuai kebutuhan.</p>
+          <p>Peta memuat layer utama: batas administrasi desa, penggunaan lahan, status hak tanah, dan ZNT yang dapat diaktifkan atau dinonaktifkan sesuai kebutuhan.</p>
         </div>
         <div class="panel">
           <div class="icon-line"><i data-lucide="shield-check"></i> Transparansi pertanahan</div>
@@ -226,7 +226,7 @@
         <div class="basic-cards">
           <article class="basic-card"><div class="basic-title"><i data-lucide="map-pinned"></i> Lokasi administratif</div><p>Desa Janti berada di Kecamatan Polanharjo, Kabupaten Klaten, Provinsi Jawa Tengah, berbatasan langsung dengan beberapa desa di sekitarnya.</p></article>
           <article class="basic-card"><div class="basic-title"><i data-lucide="badge-info"></i> Tujuan sistem</div><p>SIPETRA Janti dibuat untuk mendukung transparansi data pertanahan desa dan memudahkan akses informasi spasial bagi masyarakat dan perangkat desa.</p></article>
-          <article class="basic-card"><div class="basic-title"><i data-lucide="layers-3"></i> Data yang tersedia</div><p>Tersedia tiga layer utama: batas administrasi desa, penggunaan lahan, dan status hak tanah yang dapat diakses secara interaktif melalui peta.</p></article>
+          <article class="basic-card"><div class="basic-title"><i data-lucide="layers-3"></i> Data yang tersedia</div><p>Tersedia layer utama: batas administrasi desa, penggunaan lahan, status hak tanah, dan ZNT yang dapat diakses secara interaktif melalui peta.</p></article>
           <article class="basic-card"><div class="basic-title"><i data-lucide="scroll-text"></i> Dasar hukum</div><p>Penyajian informasi pertanahan mengacu pada ketentuan keterbukaan informasi publik dan mendukung administrasi pertanahan berbasis digital di tingkat desa.</p></article>
         </div>
         <aside class="basic-side panel">
@@ -251,7 +251,7 @@
           <p>Klik pada area peta untuk melihat informasi detail setiap bidang tanah. Aktifkan atau nonaktifkan layer melalui panel kiri, dan pilih basemap sesuai kebutuhan.</p>
         </div>
         <div class="chip-row">
-          <span class="chip"><i data-lucide="layers-3"></i> 3 layer data</span>
+          <span class="chip"><i data-lucide="layers-3"></i> 4 layer data</span>
           <span class="chip"><i data-lucide="mouse-pointer-click"></i> Klik untuk detail</span>
           <span class="chip"><i data-lucide="satellite"></i> Citra satelit tersedia</span>
         </div>
@@ -278,7 +278,7 @@
             <h3>Legenda peta</h3>
             <div class="legend-box">
               <div class="legend-label">Batas administrasi</div>
-              <div class="legend-item"><span class="swatch" style="background:#7d3b32"></span> Garis batas desa</div>
+              <div class="legend-item"><span class="swatch" style="background:#7d3b32; height: 3px; border-radius: 0;"></span> Garis batas desa</div>
             </div>
             <div class="legend-box">
               <div class="legend-label">ZNT</div>
@@ -381,61 +381,18 @@
     let zntFeatures = [];
     let admFeatures = [];
 
-    // ============ FIELD LABELS ============
-    const fieldLabels = {
-      'NAMOBJ':'Nama Desa','namobj':'Nama Desa',
-      'WADMKD':'Desa','wadmkd':'Desa',
-      'WADMKC':'Kecamatan','wadmkc':'Kecamatan',
-      'WADMKAB':'Kabupaten','wadmkab':'Kabupaten',
-      'WADMPR':'Provinsi','wadmpr':'Provinsi',
-      'DESA':'Desa','desa':'Desa',
-      'KECAMATAN':'Kecamatan','kecamatan':'Kecamatan',
-      'KABUPATEN':'Kabupaten','kabupaten':'Kabupaten',
-      'NAMA':'Nama','nama':'Nama',
-      // Penggunaan lahan
-      'V4_JB':'Penggunaan Lahan','v4_jb':'Penggunaan Lahan',
-      'penggunaan':'Penggunaan Lahan','PENGGUNAAN':'Penggunaan Lahan',
-      'TEMA':'Penggunaan Lahan','tema':'Penggunaan Lahan',
-      'JENIS':'Jenis','jenis':'Jenis',
-      'kategori':'Kategori','KATEGORI':'Kategori',
-      'LUAS':'Luas (Ha)','luas':'Luas (Ha)',
-      'LUAS_M2':'Luas (m²)','luas_m2':'Luas (m²)',
-      // Status hak
-      'tipe_hak':'Status Hak','TIPE_HAK':'Status Hak',
-      'status':'Status Hak','STATUS':'Status Hak',
-      'hak':'Jenis Hak','HAK':'Jenis Hak',
-      'jenis_hak':'Jenis Hak','JENIS_HAK':'Jenis Hak',
-      'no_hak':'No. Hak','NO_HAK':'No. Hak',
-      'pemegang':'Pemegang Hak','PEMEGANG':'Pemegang Hak',
-      'nib':'NIB','NIB':'NIB',
-      'nik':'NIK','NIK':'NIK',
-      'no_sertifikat':'No. Sertifikat',
-      // ZNT
-      'ZNT':'Nilai ZNT','znt':'Nilai ZNT',
-      'zona':'Zona','ZONA':'Zona',
-      'nilai_tanah':'Nilai Tanah (Rp/m²)','NILAI_TANAH':'Nilai Tanah (Rp/m²)',
-      'njop':'NJOP (Rp/m²)','NJOP':'NJOP (Rp/m²)',
-      'kelas':'Kelas Tanah','KELAS':'Kelas Tanah',
-      'kode_znt':'Kode ZNT','KODE_ZNT':'Kode ZNT',
-    };
-
-    const hiddenFields = ['FID','fid','OBJECTID','objectid','Shape_Area','Shape_Leng','shape_area','shape_leng','geometry','SHAPE_AREA','SHAPE_LENG'];
-
-    function formatLabel(key) {
-      if (fieldLabels[key]) return fieldLabels[key];
-      return key.replace(/_/g, ' ').replace(/\b\w/g, m => m.toUpperCase());
-    }
-
-    // ============ AMBIL NILAI ATRIBUT ============
+    // ============ ATRIBUT PRIORITY PICKER ============
     function getKategoriValue(props) {
       return props.V4_JB || props.v4_jb || props.penggunaan || props.PENGGUNAAN || props.TEMA || props.tema || props.kategori || props.KATEGORI || props.JENIS || props.jenis || props.nama || props.NAMA || '';
     }
 
     function getStatusValue(props) {
+      // Prioritas 1: tipe_hak / TIPE_HAK sesuai kebutuhan baru Anda
       return props.tipe_hak || props.TIPE_HAK || props.status || props.STATUS || props.hak || props.HAK || props.jenis_hak || props.JENIS_HAK || '';
     }
 
     function getZntValue(props) {
+      // Prioritas 1: ZNT / znt sesuai kebutuhan baru Anda
       return props.ZNT || props.znt || props.zona || props.ZONA || props.kode_znt || props.KODE_ZNT || '';
     }
 
@@ -443,61 +400,48 @@
       return props.nilai_tanah || props.NILAI_TANAH || props.njop || props.NJOP || '';
     }
 
-    // ============ POPUP TERPADU ============
-    function buildUnifiedPopup(latlng) {
+    // ============ SPATIAL LOOKUP UTAMA ============
+    function findFeatureAtLatLng(latlng, features) {
+      for (const f of features) {
+        try {
+          const layer = L.geoJSON(f);
+          const bounds = layer.getBounds();
+          if (bounds.contains(latlng)) {
+            return f.properties;
+          }
+        } catch(e) {}
+      }
+      return null;
+    }
+
+    // ============ POPUP TERPADU (DIREFACTOR) ============
+    function buildUnifiedPopup(latlng, clickedProperties, fallbackLayerType) {
       let lokasiDesa = '', lokasiKec = '', lokasiKab = '';
-      for (const f of admFeatures) {
-        try {
-          const bounds = L.geoJSON(f).getBounds();
-          if (bounds.contains(latlng)) {
-            const p = f.properties || {};
-            lokasiDesa = p.NAMOBJ || p.namobj || p.DESA || p.desa || p.NAMA || p.nama || '';
-            lokasiKec  = p.WADMKC || p.wadmkc || p.KECAMATAN || p.kecamatan || '';
-            lokasiKab  = p.WADMKAB || p.wadmkab || p.KABUPATEN || p.kabupaten || '';
-            break;
-          }
-        } catch(e) {}
-      }
+      
+      // Jika yang diklik adalah area polygon (Lahan/Status/ZNT)
+      let currentProps = clickedProperties;
 
-      let penggunaanVal = '';
-      for (const f of penggunaanFeatures) {
-        try {
-          const bounds = L.geoJSON(f).getBounds();
-          if (bounds.contains(latlng)) {
-            penggunaanVal = getKategoriValue(f.properties || '');
-            break;
-          }
-        } catch(e) {}
-      }
+      // Jika klik di luar polygon, coba cari manual di array data yang di-load
+      const pLahan = findFeatureAtLatLng(latlng, penggunaanFeatures) || {};
+      const pStatus = findFeatureAtLatLng(latlng, statusFeatures) || {};
+      const pZNT = findFeatureAtLatLng(latlng, zntFeatures) || {};
+      const pAdm = findFeatureAtLatLng(latlng, admFeatures) || {};
 
-      let statusVal = '';
-      for (const f of statusFeatures) {
-        try {
-          const bounds = L.geoJSON(f).getBounds();
-          if (bounds.contains(latlng)) {
-            statusVal = getStatusValue(f.properties || {});
-            break;
-          }
-        } catch(e) {}
-      }
+      // Ambil nilai dari properti yang berhasil ditemukan
+      lokasiDesa = pAdm.NAMOBJ || pAdm.namobj || pAdm.DESA || pAdm.desa || pLahan.DESA || pStatus.DESA || '';
+      lokasiKec  = pAdm.WADMKC || pAdm.wadmkc || pAdm.KECAMATAN || pAdm.kecamatan || pLahan.KECAMATAN || '';
+      lokasiKab  = pAdm.WADMKAB || pAdm.wadmkab || pAdm.KABUPATEN || pAdm.kabupaten || pLahan.KABUPATEN || '';
 
-      let zntVal = '', nilaiVal = '';
-      for (const f of zntFeatures) {
-        try {
-          const bounds = L.geoJSON(f).getBounds();
-          if (bounds.contains(latlng)) {
-            zntVal  = getZntValue(f.properties || {});
-            nilaiVal = getNilaiTanah(f.properties || {});
-            break;
-          }
-        } catch(e) {}
-      }
+      const penggunaanVal = getKategoriValue(currentProps) || getKategoriValue(pLahan);
+      const statusVal     = getStatusValue(currentProps) || getStatusValue(pStatus);
+      const zntVal        = getZntValue(currentProps) || getZntValue(pZNT);
+      const nilaiVal      = getNilaiTanah(currentProps) || getNilaiTanah(pZNT);
 
       const penggunaanColor = penggunaanVal ? getPenggunaanColor(penggunaanVal.toLowerCase()) : '#CFC6B8';
       const statusColor = statusVal ? getStatusColor(statusVal.toLowerCase()) : '#8D7B68';
 
       function row(label, val, dot) {
-        if (!val) return '';
+        if (!val || val === '–') return '';
         return `<div class="popup-row">
           <div class="popup-key">${label}</div>
           <div class="popup-value">${dot ? `<span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${dot};border:1px solid rgba(0,0,0,.12);margin-right:5px;vertical-align:middle"></span>` : ''}${val}</div>
@@ -505,7 +449,7 @@
       }
 
       function section(icon, title, content) {
-        if (!content) return '';
+        if (!content || content.trim() === '') return '';
         return `<div class="popup-section">
           <div class="popup-section-title">${icon} ${title}</div>
           <div class="popup-grid">${content}</div>
@@ -513,7 +457,7 @@
       }
 
       const lokasiContent = [
-        row('Desa', lokasiDesa || 'Desa Janti'),
+        row('Desa', lokasiDesa || 'Janti'),
         row('Kecamatan', lokasiKec || 'Polanharjo'),
         row('Kabupaten', lokasiKab || 'Klaten'),
       ].join('');
@@ -537,15 +481,22 @@
       </div>`;
     }
 
+    // ============ KLIK GLOBAL DI BASEMAP (JIKA DI LUAR BIDANG) ============
     map.on('click', function(e) {
-      const popup = buildUnifiedPopup(e.latlng);
-      L.popup({ className: 'custom-popup', maxWidth: 340 })
-        .setLatLng(e.latlng)
-        .setContent(popup)
-        .openOn(map);
+      // Cari apakah koordinat ini mengenai bidang tanah apa pun
+      const pLahan = findFeatureAtLatLng(e.latlng, penggunaanFeatures);
+      const pStatus = findFeatureAtLatLng(e.latlng, statusFeatures);
+      
+      if(pLahan || pStatus) {
+        const popupContent = buildUnifiedPopup(e.latlng, pLahan || pStatus || {});
+        L.popup({ className: 'custom-popup', maxWidth: 340 })
+          .setLatLng(e.latlng)
+          .setContent(popupContent)
+          .openOn(map);
+      }
     });
 
-    // ============ WARNA ============
+    // ============ WARNA KATEGORI LAHAN & STATUS ============
     function getPenggunaanColor(kategori) {
       if (kategori.includes('apotek'))                   return '#B85A7A';
       if (kategori.includes('area parkir'))              return '#7A6A50';
@@ -594,7 +545,19 @@
       return '#' + (0x1000000 + (R<255?(R<1?0:R):255)*0x10000 + (G<255?(G<1?0:G):255)*0x100 + (B<255?(B<1?0:B):255)).toString(16).slice(1);
     }
 
-    // ============ LOAD GEOJSON ============
+    // ============ HANDLER INTERAKSI KLIK PER LAYER ============
+    function setupLayerInteractions(feature, layer) {
+      layer.on('click', function(e) {
+        L.DomEvent.stopPropagation(e); // Cegah double trigger klik
+        const popupContent = buildUnifiedPopup(e.latlng, feature.properties || {});
+        L.popup({ className: 'custom-popup', maxWidth: 340 })
+          .setLatLng(e.latlng)
+          .setContent(popupContent)
+          .openOn(map);
+      });
+    }
+
+    // ============ AJAX LOAD DATA GEOJSON ============
     Promise.all([
       fetch('./Batas Administrasi.geojson').then(r => r.json()),
       fetch('./Penggunaan Lahan.geojson').then(r => r.json()),
@@ -607,59 +570,60 @@
       statusFeatures    = statusData.features || [];
       zntFeatures       = zntData.features || [];
 
-      // Batas administrasi dibikin polylines (Garis Batas) dengan menonaktifkan fill
+      // 1. Layer Batas Administrasi Baru (Hanya berupa Garis/Line, Tanpa Isian warna)
       admLayer = L.geoJSON(adminData, {
-        style: { color: '#7d3b32', weight: 3.5, fillOpacity: 0 },
+        style: { color: '#7d3b32', weight: 4, fillOpacity: 0, dashArray: '8, 5' },
+        onEachFeature: setupLayerInteractions
       }).addTo(map);
 
-      // Penggunaan lahan
+      // 2. Layer Penggunaan Lahan
       penggunaanLahanLayer = L.geoJSON(penggunaanData, {
         style: (feature) => {
           const kat = getKategoriValue(feature.properties || {}).toLowerCase();
           const fill = getPenggunaanColor(kat);
-          return { color: shadeColor(fill, -18), weight: 0.8, fillColor: fill, fillOpacity: 0.78 };
+          return { color: shadeColor(fill, -18), weight: 0.6, fillColor: fill, fillOpacity: 0.75 };
         },
+        onEachFeature: setupLayerInteractions
       }).addTo(map);
 
-      // Status hak tanah
+      // 3. Layer Status Hak Tanah (Membaca tipe_hak)
       statusHakLayer = L.geoJSON(statusData, {
         style: (feature) => {
           const st = getStatusValue(feature.properties || {}).toLowerCase();
-          return { color: getStatusBorderColor(st), weight: 1.2, fillColor: getStatusColor(st), fillOpacity: 0.74 };
+          return { color: getStatusBorderColor(st), weight: 1, fillColor: getStatusColor(st), fillOpacity: 0.70 };
         },
+        onEachFeature: setupLayerInteractions
       }).addTo(map);
 
-      // ZNT
+      // 4. Layer ZNT (Membaca ZNT)
       if (zntFeatures.length > 0) {
         zntLayer = L.geoJSON(zntData, {
-          style: { color: '#314a67', weight: 1, fillColor: '#314a67', fillOpacity: 0.12 },
+          style: { color: '#314a67', weight: 1.5, fillColor: '#314a67', fillOpacity: 0.15, dashArray: '3, 3' },
+          onEachFeature: setupLayerInteractions
         }).addTo(map);
       }
 
-      const allLayers = L.featureGroup([admLayer, penggunaanLahanLayer, statusHakLayer]);
+      // Atur fokus otomatis ke cakupan peta data desa
+      const allLayers = L.featureGroup([penggunaanLahanLayer, statusHakLayer].filter(l => l !== undefined));
       if (allLayers.getLayers().length > 0) map.fitBounds(allLayers.getBounds());
     })
     .catch((error) => {
       console.error('Gagal memuat GeoJSON:', error);
-      alert('GeoJSON gagal dimuat. Pastikan file Batas Administrasi.geojson, Penggunaan Lahan.geojson, dan Status Hak.geojson ada di folder yang sama.');
+      alert('GeoJSON gagal dimuat. Pastikan penamaan file di hosting/GitHub Anda sudah persis sama: Batas Administrasi.geojson, Penggunaan Lahan.geojson, dan Status Hak.geojson');
     });
 
-    // ============ TOGGLE LAYER ============
+    // ============ CONTROLLER CHECKBOX LAYER TOGGLE ============
     document.getElementById('admLayerToggle').addEventListener('change', function() {
-      if (!admLayer) return;
-      this.checked ? map.addLayer(admLayer) : map.removeLayer(admLayer);
+      if (!admLayer) return; this.checked ? map.addLayer(admLayer) : map.removeLayer(admLayer);
     });
     document.getElementById('wmsLayerToggle').addEventListener('change', function() {
-      if (!penggunaanLahanLayer) return;
-      this.checked ? map.addLayer(penggunaanLahanLayer) : map.removeLayer(penggunaanLahanLayer);
+      if (!penggunaanLahanLayer) return; this.checked ? map.addLayer(penggunaanLahanLayer) : map.removeLayer(penggunaanLahanLayer);
     });
     document.getElementById('tanahLayerToggle').addEventListener('change', function() {
-      if (!statusHakLayer) return;
-      this.checked ? map.addLayer(statusHakLayer) : map.removeLayer(statusHakLayer);
+      if (!statusHakLayer) return; this.checked ? map.addLayer(statusHakLayer) : map.removeLayer(statusHakLayer);
     });
     document.getElementById('zntLayerToggle').addEventListener('change', function() {
-      if (!zntLayer) return;
-      this.checked ? map.addLayer(zntLayer) : map.removeLayer(zntLayer);
+      if (!zntLayer) return; this.checked ? map.addLayer(zntLayer) : map.removeLayer(zntLayer);
     });
     document.getElementById('osmBase').addEventListener('change', function() {
       if (this.checked) {
