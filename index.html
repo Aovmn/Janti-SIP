@@ -6,7 +6,7 @@
   <title>SIPETRA Janti - Batik Keraton</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght=500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script defer src="https://unpkg.com/lucide@latest"></script>
   <style>
@@ -44,7 +44,8 @@
         linear-gradient(180deg, var(--bg) 0%, #eef6f9 48%, #f3f8fa 100%);
     }
     body::before{
-      content:""; position:fixed; inset:0; pointer-events:none; opacity:.16; z-index:0;
+      content:"";
+      position:fixed; inset:0; pointer-events:none; opacity:.16; z-index:0;
       background-image:
         radial-gradient(circle at 25px 25px, rgba(0,136,204,.08) 2px, transparent 2.5px),
         radial-gradient(circle at 0 0, rgba(0,183,134,.06) 1px, transparent 1.5px);
@@ -58,7 +59,8 @@
     .brand{display:flex;align-items:center;gap:12px;font-weight:700}
     .brand-mark{
       width:46px;height:46px;border-radius:15px;display:grid;place-items:center;color:#fff;box-shadow:var(--shadow);
-      background: linear-gradient(135deg,var(--primary),var(--sogan));
+      background:
+        linear-gradient(135deg,var(--primary),var(--sogan));
       position:relative; overflow:hidden;
     }
     .brand-mark::before{
@@ -138,29 +140,27 @@
     footer{padding:0 0 40px}
     .footer-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:22px}
     .footer-card h3{margin:12px 0 0;font-family:var(--font-display);font-size:2.2rem;font-weight:600;line-height:1.02}
-    
-    /* Style Popup Terpadu */
-    .custom-popup .leaflet-popup-content-wrapper{border-radius:20px;background:#ffffff;box-shadow:0 20px 48px rgba(0,85,128,.18);border:1px solid rgba(0,136,204,.2);padding:0;overflow:hidden;width:310px}
+    .custom-popup .leaflet-popup-content-wrapper{border-radius:20px;background:#ffffff;box-shadow:0 20px 48px rgba(0,85,128,.18);border:1px solid rgba(0,136,204,.2);padding:0;overflow:hidden;width:300px}
     .custom-popup .leaflet-popup-tip{background:#ffffff}
-    .custom-popup .leaflet-popup-close-button{top:12px!important;right:14px!important;color:var(--primary-deep)!important;font-size:18px!important;font-weight:700;z-index:10}
+    .custom-popup .leaflet-popup-close-button{top:10px!important;right:12px!important;color:var(--primary-deep)!important;font-size:18px!important;font-weight:700;z-index:10}
     .leaflet-popup-content{margin:0!important;width:100%!important;font-family:var(--font-body)}
     .popup-card{padding:16px 18px 18px}
     .popup-head{display:flex;justify-content:space-between;gap:10px;align-items:start;margin-bottom:12px}
     .popup-title{font-weight:700;font-size:16px;line-height:1.2;color:var(--primary-deep);font-family:var(--font-display)}
     .popup-badge{padding:5px 10px;border-radius:999px;background:rgba(0,136,204,.14);color:var(--primary-deep);font-size:11px;font-weight:700;white-space:nowrap;border:1px solid rgba(0,136,204,.25)}
     .popup-grid{display:grid;gap:0}
-    .popup-row{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:7px 0;border-top:1px dashed rgba(26,37,48,.1)}
+    .popup-row{display:grid;grid-template-columns:105px 1fr;gap:10px;padding:7px 0;border-top:1px dashed rgba(26,37,48,.1)}
     .popup-row:first-child{border-top:0;padding-top:0}
     .popup-key{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;line-height:1.5}
     .popup-value{font-size:13px;color:var(--text);font-weight:600;word-break:break-word;line-height:1.5}
     .popup-section{margin-top:10px;padding-top:10px;border-top:1px dashed rgba(26,37,48,.12)}
+    .popup-section:first-of-type{margin-top:0;padding-top:0;border-top:none}
     .popup-section-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:flex;align-items:center;gap:5px}
     @media (max-width:1050px){.hero-wrap,.basic-grid,.map-layout,.contact-grid,.footer-grid{grid-template-columns:1fr}.map-top,.section-head{flex-direction:column;align-items:start}.chip-row{justify-content:start}.sidebar{border-right:0;border-bottom:1px solid rgba(26,37,48,.08)}}
     @media (max-width:720px){.nav-inner{flex-direction:column;align-items:start}.nav-links{overflow:auto;flex-wrap:nowrap;width:100%}.hero-wrap,.panel,.basic-card,.basic-side,.contact-card,.footer-card{padding:20px}.metric-grid,.basic-cards{grid-template-columns:1fr}.map-top{padding:18px 18px 0}.sidebar{padding:18px}#map{min-height:520px}h1{max-width:9ch}}
   </style>
 </head>
 <body>
-  <!-- [Bagian Konten HTML Nav, Hero, dll tetap sama agar desain tidak berubah] -->
   <nav class="nav">
     <div class="container nav-inner">
       <a href="#beranda" class="brand">
@@ -286,7 +286,7 @@
                   <input type="range" class="opacity-slider" id="tanahOpacity" min="0" max="1" step="0.1" value="0.7">
                 </div>
               </div>
-              <div class="control">
+              <div class="control" style="display:none">
                 <label class="control-label"><input type="checkbox" id="zntLayerToggle" checked> ZNT</label>
                 <div class="opacity-slider-wrapper">
                   <span>Transparansi:</span>
@@ -301,7 +301,7 @@
               <div class="legend-label">Batas administrasi</div>
               <div class="legend-item"><span class="swatch" style="background:#ff3333; height: 3px; border-radius: 0;"></span> Garis batas desa</div>
             </div>
-            <div class="legend-box">
+            <div class="legend-box" style="display:none">
               <div class="legend-label">ZNT</div>
               <div class="legend-item"><span class="swatch" style="background:#4d4dff;opacity:.5"></span> Zona Nilai Tanah</div>
             </div>
@@ -402,27 +402,12 @@
     let zntFeatures = [];
     let admFeatures = [];
 
-    // Fungsi ekstraksi atribut dinamis & fleksibel
     function getKategoriValue(props) {
-      if(!props) return '';
       return props.V4_JB || props.v4_jb || props.penggunaan || props.PENGGUNAAN || props.TEMA || props.tema || props.kategori || props.KATEGORI || props.JENIS || props.jenis || props.nama || props.NAMA || '';
     }
 
     function getStatusValue(props) {
-      if(!props) return '';
-      // Mengunci utama pada field 'tipe_hak' sesuai instruksi Anda
-      return props.tipe_hak || props.TIPE_HAK || props.status || props.STATUS || props.hak || props.HAK || props.jenis_hak || props.JENIS_HAK || props.Status_Hak || props.status_hak || '';
-    }
-
-    function getZntValue(props) {
-      if(!props) return '';
-      // Mengunci utama pada field 'ZNT' sesuai instruksi Anda
-      return props.ZNT || props.znt || props.zona || props.ZONA || props.kode_znt || props.KODE_ZNT || '';
-    }
-
-    function getNilaiTanah(props) {
-      if(!props) return '';
-      return props.nilai_tanah || props.NILAI_TANAH || props.njop || props.NJOP || '';
+      return props.tipe_hak || props.TIPE_HAK || props.status || props.STATUS || props.hak || props.HAK || props.jenis_hak || props.JENIS_HAK || '';
     }
 
     function orderLayers() {
@@ -432,118 +417,143 @@
       if (admLayer && map.hasLayer(admLayer)) admLayer.bringToFront();
     }
 
-    // ALGORITMA RAY-CASTING (Point in Polygon) MURNI
-    // Menjamin pengecekan matematika apakah koordinat klik 100% berada di dalam poligon
-    function isPointInPolygon(point, vs) {
-      const x = point[0], y = point[1];
+    function getZntValue(props) {
+      return props.ZNT || props.znt || props.zona || props.ZONA || props.kode_znt || props.KODE_ZNT || props.NIZ || props.niz || props.KDZNT || props.kdznt || '';
+    }
+
+    function getNilaiTanah(props) {
+      return props.nilai_tanah || props.NILAI_TANAH || props.njop || props.NJOP || props.NILAI || props.nilai || props.harga || props.HARGA || props.nilai_zona || props.NILAI_ZONA || '';
+    }
+
+    // Point-in-polygon menggunakan ray casting untuk presisi lebih tinggi
+    function pointInRing(pt, ring) {
       let inside = false;
-      for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
-        const xi = vs[i][0], yi = vs[i][1];
-        const xj = vs[j][0], yj = vs[j][1];
+      const x = pt.lng, y = pt.lat;
+      for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+        const xi = ring[i][0], yi = ring[i][1];
+        const xj = ring[j][0], yj = ring[j][1];
         const intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
         if (intersect) inside = !inside;
       }
       return inside;
     }
 
-    // Fungsi pencarian fitur spasial presisi tinggi
-    function findFeatureAtLatLng(latlng, features) {
-      const pt = [latlng.lng, latlng.lat]; // Format GeoJSON menggunakan [lng, lat]
-      
-      for (const f of features) {
-        if (!f.geometry) continue;
-        const type = f.geometry.type;
-        const coords = f.geometry.coordinates;
+    function pointInPolygon(pt, geometry) {
+      try {
+        if (geometry.type === 'Polygon') {
+          if (!pointInRing(pt, geometry.coordinates[0])) return false;
+          for (let i = 1; i < geometry.coordinates.length; i++) {
+            if (pointInRing(pt, geometry.coordinates[i])) return false;
+          }
+          return true;
+        }
+        if (geometry.type === 'MultiPolygon') {
+          return geometry.coordinates.some(poly => {
+            if (!pointInRing(pt, poly[0])) return false;
+            for (let i = 1; i < poly.length; i++) {
+              if (pointInRing(pt, poly[i])) return false;
+            }
+            return true;
+          });
+        }
+      } catch(e) {}
+      return false;
+    }
 
-        if (type === 'Polygon') {
-          // coords[0] adalah cincin eksterior utama dari poligon
-          if (isPointInPolygon(pt, coords[0])) {
+    function findFeatureAtLatLng(latlng, features) {
+      for (const f of features) {
+        try {
+          if (f.geometry && pointInPolygon(latlng, f.geometry)) {
             return f.properties;
           }
-        } else if (type === 'MultiPolygon') {
-          for (const poly of coords) {
-            if (isPointInPolygon(pt, poly[0])) {
-              return f.properties;
-            }
-          }
-        }
+        } catch(e) {}
       }
       return null;
     }
 
-    // Fungsi pembuat Popup Terpadu (Tanpa Angka 1234)
-    function triggerUnifiedPopup(latlng) {
-      // Pencarian paralel menyeluruh berbasis Ray-Casting matematika murni
-      const pLahan = findFeatureAtLatLng(latlng, penggunaanFeatures) || {};
+    // Pembaruan Struktur Popup Terpadu: 1. Lokasi, 2. Penggunaan Lahan, 3. Status Hak, 4. ZNT
+    function buildUnifiedPopup(latlng, clickedProperties) {
+      // Selalu cari dari masing-masing layer secara mandiri
+      const pLahan  = findFeatureAtLatLng(latlng, penggunaanFeatures) || {};
       const pStatus = findFeatureAtLatLng(latlng, statusFeatures) || {};
-      const pZNT = findFeatureAtLatLng(latlng, zntFeatures) || {};
-      const pAdm = findFeatureAtLatLng(latlng, admFeatures) || {};
+      const pZNT    = findFeatureAtLatLng(latlng, zntFeatures) || {};
+      const pAdm    = findFeatureAtLatLng(latlng, admFeatures) || {};
 
       const lokasiDesa = pAdm.NAMOBJ || pAdm.namobj || pAdm.DESA || pAdm.desa || pLahan.DESA || pStatus.DESA || 'Janti';
       const lokasiKec  = pAdm.WADMKC || pAdm.wadmkc || pAdm.KECAMATAN || pAdm.kecamatan || pLahan.KECAMATAN || 'Polanharjo';
       const lokasiKab  = pAdm.WADMKAB || pAdm.wadmkab || pAdm.KABUPATEN || pAdm.kabupaten || pLahan.KABUPATEN || 'Klaten';
 
-      const penggunaanVal = getKategoriValue(pLahan);
-      const statusVal     = getStatusValue(pStatus);
-      const zntVal        = getZntValue(pZNT);
-      const nilaiVal      = getNilaiTanah(pZNT);
+      // Penggunaan Lahan — prioritaskan layer PL, fallback ke layer lain
+      const penggunaanVal = getKategoriValue(pLahan) || getKategoriValue(clickedProperties) || '';
+
+      // Status Hak — prioritaskan layer Status Hak
+      const statusVal = getStatusValue(pStatus) || getStatusValue(clickedProperties) || '';
+
+      // ZNT — prioritaskan layer ZNT
+      const zntVal   = getZntValue(pZNT) || getZntValue(clickedProperties) || '';
+      const nilaiVal = getNilaiTanah(pZNT) || getNilaiTanah(clickedProperties) || '';
 
       const penggunaanColor = penggunaanVal ? getPenggunaanColor(penggunaanVal.toLowerCase()) : '#e6e6e6';
-      const statusColor = statusVal ? getStatusColor(statusVal.toLowerCase()) : '#737373';
+      const statusColor     = statusVal ? getStatusColor(statusVal.toLowerCase()) : '#a6a6a6';
 
       function row(label, val, dot) {
+        const display = val && val !== '' ? val : '–';
         return `<div class="popup-row">
           <div class="popup-key">${label}</div>
-          <div class="popup-value">${dot ? `<span class="swatch" style="background:${dot}; display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:6px; vertical-align:middle; border:1px solid rgba(0,0,0,.15)"></span>` : ''}${val || '–'}</div>
+          <div class="popup-value">${dot ? `<span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${dot};border:1px solid rgba(0,0,0,.12);margin-right:5px;vertical-align:middle"></span>` : ''}${display}</div>
         </div>`;
       }
 
-      const lokasiContent = `
-        ${row('Desa', lokasiDesa)}
-        ${row('Kecamatan', lokasiKec)}
-        ${row('Kabupaten', lokasiKab)}
-      `;
+      function section(icon, title, content) {
+        if (!content || content.trim() === '') return '';
+        return `<div class="popup-section">
+          <div class="popup-section-title">${icon} ${title}</div>
+          <div class="popup-grid">${content}</div>
+        </div>`;
+      }
+
+      const lokasiContent = [
+        row('Desa', lokasiDesa),
+        row('Kecamatan', lokasiKec),
+        row('Kabupaten', lokasiKab),
+      ].join('');
+
       const penggunaanContent = row('Penggunaan', penggunaanVal, penggunaanColor);
-      const statusContent = row('Status Hak', statusVal, statusColor);
-      const zntContent = `
-        ${row('Zona', zntVal)}
-        ${row('Nilai (Rp/m²)', nilaiVal ? Number(nilaiVal).toLocaleString('id-ID') : '–')}
-      `;
 
-      const popupContent = `
-        <div class="popup-card">
-          <div class="popup-head">
-            <div class="popup-title">Informasi Bidang Tanah</div>
-            <div class="popup-badge">Terintegrasi</div>
-          </div>
-          <div class="popup-section">
-            <div class="popup-section-title">📍 Lokasi</div>
-            <div class="popup-grid">${lokasiContent}</div>
-          </div>
-          <div class="popup-section">
-            <div class="popup-section-title">🌾 Penggunaan Lahan</div>
-            <div class="popup-grid">${penggunaanContent}</div>
-          </div>
-          <div class="popup-section">
-            <div class="popup-section-title">📜 Status Hak</div>
-            <div class="popup-grid">${statusContent}</div>
-          </div>
-          <div class="popup-section">
-            <div class="popup-section-title">🏷️ Zona Nilai Tanah</div>
-            <div class="popup-grid">${zntContent}</div>
-          </div>
+      const statusContent = row('Status Hak', statusVal ? statusVal : '–', statusColor);
+
+      const nilaiFormatted = nilaiVal ? (() => {
+        const n = Number(String(nilaiVal).replace(/[^0-9]/g,''));
+        return isNaN(n) ? nilaiVal : n.toLocaleString('id-ID');
+      })() : '';
+      const zntContent = [
+        row('Zona', zntVal || '–'),
+        nilaiFormatted ? row('Nilai (Rp/m²)', nilaiFormatted) : row('Nilai (Rp/m²)', '–'),
+      ].join('');
+
+      return `<div class="popup-card">
+        <div class="popup-head">
+          <div class="popup-title">Informasi Bidang Tanah</div>
+          <div class="popup-badge">Terintegrasi</div>
         </div>
-      `;
-
-      L.popup({ className: 'custom-popup', maxWidth: 340 })
-        .setLatLng(latlng)
-        .setContent(popupContent)
-        .openOn(map);
+        ${section('📍', 'Lokasi', lokasiContent)}
+        ${section('🌾', 'Penggunaan Lahan', penggunaanContent)}
+        ${section('📜', 'Status Hak', statusContent)}
+        ${section('🏷️', 'Zona Nilai Tanah', zntContent)}
+      </div>`;
     }
 
-    // Listener global klik di peta
     map.on('click', function(e) {
-      triggerUnifiedPopup(e.latlng);
+      const pLahan = findFeatureAtLatLng(e.latlng, penggunaanFeatures);
+      const pStatus = findFeatureAtLatLng(e.latlng, statusFeatures);
+      
+      if(pLahan || pStatus) {
+        const popupContent = buildUnifiedPopup(e.latlng, pLahan || pStatus || {});
+        L.popup({ className: 'custom-popup', maxWidth: 340 })
+          .setLatLng(e.latlng)
+          .setContent(popupContent)
+          .openOn(map);
+      }
     });
 
     function getPenggunaanColor(kategori) {
@@ -571,20 +581,21 @@
     }
 
     function getStatusColor(status) {
-      if (status.includes('milik') || status.includes('hm')) return '#ffaa00';
-      if (status.includes('pakai') || status.includes('hp')) return '#00ff66';
-      if (status.includes('wakaf'))                          return '#ff00ff';
-      if (status.includes('kosong'))                         return '#b3c6ff';
-      if (status.includes('tidak ada data') || status === '') return '#737373';
-      return '#737373';
+      if (status.includes('hak milik'))      return '#ffaa00';
+      if (status.includes('hak pakai'))      return '#00ff66';
+      if (status.includes('hak wakaf'))      return '#ff00ff';
+      if (status.includes('kosong'))         return '#b3c6ff';
+      if (status.includes('tidak ada data')) return '#737373';
+      return '#a6a6a6';
     }
 
     function getStatusBorderColor(status) {
-      if (status.includes('milik') || status.includes('hm')) return '#cc8800';
-      if (status.includes('pakai') || status.includes('hp')) return '#00cc52';
-      if (status.includes('wakaf'))                          return '#cc00cc';
-      if (status.includes('kosong'))                         return '#809fff';
-      return '#595959';
+      if (status.includes('hak milik'))      return '#cc8800';
+      if (status.includes('hak pakai'))      return '#00cc52';
+      if (status.includes('hak wakaf'))      return '#cc00cc';
+      if (status.includes('kosong'))         return '#809fff';
+      if (status.includes('tidak ada data')) return '#595959';
+      return '#8c8c8c';
     }
 
     function shadeColor(hex, percent) {
@@ -596,7 +607,11 @@
     function setupLayerInteractions(feature, layer) {
       layer.on('click', function(e) {
         L.DomEvent.stopPropagation(e);
-        triggerUnifiedPopup(e.latlng);
+        const popupContent = buildUnifiedPopup(e.latlng, feature.properties || {});
+        L.popup({ className: 'custom-popup', maxWidth: 340 })
+          .setLatLng(e.latlng)
+          .setContent(popupContent)
+          .openOn(map);
       });
     }
 
@@ -607,29 +622,28 @@
       fetch('./ZNT.geojson').then(r => r.json()).catch(() => ({ features: [] })),
     ])
     .then(([adminData, penggunaanData, statusData, zntData]) => {
-      admFeatures        = adminData.features || [];
+      admFeatures       = adminData.features || [];
       penggunaanFeatures = penggunaanData.features || [];
-      statusFeatures     = statusData.features || [];
-      zntFeatures        = zntData.features || [];
+      statusFeatures    = statusData.features || [];
+      zntFeatures       = zntData.features || [];
 
-      // Render Batas Administrasi
+      // 1. Layer Batas Administrasi
       admLayer = L.geoJSON(adminData, {
         style: { color: '#ff3333', weight: 4, fillOpacity: 0, dashArray: '8, 5' },
         onEachFeature: setupLayerInteractions
       }).addTo(map);
 
-      // Render Status Hak
+      // 2. Layer Status Hak Tanah
       statusHakLayer = L.geoJSON(statusData, {
         style: (feature) => {
-          const st = getStatusValue(feature.properties).toLowerCase();
-          const fill = getStatusColor(st);
+          const st = getStatusValue(feature.properties || {}).toLowerCase();
           const op = parseFloat(document.getElementById('tanahOpacity').value);
-          return { color: getStatusBorderColor(st), weight: 1, fillColor: fill, fillOpacity: op };
+          return { color: getStatusBorderColor(st), weight: 1, fillColor: getStatusColor(st), fillOpacity: op };
         },
         onEachFeature: setupLayerInteractions
       }).addTo(map);
 
-      // Render ZNT
+      // 3. Layer ZNT — data dimuat untuk popup tapi TIDAK ditampilkan di peta
       if (zntFeatures.length > 0) {
         zntLayer = L.geoJSON(zntData, {
           style: () => {
@@ -637,13 +651,14 @@
             return { color: '#4d4dff', weight: 1.5, fillColor: '#4d4dff', fillOpacity: op, dashArray: '3, 3' };
           },
           onEachFeature: setupLayerInteractions
-        }).addTo(map);
+        });
+        // Tidak ditambahkan ke map dengan .addTo(map) — data tetap ada untuk popup
       }
 
-      // Render Penggunaan Lahan
+      // 4. Layer Penggunaan Lahan (PL) - Ditambahkan terakhir agar tumpukan visual berada di atas
       penggunaanLahanLayer = L.geoJSON(penggunaanData, {
         style: (feature) => {
-          const kat = getKategoriValue(feature.properties).toLowerCase();
+          const kat = getKategoriValue(feature.properties || {}).toLowerCase();
           const fill = getPenggunaanColor(kat);
           const op = parseFloat(document.getElementById('wmsOpacity').value);
           return { color: shadeColor(fill, -18), weight: 0.6, fillColor: fill, fillOpacity: op };
@@ -657,11 +672,11 @@
       if (allLayers.getLayers().length > 0) map.fitBounds(allLayers.getBounds());
     })
     .catch((error) => {
-      console.error('Gagal memuat berkas GeoJSON:', error);
-      alert('GeoJSON gagal dimuat. Pastikan berkas GeoJSON diletakkan pada folder yang sama.');
+      console.error('Gagal memuat GeoJSON:', error);
+      alert('GeoJSON gagal dimuat. Pastikan penamaan file sudah persis sama.');
     });
 
-    // Kontrol Visibilitas Layer
+    // Toggle Checkbox Layer
     document.getElementById('admLayerToggle').addEventListener('change', function() {
       if (!admLayer) return; this.checked ? map.addLayer(admLayer) : map.removeLayer(admLayer); orderLayers();
     });
@@ -675,21 +690,29 @@
       if (!zntLayer) return; this.checked ? map.addLayer(zntLayer) : map.removeLayer(zntLayer); orderLayers();
     });
 
-    // Kontrol Transparansi (Opacity)
+    // Slider Transparansi (Opacity)
     document.getElementById('admOpacity').addEventListener('input', function() {
-      if (!admLayer) return; admLayer.setStyle({ opacity: parseFloat(this.value) });
+      if (!admLayer) return;
+      const val = parseFloat(this.value);
+      admLayer.setStyle({ opacity: val });
     });
     document.getElementById('wmsOpacity').addEventListener('input', function() {
-      if (!penggunaanLahanLayer) return; const val = parseFloat(this.value); penggunaanLahanLayer.setStyle({ fillOpacity: val, opacity: val });
+      if (!penggunaanLahanLayer) return;
+      const val = parseFloat(this.value);
+      penggunaanLahanLayer.setStyle({ fillOpacity: val, opacity: val });
     });
     document.getElementById('tanahOpacity').addEventListener('input', function() {
-      if (!statusHakLayer) return; const val = parseFloat(this.value); statusHakLayer.setStyle({ fillOpacity: val, opacity: val });
+      if (!statusHakLayer) return;
+      const val = parseFloat(this.value);
+      statusHakLayer.setStyle({ fillOpacity: val, opacity: val });
     });
     document.getElementById('zntOpacity').addEventListener('input', function() {
-      if (!zntLayer) return; const val = parseFloat(this.value); zntLayer.setStyle({ fillOpacity: val, opacity: val });
+      if (!zntLayer) return;
+      const val = parseFloat(this.value);
+      zntLayer.setStyle({ fillOpacity: val, opacity: val });
     });
 
-    // Pengaturan Basemap Radio Button
+    // Basemap Controller
     document.getElementById('osmBase').addEventListener('change', function() {
       if (this.checked) {
         if (map.hasLayer(satelliteBase)) map.removeLayer(satelliteBase);
