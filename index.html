@@ -407,7 +407,8 @@
     }
 
     function getStatusValue(props) {
-      return props.tipe_hak || props.TIPE_HAK || props.status || props.STATUS || props.hak || props.HAK || props.jenis_hak || props.JENIS_HAK || '';
+      // Field utama di Status Hak.geojson adalah "Tipe_Hak"
+      return props.Tipe_Hak || props.tipe_hak || props.TIPE_HAK || props.status || props.STATUS || props.hak || props.HAK || props.jenis_hak || props.JENIS_HAK || '';
     }
 
     function orderLayers() {
@@ -483,15 +484,14 @@
       const lokasiKec  = pAdm.WADMKC || pAdm.wadmkc || pAdm.KECAMATAN || pAdm.kecamatan || pLahan.KECAMATAN || 'Polanharjo';
       const lokasiKab  = pAdm.WADMKAB || pAdm.wadmkab || pAdm.KABUPATEN || pAdm.kabupaten || pLahan.KABUPATEN || 'Klaten';
 
-      // Penggunaan Lahan — prioritaskan layer PL, fallback ke layer lain
+      // Penggunaan Lahan — dari layer PL
       const penggunaanVal = getKategoriValue(pLahan) || getKategoriValue(clickedProperties) || '';
 
-      // Status Hak — prioritaskan layer Status Hak
+      // Status Hak — dari layer Status Hak (field: Tipe_Hak)
       const statusVal = getStatusValue(pStatus) || getStatusValue(clickedProperties) || '';
 
-      // ZNT — prioritaskan layer ZNT
-      const zntVal   = getZntValue(pZNT) || getZntValue(clickedProperties) || '';
-      const nilaiVal = getNilaiTanah(pZNT) || getNilaiTanah(clickedProperties) || '';
+      // ZNT — ada di kolom "ZNT" dalam Status Hak.geojson (bukan file terpisah)
+      const zntVal = (pStatus && pStatus.ZNT) || (pStatus && pStatus.znt) || getZntValue(pZNT) || getZntValue(clickedProperties) || '';
 
       const penggunaanColor = penggunaanVal ? getPenggunaanColor(penggunaanVal.toLowerCase()) : '#e6e6e6';
       const statusColor     = statusVal ? getStatusColor(statusVal.toLowerCase()) : '#a6a6a6';
@@ -522,14 +522,7 @@
 
       const statusContent = row('Status Hak', statusVal ? statusVal : '–', statusColor);
 
-      const nilaiFormatted = nilaiVal ? (() => {
-        const n = Number(String(nilaiVal).replace(/[^0-9]/g,''));
-        return isNaN(n) ? nilaiVal : n.toLocaleString('id-ID');
-      })() : '';
-      const zntContent = [
-        row('Zona', zntVal || '–'),
-        nilaiFormatted ? row('Nilai (Rp/m²)', nilaiFormatted) : row('Nilai (Rp/m²)', '–'),
-      ].join('');
+      const zntContent = row('Zona', zntVal || '–');
 
       return `<div class="popup-card">
         <div class="popup-head">
@@ -539,7 +532,7 @@
         ${section('📍', 'Lokasi', lokasiContent)}
         ${section('🌾', 'Penggunaan Lahan', penggunaanContent)}
         ${section('📜', 'Status Hak', statusContent)}
-        ${section('🏷️', 'Zona Nilai Tanah', zntContent)}
+        ${section('🏷️', 'Zona Nilai Tanah (Rp/m²)', zntContent)}
       </div>`;
     }
 
