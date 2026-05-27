@@ -175,6 +175,7 @@
       <div class="nav-links">
         <a href="#beranda">Beranda</a>
         <a href="#dasar-desa">Informasi Desa</a>
+        <a href="#kependudukan">Kependudukan</a>
         <a href="#peta">Peta Interaktif</a>
         <a href="#kontak">Kontak</a>
       </div>
@@ -238,6 +239,144 @@
       </div>
     </div>
   </section>
+
+  <!-- ===== KEPENDUDUKAN ===== -->
+  <section id="kependudukan" class="section">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-copy">
+          <div class="eyebrow"><i data-lucide="users"></i> Data kependudukan</div>
+          <h2>Demografi Desa Janti</h2>
+          <p>Data kependudukan Desa Janti tahun 2020–2024 meliputi jumlah penduduk, kepadatan, rasio jenis kelamin, dan persentase terhadap total kecamatan.</p>
+        </div>
+      </div>
+
+      <!-- Kartu ringkasan tahun terakhir -->
+      <div class="metric-grid" style="margin-bottom:20px">
+        <div class="basic-card" style="text-align:center;padding:20px 16px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Jumlah Penduduk (2024)</div>
+          <div style="font-size:2.2rem;font-weight:700;color:var(--primary);font-family:var(--font-display)">2.664</div>
+          <div style="font-size:12px;color:var(--muted)">jiwa</div>
+        </div>
+        <div class="basic-card" style="text-align:center;padding:20px 16px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Kepadatan (2024)</div>
+          <div style="font-size:2.2rem;font-weight:700;color:var(--sogan);font-family:var(--font-display)">1.634</div>
+          <div style="font-size:12px;color:var(--muted)">jiwa/km²</div>
+        </div>
+        <div class="basic-card" style="text-align:center;padding:20px 16px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Rasio Jenis Kelamin (2024)</div>
+          <div style="font-size:2.2rem;font-weight:700;color:var(--gold);font-family:var(--font-display)">95,88</div>
+          <div style="font-size:12px;color:var(--muted)">laki-laki per 100 perempuan</div>
+        </div>
+        <div class="basic-card" style="text-align:center;padding:20px 16px">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">% thd Kecamatan (2024)</div>
+          <div style="font-size:2.2rem;font-weight:700;color:var(--indigo);font-family:var(--font-display)">6,43%</div>
+          <div style="font-size:12px;color:var(--muted)">dari total penduduk kecamatan</div>
+        </div>
+      </div>
+
+      <!-- Tab grafik -->
+      <div class="basic-card" style="padding:24px">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px" id="chartTabs">
+          <button class="chart-tab active" onclick="switchChart('jumlah')">Jumlah Penduduk</button>
+          <button class="chart-tab" onclick="switchChart('kepadatan')">Kepadatan</button>
+          <button class="chart-tab" onclick="switchChart('rasio')">Rasio Jenis Kelamin</button>
+          <button class="chart-tab" onclick="switchChart('persentase')">% thd Kecamatan</button>
+        </div>
+        <div style="position:relative;height:280px">
+          <canvas id="kepCanvas"></canvas>
+        </div>
+        <div id="chartDesc" style="margin-top:14px;font-size:13px;color:var(--muted);text-align:center"></div>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    .chart-tab{padding:8px 16px;border-radius:999px;border:1px solid rgba(26,37,48,.14);background:transparent;font-family:var(--font-body);font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s}
+    .chart-tab:hover{background:var(--bg-2);color:var(--primary-deep)}
+    .chart-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+  </style>
+  <script>
+    const kepData = {
+      tahun: [2020, 2021, 2022, 2023, 2024],
+      jumlah:     [2566, 2597, 2609, 2663, 2664],
+      kepadatan:  [1758, 1755, 1762.83, 1630.53, 1634],
+      rasio:      [95.3, 95.12, 94.556, 95.72, 95.88],
+      persentase: [6.4, 6.33, 6.33, 6.44, 6.43],
+    };
+
+    const chartMeta = {
+      jumlah:     { label: 'Jumlah Penduduk (jiwa)', color: '#0088cc', desc: 'Jumlah penduduk Desa Janti cenderung meningkat dari 2.566 jiwa (2020) menjadi 2.664 jiwa (2024).' },
+      kepadatan:  { label: 'Kepadatan Penduduk (jiwa/km²)', color: '#00b386', desc: 'Kepadatan penduduk mengalami fluktuasi, dengan penurunan pada 2023–2024 karena penyesuaian luas wilayah.' },
+      rasio:      { label: 'Rasio Jenis Kelamin', color: '#ffb300', desc: 'Rasio jenis kelamin di bawah 100 menunjukkan jumlah perempuan lebih banyak dari laki-laki di Desa Janti.' },
+      persentase: { label: '% thd Total Kecamatan', color: '#4d4dff', desc: 'Persentase penduduk Desa Janti terhadap total Kecamatan Polanharjo relatif stabil di kisaran 6,3–6,4%.' },
+    };
+
+    let kepChart = null;
+    let activeKey = 'jumlah';
+
+    function switchChart(key) {
+      activeKey = key;
+      document.querySelectorAll('.chart-tab').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      const meta = chartMeta[key];
+      document.getElementById('chartDesc').textContent = meta.desc;
+      if (kepChart) {
+        kepChart.data.datasets[0].data = kepData[key];
+        kepChart.data.datasets[0].label = meta.label;
+        kepChart.data.datasets[0].borderColor = meta.color;
+        kepChart.data.datasets[0].backgroundColor = meta.color + '22';
+        kepChart.data.datasets[0].pointBackgroundColor = meta.color;
+        kepChart.update('active');
+      }
+    }
+
+    window.addEventListener('load', () => {
+      const ctx = document.getElementById('kepCanvas').getContext('2d');
+      const meta = chartMeta['jumlah'];
+      document.getElementById('chartDesc').textContent = meta.desc;
+      kepChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: kepData.tahun,
+          datasets: [{
+            label: meta.label,
+            data: kepData.jumlah,
+            borderColor: meta.color,
+            backgroundColor: meta.color + '22',
+            pointBackgroundColor: meta.color,
+            pointRadius: 6,
+            pointHoverRadius: 9,
+            borderWidth: 2.5,
+            fill: true,
+            tension: 0.35,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: ctx => {
+                  const val = ctx.parsed.y;
+                  if (activeKey === 'persentase') return ` ${val.toFixed(2)}%`;
+                  if (activeKey === 'rasio') return ` ${val.toFixed(3)}`;
+                  return ` ${val.toLocaleString('id-ID')}`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: { grid: { color: 'rgba(26,37,48,.06)' }, ticks: { font: { family: 'Plus Jakarta Sans', size: 12 } } },
+            y: { grid: { color: 'rgba(26,37,48,.06)' }, ticks: { font: { family: 'Plus Jakarta Sans', size: 12 } } }
+          }
+        }
+      });
+    });
+  </script>
 
   <section id="peta" class="section">
     <div class="container map-shell">
