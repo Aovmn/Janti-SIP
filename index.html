@@ -227,6 +227,26 @@
     @media (max-width:1050px){.hero-wrap,.basic-grid,.map-layout,.contact-grid,.footer-grid{grid-template-columns:1fr}.map-top,.section-head{flex-direction:column;align-items:start}.chip-row{justify-content:start}.sidebar{border-right:0;border-bottom:1px solid rgba(26,37,48,.08)}}
     @media (max-width:720px){.nav-inner{flex-direction:column;align-items:start}.nav-links{overflow:auto;flex-wrap:nowrap;width:100%}.hero-wrap,.panel,.basic-card,.basic-side,.contact-card,.footer-card{padding:20px}.metric-grid,.basic-cards{grid-template-columns:1fr}.map-top{padding:18px 18px 0}.sidebar{padding:18px}#map{min-height:520px}h1{max-width:9ch}}
   </style>
+  <!-- Firebase Auth -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <script>
+    firebase.initializeApp({
+      apiKey: "AIzaSyDi32ke2-p8w8KA8CtG5MadCOF30y0JNQc",
+      authDomain: "sip-janti.firebaseapp.com",
+      projectId: "sip-janti",
+      storageBucket: "sip-janti.firebasestorage.app",
+      messagingSenderId: "852711210140",
+      appId: "1:852711210140:web:b37ec9f7daa5c5974e4159"
+    });
+    const _fbAuth = firebase.auth();
+    const _fbProvider = new firebase.auth.GoogleAuthProvider();
+    window._fbSignInGoogle = () => _fbAuth.signInWithPopup(_fbProvider);
+    window._fbSignOut = () => _fbAuth.signOut();
+    _fbAuth.onAuthStateChanged((user) => {
+      if (user && typeof showApp === 'function') showApp(true, user);
+    });
+  </script>
 </head>
 <body>
   <!-- Login Gate -->
