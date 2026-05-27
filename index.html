@@ -344,4 +344,267 @@
               <div class="legend-item"><span class="swatch" style="background:#996633"></span> Area parkir</div>
               <div class="legend-item"><span class="swatch" style="background:#ff6600"></span> Bangunan hunian</div>
               <div class="legend-item"><span class="swatch" style="background:#ff3333"></span> Jalan</div>
-              <div class="legend-item"><span class="swatch" style="background:#ccff33"></span> Lap
+              <div class="legend-item"><span class="swatch" style="background:#ccff33"></span> Lapangan</div>
+              <div class="legend-item"><span class="swatch" style="background:#00cc44"></span> Masjid/Gereja</div>
+              <div class="legend-item"><span class="swatch" style="background:#ffe680"></span> Pekarangan</div>
+              <div class="legend-item"><span class="swatch" style="background:#66ff33"></span> Sawah</div>
+              <div class="legend-item"><span class="swatch" style="background:#00ffff"></span> Sungai</div>
+              <div class="legend-item"><span class="swatch" style="background:#e6e6e6"></span> Lainnya</div>
+            </div>
+          </div>
+        </aside>
+        
+        <div id="map"></div>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([-7.694, 110.615], 16);
+    const osmBase = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' });
+    const satelliteBase = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: '&copy; Esri' });
+    osmBase.addTo(map);
+
+    let admLayer, penggunaanLahanLayer, statusHakLayer;
+    let penggunaanFeatures = [];
+    let statusFeatures = [];
+    let admFeatures = [];
+    let searchMarker = null;
+
+    // Helper Functions
+    function getKategoriValue(props) {
+      return props.V4_JB || props.penggunaan || props.TEMA || props.JENIS || props.NAMA || props.jenis || '';
+    }
+    function getStatusValue(props) {
+      return props.Tipe_Hak || props.tipe_hak || props.TIPE_HAK || props.status || '';
+    }
+    function getZntValue(props) {
+      return props.ZNT || props.znt || props.zona || '';
+    }
+    
+    function orderLayers() {
+      if (statusHakLayer && map.hasLayer(statusHakLayer)) statusHakLayer.bringToBack();
+      if (penggunaanLahanLayer && map.hasLayer(penggunaanLahanLayer)) penggunaanLahanLayer.bringToFront();
+      if (admLayer && map.hasLayer(admLayer)) admLayer.bringToFront();
+    }
+
+    // Pewarnaan
+    function getPenggunaanColor(kategori) {
+      if (kategori.includes('apotek')) return '#ff3399';
+      if (kategori.includes('hunian') || kategori.includes('rumah')) return '#ff6600';
+      if (kategori.includes('jalan')) return '#ff3333';
+      if (kategori.includes('sawah')) return '#66ff33';
+      if (kategori.includes('sungai') || kategori.includes('kolam')) return '#00ffff';
+      if (kategori.includes('masjid') || kategori.includes('gereja')) return '#00cc44';
+      if (kategori.includes('pekarangan')) return '#ffe680';
+      return '#e6e6e6';
+    }
+
+    function getStatusColor(status) {
+      if (status.includes('hak milik')) return '#ffaa00';
+      if (status.includes('hak pakai')) return '#00ff66';
+      if (status.includes('hak wakaf')) return '#ff00ff';
+      if (status.includes('kosong')) return '#b3c6ff';
+      return '#a6a6a6';
+    }
+
+    function shadeColor(hex, percent) {
+      const num = parseInt(hex.replace('#',''),16), amt = Math.round(2.55 * percent),
+      R = (num >> 16) + amt, G = (num >> 8 & 0x00FF) + amt, B = (num & 0x0000FF) + amt;
+      return '#' + (0x1000000 + (R<255?(R<1?0:R):255)*0x10000 + (G<255?(G<1?0:G):255)*0x100 + (B<255?(B<1?0:B):255)).toString(16).slice(1);
+    }
+
+    // Interaksi Fitur & Tooltip
+    function setupLayerInteractions(feature, layer) {
+      // Fitur 5: Tooltip Hover
+      let tooltipText = "";
+      let hak = getStatusValue(feature.properties || {});
+      let guna = getKategoriValue(feature.properties || {});
+      let luas = feature.properties.luas || feature.properties.LUAS;
+      
+      if (hak) tooltipText += `<b>Status:</b> ${hak}<br>`;
+      if (guna) tooltipText += `<b>Lahan:</b> ${guna}<br>`;
+      if (luas) tooltipText += `<b>Luas:</b> ${parseFloat(luas).toFixed(2)} m²`;
+
+      if (tooltipText !== "") {
+        layer.bindTooltip(tooltipText, { sticky: true, className: 'map-tooltip' });
+      }
+
+      // Popup Click
+      layer.on('click', function(e) {
+        L.DomEvent.stopPropagation(e);
+        let znt = getZntValue(feature.properties);
+        let content = `<div class="popup-card">
+          <div class="popup-head"><div class="popup-title">Detail Bidang</div></div>
+          ${hak ? `<div class="popup-row"><div class="popup-key">Status Hak</div><div class="popup-value">${hak}</div></div>` : ''}
+          ${guna ? `<div class="popup-row"><div class="popup-key">Penggunaan</div><div class="popup-value">${guna}</div></div>` : ''}
+          ${znt ? `<div class="popup-row"><div class="popup-key">ZNT</div><div class="popup-value">${znt}</div></div>` : ''}
+        </div>`;
+        L.popup({ className: 'custom-popup', maxWidth: 300 }).setLatLng(e.latlng).setContent(content).openOn(map);
+      });
+    }
+
+    // Muat GeoJSON
+    Promise.all([
+      fetch('./Batas Administrasi.geojson').then(r => r.json()).catch(()=>({features:[]})),
+      fetch('./Penggunaan Lahan.geojson').then(r => r.json()).catch(()=>({features:[]})),
+      fetch('./Status Hak.geojson').then(r => r.json()).catch(()=>({features:[]}))
+    ]).then(([adminData, penggunaanData, statusData]) => {
+      admFeatures = adminData.features;
+      penggunaanFeatures = penggunaanData.features;
+      statusFeatures = statusData.features;
+
+      admLayer = L.geoJSON(adminData, { style: { color: '#ff3333', weight: 4, fillOpacity: 0, dashArray: '8, 5' } }).addTo(map);
+      
+      // Inisialisasi Status Hak dengan Filter (Fitur 1 & 2)
+      statusHakLayer = L.geoJSON(null, {
+        style: (f) => {
+          const st = getStatusValue(f.properties || {}).toLowerCase();
+          const op = parseFloat(document.getElementById('tanahOpacity').value);
+          return { color: shadeColor(getStatusColor(st), -30), weight: 1, fillColor: getStatusColor(st), fillOpacity: op };
+        },
+        onEachFeature: setupLayerInteractions
+      }).addTo(map);
+      applyFilter(); // Panggil apply filter pertama kali untuk mengisi data & statistik
+
+      penggunaanLahanLayer = L.geoJSON(penggunaanData, {
+        style: (f) => {
+          const kat = getKategoriValue(f.properties || {}).toLowerCase();
+          const op = parseFloat(document.getElementById('wmsOpacity').value);
+          return { color: shadeColor(getPenggunaanColor(kat), -18), weight: 0.6, fillColor: getPenggunaanColor(kat), fillOpacity: op };
+        },
+        onEachFeature: setupLayerInteractions
+      }).addTo(map);
+
+      orderLayers();
+      
+      // Zoom to layer
+      const group = L.featureGroup([penggunaanLahanLayer, statusHakLayer]);
+      if (group.getLayers().length > 0) map.fitBounds(group.getBounds());
+    });
+
+    // Fitur 2 & 1: Filter & Statistik
+    function applyFilter() {
+      if (!statusHakLayer || !statusFeatures) return;
+      const filterVal = document.getElementById('filterStatus').value;
+      
+      statusHakLayer.clearLayers();
+      let filteredData = statusFeatures;
+      
+      if (filterVal !== "ALL") {
+        filteredData = statusFeatures.filter(f => {
+          let st = getStatusValue(f.properties || {}).toUpperCase();
+          return st.includes(filterVal);
+        });
+      }
+      
+      statusHakLayer.addData(filteredData);
+      
+      // Update Statistik Total Bidang
+      document.getElementById('statBidang').innerText = filteredData.length.toLocaleString('id-ID');
+    }
+
+    // Fitur 4: Pencarian Koordinat
+    function cariLokasi() {
+      const input = document.getElementById('searchLatLng').value;
+      const parts = input.split(',');
+      if (parts.length >= 2) {
+        const lat = parseFloat(parts[0].trim());
+        const lng = parseFloat(parts[1].trim());
+        if (!isNaN(lat) && !isNaN(lng)) {
+          map.flyTo([lat, lng], 18);
+          if (searchMarker) map.removeLayer(searchMarker);
+          searchMarker = L.marker([lat, lng]).addTo(map)
+            .bindPopup(`<b>Lokasi Pencarian:</b><br>Lat: ${lat}<br>Lng: ${lng}`).openPopup();
+          return;
+        }
+      }
+      alert("Format koordinat tidak valid! Masukkan format: Latitude, Longitude (Contoh: -7.694, 110.615)");
+    }
+
+    // Fitur 6: Ekspor CSV (Admin Only)
+    function downloadGeoJSONCSV() {
+      if (!statusFeatures || statusFeatures.length === 0) {
+        alert("Data belum siap atau kosong."); return;
+      }
+      // Mengambil properties dari fitur pertama untuk header
+      let keys = Object.keys(statusFeatures[0].properties);
+      let csvContent = keys.join(",") + "\n";
+
+      statusFeatures.forEach(f => {
+        let row = keys.map(k => {
+          let val = f.properties[k] === null || f.properties[k] === undefined ? "" : String(f.properties[k]);
+          return `"${val.replace(/"/g, '""')}"`;
+        });
+        csvContent += row.join(",") + "\n";
+      });
+
+      let blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      let link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "Data_Status_Hak_Janti.csv";
+      link.click();
+    }
+
+    // Fitur 3 & Toggle Layer
+    document.getElementById('admLayerToggle').addEventListener('change', function() {
+      this.checked ? map.addLayer(admLayer) : map.removeLayer(admLayer);
+      document.getElementById('legendAdm').style.display = this.checked ? 'block' : 'none';
+      orderLayers();
+    });
+    document.getElementById('wmsLayerToggle').addEventListener('change', function() {
+      this.checked ? map.addLayer(penggunaanLahanLayer) : map.removeLayer(penggunaanLahanLayer);
+      document.getElementById('legendPenggunaan').style.display = this.checked ? 'block' : 'none';
+      orderLayers();
+    });
+    document.getElementById('tanahLayerToggle').addEventListener('change', function() {
+      this.checked ? map.addLayer(statusHakLayer) : map.removeLayer(statusHakLayer);
+      document.getElementById('legendStatus').style.display = this.checked ? 'block' : 'none';
+      orderLayers();
+    });
+
+    // Opacity
+    document.getElementById('admOpacity').addEventListener('input', function() { if (admLayer) admLayer.setStyle({ opacity: parseFloat(this.value) }); });
+    document.getElementById('wmsOpacity').addEventListener('input', function() { if (penggunaanLahanLayer) penggunaanLahanLayer.setStyle({ fillOpacity: parseFloat(this.value), opacity: parseFloat(this.value) }); });
+    document.getElementById('tanahOpacity').addEventListener('input', function() { if (statusHakLayer) statusHakLayer.setStyle({ fillOpacity: parseFloat(this.value), opacity: parseFloat(this.value) }); });
+
+    // Basemaps
+    document.getElementById('osmBase').addEventListener('change', function() { if (this.checked) { map.removeLayer(satelliteBase); map.addLayer(osmBase); orderLayers(); } });
+    document.getElementById('satelliteBase').addEventListener('change', function() { if (this.checked) { map.removeLayer(osmBase); map.addLayer(satelliteBase); orderLayers(); } });
+
+    window.addEventListener('load', () => { if (window.lucide) lucide.createIcons(); });
+  </script>
+
+  <script>
+    function showApp(isLoggedIn, user) {
+      document.getElementById('loginGate').style.display = 'none';
+      document.body.classList.toggle('admin-active', isLoggedIn);
+      const badge = document.getElementById('userBadge');
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (isLoggedIn && user) {
+        badge.innerHTML = `&#x2705; ${user.displayName ? user.displayName.split(' ')[0] : 'Admin'}`;
+        badge.className = 'admin-badge';
+        logoutBtn.style.display = 'inline-block';
+      } else {
+        badge.innerHTML = '&#x1F464; Guest';
+        badge.className = 'guest-badge';
+        logoutBtn.style.display = 'none';
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+    function loginAsGuest() { showApp(false, null); }
+    async function doGoogleLogin() {
+      try {
+        const result = await window._fbSignInGoogle();
+        showApp(true, result.user);
+      } catch(e) { document.getElementById('loginError').style.display = 'block'; }
+    }
+    async function doLogout() {
+      if (window._fbSignOut) await window._fbSignOut();
+      document.body.classList.remove('admin-active');
+      document.getElementById('loginGate').style.display = 'flex';
+    }
+  </script>
+</body>
+</html>
