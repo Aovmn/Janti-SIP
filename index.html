@@ -28,17 +28,6 @@
     .login-sub{color:rgba(255,255,255,.5);font-size:14px;margin:0 0 28px}
     .login-divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:rgba(255,255,255,.3);font-size:12px}
     .login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.1)}
-    .login-field{margin-bottom:14px}
-    .login-field label{display:block;color:rgba(255,255,255,.7);font-size:12px;font-weight:600;margin-bottom:6px;letter-spacing:.04em;text-transform:uppercase}
-    .login-field input{width:100%;padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,.12);
-      background:rgba(255,255,255,.07);color:#fff;font-size:14px;font-family:inherit;outline:none;transition:border .2s;box-sizing:border-box}
-    .login-field input:focus{border-color:rgba(0,136,204,.6);background:rgba(0,136,204,.08)}
-    .login-field input::placeholder{color:rgba(255,255,255,.25)}
-    .btn-login-admin{width:100%;padding:13px;border-radius:12px;border:none;
-      background:linear-gradient(135deg,#0088cc,#0066aa);color:#fff;font-size:14px;font-weight:700;
-      cursor:pointer;transition:all .2s;font-family:inherit;margin-top:4px}
-    .btn-login-admin:hover{background:linear-gradient(135deg,#0099dd,#0077bb);transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,136,204,.4)}
-    .btn-login-admin:disabled{opacity:.6;cursor:not-allowed;transform:none}
     .btn-login-guest{width:100%;padding:13px;border-radius:12px;border:1px solid rgba(255,255,255,.15);
       background:rgba(255,255,255,.06);color:rgba(255,255,255,.8);font-size:14px;font-weight:600;
       cursor:pointer;transition:all .2s;font-family:inherit}
@@ -48,8 +37,6 @@
     .login-badge{flex:1;text-align:center;padding:10px;border-radius:10px;font-size:11px;font-weight:600;letter-spacing:.04em}
     .login-badge.admin{background:rgba(0,136,204,.15);color:#5bc8f5;border:1px solid rgba(0,136,204,.2)}
     .login-badge.guest{background:rgba(0,179,134,.12);color:#5de8c0;border:1px solid rgba(0,179,134,.2)}
-
-    /* Admin badge di navbar */
     .admin-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:999px;
       background:linear-gradient(135deg,#0088cc,#00b386);color:#fff;font-size:12px;font-weight:700}
     .guest-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:999px;
@@ -57,8 +44,6 @@
     .btn-logout{padding:6px 14px;border-radius:999px;border:1px solid rgba(26,37,48,.14);background:transparent;
       color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
     .btn-logout:hover{background:#ffe4e4;color:#cc0000;border-color:#ffb3b3}
-
-    /* Admin-only elements */
     .admin-only{display:none}
     .admin-active .admin-only{display:flex}
     .admin-panel-bar{background:linear-gradient(135deg,rgba(0,136,204,.08),rgba(0,179,134,.06));
@@ -75,106 +60,52 @@
       background:rgba(255,255,255,.95);color:#333;font-size:14px;font-weight:600;cursor:pointer;
       font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s}
     .btn-google-login:hover{background:#fff;transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
-    .btn-google-login:disabled{opacity:.7;cursor:not-allowed;transform:none}
   </style>
   <style>
     :root {
-      --bg: #f3f8fa;
-      --bg-2: #e1f0f5;
-      --surface: rgba(255,255,255,.92);
-      --surface-2: #ffffff;
-      --text: #1a2530;
-      --muted: #5a6e85;
-      --line: rgba(26,37,48,.12);
-      --primary: #0088cc;
-      --primary-deep: #005580;
-      --sogan: #00b386;
-      --gold: #ffb300;
-      --indigo: #4d4dff;
-      --ivory: #ffffff;
-      --maroon: #ff3333;
-      --shadow: 0 14px 38px rgba(0, 68, 102, .08);
-      --radius: 26px;
-      --radius-sm: 16px;
-      --content: 1180px;
+      --bg: #f3f8fa; --bg-2: #e1f0f5; --surface: rgba(255,255,255,.92); --surface-2: #ffffff;
+      --text: #1a2530; --muted: #5a6e85; --line: rgba(26,37,48,.12);
+      --primary: #0088cc; --primary-deep: #005580; --sogan: #00b386;
+      --gold: #ffb300; --indigo: #4d4dff; --shadow: 0 14px 38px rgba(0, 68, 102, .08);
+      --radius: 26px; --radius-sm: 16px; --content: 1180px;
       --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
       --font-display: 'Cormorant Garamond', Georgia, serif;
     }
     *{box-sizing:border-box}
     html{scroll-behavior:smooth}
-    body{
-      margin:0;
-      font-family:var(--font-body);
-      color:var(--text);
-      line-height:1.6;
-      background:
-        radial-gradient(circle at top left, rgba(0,136,204,.12), transparent 28%),
-        linear-gradient(180deg, var(--bg) 0%, #eef6f9 48%, #f3f8fa 100%);
-    }
-    body::before{
-      content:"";
-      position:fixed; inset:0; pointer-events:none; opacity:.16; z-index:0;
-      background-image:
-        radial-gradient(circle at 25px 25px, rgba(0,136,204,.08) 2px, transparent 2.5px),
-        radial-gradient(circle at 0 0, rgba(0,183,134,.06) 1px, transparent 1.5px);
-      background-size: 54px 54px, 28px 28px;
-      mask-image: linear-gradient(180deg, rgba(0,0,0,.85), rgba(0,0,0,.2));
-    }
+    body{margin:0;font-family:var(--font-body);color:var(--text);line-height:1.6;
+      background:radial-gradient(circle at top left, rgba(0,136,204,.12), transparent 28%),
+        linear-gradient(180deg, var(--bg) 0%, #eef6f9 48%, #f3f8fa 100%);}
     a{text-decoration:none;color:inherit}
     .container{position:relative;z-index:1;width:min(var(--content),calc(100% - 32px));margin-inline:auto}
     .nav{position:sticky;top:0;z-index:100;background:rgba(243,248,250,.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(26,37,48,.08)}
     .nav-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px 0}
     .brand{display:flex;align-items:center;gap:12px;font-weight:700}
-    .brand-mark{
-      width:46px;height:46px;border-radius:15px;display:grid;place-items:center;color:#fff;box-shadow:var(--shadow);
-      background:
-        linear-gradient(135deg,var(--primary),var(--sogan));
-      position:relative; overflow:hidden;
-    }
-    .brand-mark::before{
-      content:"";position:absolute;inset:0;opacity:.22;
-      background:repeating-linear-gradient(-45deg, rgba(255,255,255,.8) 0 2px, transparent 2px 10px);
-    }
+    .brand-mark{width:46px;height:46px;border-radius:15px;display:grid;place-items:center;color:#fff;
+      background:linear-gradient(135deg,var(--primary),var(--sogan));position:relative; overflow:hidden;}
     .brand small{display:block;font-weight:500;color:var(--muted)}
     .nav-links{display:flex;gap:10px;flex-wrap:wrap}
     .nav-links a{padding:10px 14px;border-radius:999px;color:var(--muted);font-size:14px}
-    .nav-links a:hover{background:#e6f4fa;color:var(--primary-deep);box-shadow:var(--shadow)}
+    .nav-links a:hover{background:#e6f4fa;color:var(--primary-deep)}
     .hero,.section{padding:34px 0 28px}
     .hero-wrap,.panel,.basic-card,.map-shell,.contact-card,.footer-card{background:var(--surface);border:1px solid rgba(26,37,48,.08);border-radius:var(--radius);box-shadow:var(--shadow)}
     .hero-wrap{display:grid;grid-template-columns:1.08fr .92fr;gap:22px;padding:30px;overflow:hidden;position:relative}
-    .hero-wrap::after{
-      content:"";position:absolute;right:-80px;top:-60px;width:280px;height:280px;border-radius:50%;
-      background:radial-gradient(circle, rgba(0,136,204,.15) 0%, rgba(0,136,204,0) 70%);
-    }
     .eyebrow{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:999px;background:rgba(0,136,204,.1);color:var(--primary-deep);border:1px solid rgba(0,136,204,.2);font-size:13px;font-weight:700}
     h1{margin:18px 0 0;font-family:var(--font-display);font-size:clamp(3rem,5vw,5.4rem);line-height:.93;letter-spacing:-.04em;max-width:10ch;font-weight:600}
-    .hero-copy p,.section-copy p,.panel p,.basic-card p,.contact-card p,.footer-card p{color:var(--muted);margin:14px 0 0}
-    .hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:24px}
     .btn{display:inline-flex;align-items:center;gap:10px;padding:13px 18px;border-radius:999px;font-weight:600;font-size:14px}
     .btn-primary{background:linear-gradient(135deg,var(--primary),var(--sogan));color:#fff}
-    .btn-primary:hover{filter:brightness(.95)}
     .btn-secondary{background:#ffffff;border:1px solid var(--line)}
     .metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:26px}
     .metric{padding:16px;border-radius:18px;background:rgba(255,255,255,.9);border:1px solid rgba(26,37,48,.08);position:relative;overflow:hidden}
-    .metric::before{
-      content:"";position:absolute;inset:auto 0 0 0;height:5px;
-      background:linear-gradient(90deg,var(--gold),var(--sogan),var(--indigo));
-      opacity:.9;
-    }
     .metric strong{display:block;font-size:1.3rem;color:var(--primary-deep)}
     .metric span{font-size:13px;color:var(--muted)}
     .hero-side{display:grid;gap:16px}
     .panel{padding:20px;background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(240,247,250,.9))}
     .icon-line{display:flex;gap:10px;align-items:center;font-weight:700;color:var(--primary-deep)}
-    .section-head{display:flex;justify-content:space-between;gap:18px;align-items:end;margin-bottom:18px}
-    .section-head h2,.map-intro h2{margin:12px 0 0;font-size:clamp(2rem,3vw,3.2rem);line-height:1.02;font-family:var(--font-display);font-weight:600;letter-spacing:-.03em}
+    .section-head h2{margin:12px 0 0;font-size:clamp(2rem,3vw,3.2rem);line-height:1.02;font-family:var(--font-display);font-weight:600;letter-spacing:-.03em}
     .basic-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:22px}
     .basic-cards{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
     .basic-card{padding:22px;background:linear-gradient(180deg,#ffffff 0%,#eef6fa 100%);position:relative;overflow:hidden}
-    .basic-card::after{
-      content:"";position:absolute;right:-25px;bottom:-20px;width:100px;height:100px;border-radius:50%;
-      border:1px solid rgba(0,136,204,.15);
-    }
     .basic-title{display:flex;gap:10px;align-items:center;font-weight:700;margin-bottom:8px;color:var(--primary-deep)}
     .basic-side{padding:24px;display:grid;gap:14px}
     .info-row{display:flex;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px dashed rgba(26,37,48,.14)}
@@ -192,13 +123,22 @@
     .control-label{display:flex;align-items:center;gap:10px;cursor:pointer}
     .opacity-slider-wrapper {display:flex;align-items:center;gap:8px;margin-top:4px;padding-left:24px;font-size:12px;color:var(--muted)}
     .opacity-slider {flex:1;height:4px;cursor:pointer;accent-color:var(--primary)}
-    .legend-box{padding:14px;border-radius:16px;background:#ffffff;border:1px solid rgba(26,37,48,.08)}
+    
+    /* Search & Filter Inputs */
+    .filter-input {width:100%; padding:8px 12px; border-radius:8px; border:1px solid rgba(26,37,48,.15); font-family:inherit; font-size:13px; color:var(--text); background:var(--bg); outline:none; transition:border .2s;}
+    .filter-input:focus {border-color:var(--primary);}
+    .search-btn {width:100%; padding:8px; margin-top:8px; border-radius:8px; border:none; background:var(--primary); color:white; font-family:inherit; font-weight:600; font-size:13px; cursor:pointer;}
+    .search-btn:hover {background:var(--primary-deep);}
+    .map-tooltip {background:rgba(255,255,255,0.95); border:1px solid rgba(0,136,204,0.3); border-radius:8px; padding:6px 10px; font-family:var(--font-body); font-size:12px; box-shadow:0 4px 12px rgba(0,0,0,0.1); color:var(--text);}
+
+    .legend-box{padding:14px;border-radius:16px;background:#ffffff;border:1px solid rgba(26,37,48,.08); transition: all 0.3s ease;}
     .legend-box + .legend-box{margin-top:12px}
     .legend-label{font-weight:700;font-size:14px;margin-bottom:10px;color:var(--primary-deep)}
     .legend-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
     .legend-item + .legend-item{margin-top:8px}
     .swatch{width:16px;height:16px;border-radius:5px;border:1px solid rgba(0,0,0,.12);flex:0 0 auto}
-    #map{width:100%;height:100%;min-height:700px}
+    #map{width:100%;height:100%;min-height:700px; z-index:1;}
+    
     .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
     .contact-card,.footer-card{padding:24px}
     .contact-list,.footer-list{display:grid;gap:12px;margin-top:18px}
@@ -208,6 +148,7 @@
     footer{padding:0 0 40px}
     .footer-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:22px}
     .footer-card h3{margin:12px 0 0;font-family:var(--font-display);font-size:2.2rem;font-weight:600;line-height:1.02}
+    
     .custom-popup .leaflet-popup-content-wrapper{border-radius:20px;background:#ffffff;box-shadow:0 20px 48px rgba(0,85,128,.18);border:1px solid rgba(0,136,204,.2);padding:0;overflow:hidden;width:300px}
     .custom-popup .leaflet-popup-tip{background:#ffffff}
     .custom-popup .leaflet-popup-close-button{top:10px!important;right:12px!important;color:var(--primary-deep)!important;font-size:18px!important;font-weight:700;z-index:10}
@@ -222,12 +163,10 @@
     .popup-key{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.04em;line-height:1.5}
     .popup-value{font-size:13px;color:var(--text);font-weight:600;word-break:break-word;line-height:1.5}
     .popup-section{margin-top:10px;padding-top:10px;border-top:1px dashed rgba(26,37,48,.12)}
-    .popup-section:first-of-type{margin-top:0;padding-top:0;border-top:none}
-    .popup-section-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:flex;align-items:center;gap:5px}
+    
     @media (max-width:1050px){.hero-wrap,.basic-grid,.map-layout,.contact-grid,.footer-grid{grid-template-columns:1fr}.map-top,.section-head{flex-direction:column;align-items:start}.chip-row{justify-content:start}.sidebar{border-right:0;border-bottom:1px solid rgba(26,37,48,.08)}}
-    @media (max-width:720px){.nav-inner{flex-direction:column;align-items:start}.nav-links{overflow:auto;flex-wrap:nowrap;width:100%}.hero-wrap,.panel,.basic-card,.basic-side,.contact-card,.footer-card{padding:20px}.metric-grid,.basic-cards{grid-template-columns:1fr}.map-top{padding:18px 18px 0}.sidebar{padding:18px}#map{min-height:520px}h1{max-width:9ch}}
   </style>
-  <!-- Firebase Auth -->
+
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
   <script>
@@ -249,23 +188,19 @@
   </script>
 </head>
 <body>
-  <!-- Login Gate -->
   <div id="loginGate">
     <div class="login-card">
       <div class="login-logo">
-        <div class="login-logo-mark">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z" fill="currentColor"/><circle cx="12" cy="9" r="2.6" fill="#ffffff"/></svg>
-        </div>
+        <div class="login-logo-mark"><i data-lucide="map" style="color:white; width:22px;"></i></div>
         <div class="login-logo-text">SIPETRA Janti<small>Sistem Informasi Pertanahan Desa</small></div>
       </div>
       <h2 class="login-title">Selamat datang</h2>
-      <p class="login-sub">Login untuk mengakses fitur download data</p>
+      <p class="login-sub">Login untuk mengakses fitur lanjutan & download data</p>
       <div class="login-badge-row">
         <div class="login-badge guest">👤 Guest — Lihat data publik</div>
-        <div class="login-badge admin">✅ Login — Akses download data</div>
+        <div class="login-badge admin">✅ Login — Akses unduh data</div>
       </div>
       <button class="btn-google-login" onclick="doGoogleLogin()" id="googleLoginBtn">
-        <svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
         Login dengan Google
       </button>
       <div class="login-divider">atau</div>
@@ -274,24 +209,15 @@
     </div>
   </div>
 
-
   <nav class="nav">
     <div class="container nav-inner">
       <a href="#beranda" class="brand">
-        <span class="brand-mark">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z" fill="currentColor"/>
-            <circle cx="12" cy="9" r="2.6" fill="#ffffff"/>
-          </svg>
-        </span>
-        <span>SIPETRA Janti<small>Sistem Informasi Pertanahan Desa</small></span>
+        <span class="brand-mark"><i data-lucide="map" style="color:white; width:22px;"></i></span>
+        <span>SIPETRA Janti<small>Sistem Informasi Pertanahan</small></span>
       </a>
       <div class="nav-links">
         <a href="#beranda">Beranda</a>
-        <a href="#dasar-desa">Informasi Desa</a>
-        <a href="#kependudukan">Kependudukan</a>
         <a href="#peta">Peta Interaktif</a>
-        <a href="#kontak">Kontak</a>
       </div>
       <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
         <span id="userBadge" class="guest-badge">&#x1F464; Guest</span>
@@ -303,358 +229,64 @@
   <header id="beranda" class="hero">
     <div class="container hero-wrap">
       <div class="hero-copy">
-        <div class="eyebrow"><i data-lucide="landmark"></i> Sistem Informasi Pertanahan Desa</div>
-        <h1>SIPETRA Desa Janti, Polanharjo.</h1>
-        <p>Sistem Informasi Pertanahan Desa Janti menyajikan data spasial pertanahan secara terintegrasi, meliputi batas administrasi, penggunaan lahan, dan status hak tanah dalam satu portal interaktif berbasis WebGIS.</p>
+        <div class="eyebrow"><i data-lucide="landmark"></i> Informasi Pertanahan Desa</div>
+        <h1>SIPETRA Desa Janti.</h1>
+        <p>Sistem Informasi Pertanahan Desa Janti menyajikan data spasial secara terintegrasi, meliputi penggunaan lahan, dan status hak tanah dalam satu portal interaktif.</p>
         <div class="hero-actions">
-          <a href="#dasar-desa" class="btn btn-primary"><i data-lucide="arrow-down"></i> Informasi desa</a>
-          <a href="#peta" class="btn btn-secondary"><i data-lucide="map"></i> Buka peta interaktif</a>
-        </div>
-        <div class="metric-grid">
-          <div class="metric"><strong>4</strong><span>Layer peta</span></div>
-          <div class="metric"><strong>1.325</strong><span>Bidang tanah</span></div>
-          <div class="metric"><strong>163 Ha</strong><span>Luas wilayah</span></div>
-        </div>
-      </div>
-      <div class="hero-side">
-        <div class="panel">
-          <div class="icon-line"><i data-lucide="layers-3"></i> Data spasial tersedia</div>
-          <p>Peta memuat layer utama: batas administrasi desa, penggunaan lahan, status hak tanah, dan ZNT yang dapat diaktifkan atau dinonaktifkan sesuai kebutuhan.</p>
-        </div>
-        <div class="panel">
-          <div class="icon-line"><i data-lucide="shield-check"></i> Transparansi pertanahan</div>
-          <p>Portal ini dibuat untuk mendukung keterbukaan informasi pertanahan Desa Janti agar masyarakat dapat mengakses data spasial secara mandiri dan mudah.</p>
+          <a href="#peta" class="btn btn-primary"><i data-lucide="map"></i> Buka peta interaktif</a>
         </div>
       </div>
     </div>
   </header>
-
-  <section id="dasar-desa" class="section">
-    <div class="container">
-      <div class="section-head">
-        <div class="section-copy">
-          <div class="eyebrow"><i data-lucide="landmark"></i> Informasi dasar desa</div>
-          <h2>Profil Wilayah Desa Janti</h2>
-          <p>Desa Janti terletak di Kecamatan Polanharjo, Kabupaten Klaten, Provinsi Jawa Tengah. Data pertanahan desa disajikan secara spasial untuk mendukung perencanaan dan pengelolaan lahan yang lebih transparan.</p>
-        </div>
-      </div>
-      <div class="basic-grid">
-        <div class="basic-cards">
-          <article class="basic-card"><div class="basic-title"><i data-lucide="map-pinned"></i> Lokasi administratif</div><p>Desa Janti berada di Kecamatan Polanharjo, Kabupaten Klaten, Provinsi Jawa Tengah, berbatasan langsung dengan beberapa desa di sekitarnya.</p></article>
-          <article class="basic-card"><div class="basic-title"><i data-lucide="badge-info"></i> Tujuan sistem</div><p>SIPETRA Janti dibuat untuk mendukung transparansi data pertanahan desa dan memudahkan akses informasi spasial bagi masyarakat dan perangkat desa.</p></article>
-          <article class="basic-card"><div class="basic-title"><i data-lucide="layers-3"></i> Data yang tersedia</div><p>Tersedia layer utama: batas administrasi desa, penggunaan lahan, status hak tanah, dan ZNT yang dapat diakses secara interaktif melalui peta.</p></article>
-          <article class="basic-card"><div class="basic-title"><i data-lucide="scroll-text"></i> Dasar hukum</div><p>Penyajian informasi pertanahan mengacu pada ketentuan keterbukaan informasi publik dan mendukung administrasi pertanahan berbasis digital di tingkat desa.</p></article>
-        </div>
-        <aside class="basic-side panel">
-          <div class="icon-line"><i data-lucide="info"></i> Data wilayah</div>
-          <div class="info-row"><span>Nama desa</span><strong>Desa Janti</strong></div>
-          <div class="info-row"><span>Kecamatan</span><strong>Polanharjo</strong></div>
-          <div class="info-row"><span>Kabupaten</span><strong>Klaten</strong></div>
-          <div class="info-row"><span>Provinsi</span><strong>Jawa Tengah</strong></div>
-          <div class="info-row"><span>Luas wilayah</span><strong>163 Ha</strong></div>
-          <div class="info-row"><span>Jumlah bidang tanah</span><strong>1.325 bidang</strong></div>
-        </aside>
-      </div>
-    </div>
-  </section>
-
-  <!-- ===== KEPENDUDUKAN ===== -->
-  <style>
-    .chart-tab{padding:8px 16px;border-radius:999px;border:1px solid rgba(26,37,48,.14);background:transparent;font-family:var(--font-body);font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s}
-    .chart-tab:hover{background:var(--bg-2);color:var(--primary-deep)}
-    .chart-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
-    .kep-metric-card{background:var(--surface);border:1px solid rgba(26,37,48,.08);border-radius:var(--radius-sm);box-shadow:var(--shadow);text-align:center;padding:22px 16px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
-    .kep-metric-card:hover{transform:translateY(-3px);box-shadow:0 20px 48px rgba(0,68,102,.13)}
-    .kep-metric-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--accent-color)}
-    .trend-badge{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;margin-top:6px}
-    .trend-up{background:#d4f5ec;color:#00875a}
-    .trend-down{background:#ffe4e4;color:#cc0000}
-    .trend-flat{background:#f0f0f0;color:#666}
-    .insight-box{background:linear-gradient(135deg,rgba(0,136,204,.06),rgba(0,179,134,.06));border:1px solid rgba(0,136,204,.15);border-radius:var(--radius-sm);padding:16px 20px;margin-top:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-    .insight-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text)}
-    .insight-icon{font-size:18px;flex-shrink:0;margin-top:1px}
-    .insight-item strong{color:var(--primary-deep)}
-    .data-table-wrap{overflow-x:auto;margin-top:8px}
-    .data-table{width:100%;border-collapse:collapse;font-size:13px}
-    .data-table th{background:rgba(0,136,204,.08);color:var(--primary-deep);font-weight:700;padding:9px 14px;text-align:center;border-bottom:2px solid rgba(0,136,204,.15)}
-    .data-table td{padding:8px 14px;text-align:center;border-bottom:1px solid rgba(26,37,48,.06)}
-    .data-table tr:last-child td{border-bottom:none;font-weight:700;background:rgba(0,136,204,.04)}
-    .data-table tr:hover td{background:rgba(0,136,204,.05)}
-    .toggle-table-btn{background:none;border:1px solid rgba(26,37,48,.14);border-radius:999px;padding:7px 16px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;font-family:var(--font-body)}
-    .toggle-table-btn:hover{background:var(--bg-2);color:var(--primary-deep)}
-  </style>
-
-  <section id="kependudukan" class="section">
-    <div class="container">
-      <div class="section-head">
-        <div class="section-copy">
-          <div class="eyebrow"><i data-lucide="users"></i> Data kependudukan</div>
-          <h2>Demografi Desa Janti</h2>
-          <p>Data kependudukan Desa Janti tahun 2020–2024 meliputi jumlah penduduk, kepadatan, rasio jenis kelamin, dan persentase terhadap total kecamatan.</p>
-        </div>
-      </div>
-
-      <!-- Kartu ringkasan dengan tren & animasi counter -->
-      <div class="metric-grid" style="margin-bottom:20px">
-        <div class="kep-metric-card" style="--accent-color:var(--primary)">
-          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Jumlah Penduduk (2024)</div>
-          <div class="kep-counter" data-target="2664" data-decimals="0" style="font-size:2.4rem;font-weight:700;color:var(--primary);font-family:var(--font-display)">0</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:2px">jiwa</div>
-          <div class="trend-badge trend-up">▲ +98 dari 2020</div>
-        </div>
-        <div class="kep-metric-card" style="--accent-color:var(--sogan)">
-          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Kepadatan (2024)</div>
-          <div class="kep-counter" data-target="1634" data-decimals="0" style="font-size:2.4rem;font-weight:700;color:var(--sogan);font-family:var(--font-display)">0</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:2px">jiwa/km²</div>
-          <div class="trend-badge trend-down">▼ −124 dari 2020</div>
-        </div>
-        <div class="kep-metric-card" style="--accent-color:var(--gold)">
-          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Rasio Jenis Kelamin (2024)</div>
-          <div class="kep-counter" data-target="95.88" data-decimals="2" style="font-size:2.4rem;font-weight:700;color:var(--gold);font-family:var(--font-display)">0</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:2px">L per 100 P</div>
-          <div class="trend-badge trend-up">▲ +0.58 dari 2020</div>
-        </div>
-        <div class="kep-metric-card" style="--accent-color:var(--indigo)">
-          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">% terhadap Kecamatan (2024)</div>
-          <div style="font-size:2.4rem;font-weight:700;color:var(--indigo);font-family:var(--font-display)"><span class="kep-counter" data-target="6.43" data-decimals="2">0</span>%</div>
-          <div style="font-size:12px;color:var(--muted);margin-top:2px">dari total penduduk kecamatan</div>
-          <div class="trend-badge trend-flat">≈ Stabil sejak 2020</div>
-        </div>
-      </div>
-
-      <!-- Highlight insight otomatis -->
-      <div class="insight-box">
-        <div class="insight-item"><span class="insight-icon">📈</span><div>Pertumbuhan penduduk tertinggi terjadi pada <strong>2022–2023</strong> dengan tambahan <strong>54 jiwa</strong> dalam setahun.</div></div>
-        <div class="insight-item"><span class="insight-icon">🏘️</span><div>Kepadatan tertinggi tercatat pada <strong>2020 (1.758 jiwa/km²)</strong>, menurun setelah penyesuaian batas wilayah.</div></div>
-        <div class="insight-item"><span class="insight-icon">⚖️</span><div>Rasio jenis kelamin <strong>di bawah 100</strong> sepanjang 2020–2024, artinya jumlah perempuan selalu lebih banyak.</div></div>
-        <div class="insight-item"><span class="insight-icon">📊</span><div>Kontribusi penduduk terhadap kecamatan <strong>relatif stabil</strong> di kisaran <strong>6,3–6,4%</strong> selama 5 tahun.</div></div>
-      </div>
-
-      <!-- Tab grafik line + bar perbandingan -->
-      <div class="basic-card" style="padding:24px;margin-top:20px">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
-          <div style="display:flex;gap:8px;flex-wrap:wrap" id="chartTabs">
-            <button class="chart-tab active" onclick="switchChart('jumlah',event)">Jumlah Penduduk</button>
-            <button class="chart-tab" onclick="switchChart('kepadatan',event)">Kepadatan</button>
-            <button class="chart-tab" onclick="switchChart('rasio',event)">Rasio Jenis Kelamin</button>
-            <button class="chart-tab" onclick="switchChart('persentase',event)">% terhadap Kecamatan</button>
-            <button class="chart-tab" onclick="switchChart('semua',event)">Semua (Bar)</button>
-          </div>
-        </div>
-        <div style="position:relative;height:300px">
-          <canvas id="kepCanvas"></canvas>
-        </div>
-        <div id="chartDesc" style="margin-top:14px;font-size:13px;color:var(--muted);text-align:center;font-style:italic"></div>
-
-        <!-- Tabel data toggle -->
-        <div style="display:flex;justify-content:flex-end;margin-top:18px">
-          <button class="toggle-table-btn" id="toggleTableBtn" onclick="toggleTable()">
-            <i data-lucide="table-2" style="width:14px;height:14px"></i> Lihat Tabel Data
-          </button>
-        </div>
-        <div id="dataTableWrap" style="display:none;margin-top:14px">
-          <div class="data-table-wrap">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Tahun</th>
-                  <th>Jumlah Penduduk (jiwa)</th>
-                  <th>Kepadatan (jiwa/km²)</th>
-                  <th>Rasio Jenis Kelamin</th>
-                  <th>% thd Kecamatan</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td>2020</td><td>2.566</td><td>1.758,00</td><td>95,300</td><td>6,40%</td></tr>
-                <tr><td>2021</td><td>2.597</td><td>1.755,00</td><td>95,120</td><td>6,33%</td></tr>
-                <tr><td>2022</td><td>2.609</td><td>1.762,83</td><td>94,556</td><td>6,33%</td></tr>
-                <tr><td>2023</td><td>2.663</td><td>1.630,53</td><td>95,720</td><td>6,44%</td></tr>
-                <tr><td>2024</td><td>2.664</td><td>1.634,00</td><td>95,880</td><td>6,43%</td></tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <!-- Panel Download Admin -->
-      <div class="admin-only admin-panel-bar">
-        <span>&#x2B07; Unduh Data Kependudukan</span>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn-download green" onclick="downloadKepCSV()">
-            Export Kependudukan (.csv)
-          </button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <script>
-    const kepData = {
-      tahun: [2020, 2021, 2022, 2023, 2024],
-      jumlah:     [2566, 2597, 2609, 2663, 2664],
-      kepadatan:  [1758, 1755, 1762.83, 1630.53, 1634],
-      rasio:      [95.3, 95.12, 94.556, 95.72, 95.88],
-      persentase: [6.4, 6.33, 6.33, 6.44, 6.43],
-    };
-
-    const chartMeta = {
-      jumlah:     { label: 'Jumlah Penduduk (jiwa)', color: '#0088cc', desc: 'Jumlah penduduk Desa Janti meningkat konsisten dari 2.566 jiwa (2020) menjadi 2.664 jiwa (2024), dengan lonjakan terbesar pada 2022–2023.' },
-      kepadatan:  { label: 'Kepadatan Penduduk (jiwa/km²)', color: '#00b386', desc: 'Kepadatan menurun signifikan pada 2023 dari 1.762 menjadi 1.630 jiwa/km², kemungkinan akibat penyesuaian luas administrasi wilayah.' },
-      rasio:      { label: 'Rasio Jenis Kelamin', color: '#ffb300', desc: 'Rasio jenis kelamin berada di bawah 100 sepanjang periode, artinya penduduk perempuan selalu lebih banyak dari laki-laki.' },
-      persentase: { label: '% terhadap Total Kecamatan', color: '#4d4dff', desc: 'Kontribusi penduduk Desa Janti terhadap Kecamatan Polanharjo sangat stabil di kisaran 6,3–6,4% selama 5 tahun berturut-turut.' },
-      semua:      { label: 'Semua Indikator', color: '#0088cc', desc: 'Perbandingan seluruh indikator kependudukan 2020–2024. Nilai dinormalisasi untuk perbandingan visual.' },
-    };
-
-    let kepChart = null;
-    let activeKey = 'jumlah';
-
-    function switchChart(key, ev) {
-      activeKey = key;
-      document.querySelectorAll('.chart-tab').forEach(b => b.classList.remove('active'));
-      if (ev) ev.target.classList.add('active');
-      const meta = chartMeta[key];
-      document.getElementById('chartDesc').textContent = meta.desc;
-
-      if (!kepChart) return;
-
-      if (key === 'semua') {
-        kepChart.config.type = 'bar';
-        kepChart.data.datasets = [
-          { label: 'Jumlah Penduduk (÷40)', data: kepData.jumlah.map(v=>+(v/40).toFixed(1)), backgroundColor: '#0088cc88', borderColor: '#0088cc', borderWidth: 1.5, borderRadius: 6 },
-          { label: 'Kepadatan (÷28)', data: kepData.kepadatan.map(v=>+(v/28).toFixed(1)), backgroundColor: '#00b38688', borderColor: '#00b386', borderWidth: 1.5, borderRadius: 6 },
-          { label: 'Rasio ×0.7', data: kepData.rasio.map(v=>+(v*0.7).toFixed(1)), backgroundColor: '#ffb30088', borderColor: '#ffb300', borderWidth: 1.5, borderRadius: 6 },
-          { label: '% ×10', data: kepData.persentase.map(v=>+(v*10).toFixed(2)), backgroundColor: '#4d4dff88', borderColor: '#4d4dff', borderWidth: 1.5, borderRadius: 6 },
-        ];
-        kepChart.options.plugins.legend.display = true;
-        kepChart.options.scales.y.ticks.callback = v => v;
-      } else {
-        kepChart.config.type = 'line';
-        kepChart.data.datasets = [{
-          label: meta.label,
-          data: kepData[key],
-          borderColor: meta.color,
-          backgroundColor: meta.color + '22',
-          pointBackgroundColor: meta.color,
-          pointRadius: 6, pointHoverRadius: 9,
-          borderWidth: 2.5, fill: true, tension: 0.35,
-        }];
-        kepChart.options.plugins.legend.display = false;
-        kepChart.options.scales.y.ticks.callback = v => {
-          if (key === 'persentase') return v + '%';
-          return v.toLocaleString('id-ID');
-        };
-      }
-      kepChart.update();
-    }
-
-    function toggleTable() {
-      const wrap = document.getElementById('dataTableWrap');
-      const btn  = document.getElementById('toggleTableBtn');
-      const isHidden = wrap.style.display === 'none';
-      wrap.style.display = isHidden ? 'block' : 'none';
-      btn.innerHTML = isHidden
-        ? '<i data-lucide="chevron-up" style="width:14px;height:14px"></i> Sembunyikan Tabel'
-        : '<i data-lucide="table-2" style="width:14px;height:14px"></i> Lihat Tabel Data';
-      if (window.lucide) lucide.createIcons();
-    }
-
-    // Animasi counter saat scroll masuk viewport
-    function animateCounter(el) {
-      const target = parseFloat(el.dataset.target);
-      const decimals = parseInt(el.dataset.decimals) || 0;
-      const duration = 1400;
-      const start = performance.now();
-      function step(now) {
-        const progress = Math.min((now - start) / duration, 1);
-        const ease = 1 - Math.pow(1 - progress, 3);
-        const val = target * ease;
-        el.textContent = decimals > 0
-          ? val.toFixed(decimals).replace('.', ',')
-          : Math.round(val).toLocaleString('id-ID');
-        if (progress < 1) requestAnimationFrame(step);
-      }
-      requestAnimationFrame(step);
-    }
-
-    window.addEventListener('load', () => {
-      // Init chart
-      const ctx = document.getElementById('kepCanvas').getContext('2d');
-      const meta = chartMeta['jumlah'];
-      document.getElementById('chartDesc').textContent = meta.desc;
-      kepChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: kepData.tahun,
-          datasets: [{
-            label: meta.label,
-            data: kepData.jumlah,
-            borderColor: meta.color,
-            backgroundColor: meta.color + '22',
-            pointBackgroundColor: meta.color,
-            pointRadius: 6, pointHoverRadius: 9,
-            borderWidth: 2.5, fill: true, tension: 0.35,
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                label: ctx => {
-                  const val = ctx.parsed.y;
-                  if (activeKey === 'persentase') return ` ${val.toFixed(2)}%`;
-                  if (activeKey === 'rasio') return ` ${val.toFixed(3)}`;
-                  return ` ${val.toLocaleString('id-ID')}`;
-                }
-              }
-            }
-          },
-          scales: {
-            x: { grid: { color: 'rgba(26,37,48,.06)' }, ticks: { font: { family: 'Plus Jakarta Sans', size: 12 } } },
-            y: {
-              grid: { color: 'rgba(26,37,48,.06)' },
-              ticks: {
-                font: { family: 'Plus Jakarta Sans', size: 12 },
-                callback: v => v.toLocaleString('id-ID')
-              }
-            }
-          }
-        }
-      });
-
-      // Intersection Observer untuk animasi counter
-      const counters = document.querySelectorAll('.kep-counter');
-      const observer = new IntersectionObserver(entries => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            animateCounter(entry.target);
-            observer.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.3 });
-      counters.forEach(el => observer.observe(el));
-    });
-  </script>
 
   <section id="peta" class="section">
     <div class="container map-shell">
       <div class="map-top">
         <div class="map-intro">
           <div class="eyebrow"><i data-lucide="map"></i> Peta interaktif</div>
-          <h2>Peta Spasial Pertanahan Desa Janti</h2>
-          <p>Klik pada area peta untuk melihat informasi detail setiap bidang tanah. Aktifkan atau nonaktifkan layer melalui panel kiri, dan pilih basemap sesuai kebutuhan.</p>
-        </div>
-        <div class="chip-row">
-          <span class="chip"><i data-lucide="layers-3"></i> 4 layer data</span>
-          <span class="chip"><i data-lucide="mouse-pointer-click"></i> Klik untuk detail</span>
-          <span class="chip"><i data-lucide="satellite"></i> Citra satelit tersedia</span>
+          <h2>Peta Spasial Pertanahan</h2>
         </div>
       </div>
+      
       <div class="map-layout">
         <aside class="sidebar">
+          
+          <div>
+            <h3>Pencarian Lokasi</h3>
+            <div class="control">
+              <input type="text" id="searchLatLng" class="filter-input" placeholder="Lat, Lng (Cth: -7.69, 110.61)">
+              <button onclick="cariLokasi()" class="search-btn"><i data-lucide="search" style="width:14px;height:14px;display:inline;vertical-align:middle;margin-right:4px;"></i> Cari Koordinat</button>
+            </div>
+          </div>
+
+          <div>
+            <h3>Filter & Statistik Data</h3>
+            <div class="control">
+              <span style="font-size:12px; color:var(--muted); font-weight:600; margin-bottom:4px;">Filter Status Hak:</span>
+              <select id="filterStatus" onchange="applyFilter()" class="filter-input" style="margin-bottom: 12px;">
+                <option value="ALL">Semua Status Hak</option>
+                <option value="HAK MILIK">Hak Milik</option>
+                <option value="HAK PAKAI">Hak Pakai</option>
+                <option value="HAK WAKAF">Hak Wakaf</option>
+                <option value="KOSONG">Kosong</option>
+              </select>
+              <div class="info-row" style="border-bottom:none; padding-bottom:0;">
+                <span>Total Bidang Tampil:</span>
+                <strong id="statBidang" style="color:var(--primary-deep); font-size:16px;">0</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-only" style="flex-direction:column; gap:8px; border-top:1px dashed var(--line); padding-top:16px;">
+            <h3 style="margin-bottom:4px;"><i data-lucide="lock" style="width:14px; display:inline;"></i> Menu Admin</h3>
+            <button onclick="downloadGeoJSONCSV()" class="btn-download green" style="width:100%; justify-content:center; padding:10px;">
+              <i data-lucide="download" style="width:16px;"></i> Ekspor CSV Status Hak
+            </button>
+            <button onclick="window.print()" class="btn-download" style="width:100%; justify-content:center; padding:10px; background:var(--primary-deep);">
+              <i data-lucide="printer" style="width:16px;"></i> Cetak Halaman Peta
+            </button>
+          </div>
+
           <div>
             <h3>Basemap</h3>
             <div class="sidebar-group">
@@ -662,6 +294,7 @@
               <label class="control"><span class="control-label"><input type="radio" name="basemap" id="satelliteBase"> Citra satelit</span></label>
             </div>
           </div>
+          
           <div>
             <h3>Layer data</h3>
             <div class="sidebar-group">
@@ -686,26 +319,17 @@
                   <input type="range" class="opacity-slider" id="tanahOpacity" min="0" max="1" step="0.1" value="0.7">
                 </div>
               </div>
-              <div class="control" style="display:none">
-                <label class="control-label"><input type="checkbox" id="zntLayerToggle" checked> ZNT</label>
-                <div class="opacity-slider-wrapper">
-                  <span>Transparansi:</span>
-                  <input type="range" class="opacity-slider" id="zntOpacity" min="0" max="1" step="0.1" value="0.3">
-                </div>
-              </div>
             </div>
           </div>
-          <div>
+          
+          <div id="legendContainer">
             <h3>Legenda peta</h3>
-            <div class="legend-box">
+            <div class="legend-box" id="legendAdm">
               <div class="legend-label">Batas administrasi</div>
               <div class="legend-item"><span class="swatch" style="background:#ff3333; height: 3px; border-radius: 0;"></span> Garis batas desa</div>
             </div>
-            <div class="legend-box" style="display:none">
-              <div class="legend-label">ZNT</div>
-              <div class="legend-item"><span class="swatch" style="background:#4d4dff;opacity:.5"></span> Zona Nilai Tanah</div>
-            </div>
-            <div class="legend-box">
+            
+            <div class="legend-box" id="legendStatus">
               <div class="legend-label">Status Hak Tanah</div>
               <div class="legend-item"><span class="swatch" style="background:#ffaa00"></span> Hak milik</div>
               <div class="legend-item"><span class="swatch" style="background:#00ff66"></span> Hak pakai</div>
@@ -713,479 +337,11 @@
               <div class="legend-item"><span class="swatch" style="background:#b3c6ff"></span> Kosong</div>
               <div class="legend-item"><span class="swatch" style="background:#737373"></span> Tidak ada data</div>
             </div>
-            <div class="legend-box">
+
+            <div class="legend-box" id="legendPenggunaan">
               <div class="legend-label">Penggunaan lahan</div>
               <div class="legend-item"><span class="swatch" style="background:#ff3399"></span> Apotek</div>
               <div class="legend-item"><span class="swatch" style="background:#996633"></span> Area parkir</div>
               <div class="legend-item"><span class="swatch" style="background:#ff6600"></span> Bangunan hunian</div>
-              <div class="legend-item"><span class="swatch" style="background:#33ffff"></span> Gereja</div>
               <div class="legend-item"><span class="swatch" style="background:#ff3333"></span> Jalan</div>
-              <div class="legend-item"><span class="swatch" style="background:#cc33ff"></span> Kantor pemerintahan</div>
-              <div class="legend-item"><span class="swatch" style="background:#3399ff"></span> Kolam</div>
-              <div class="legend-item"><span class="swatch" style="background:#ccff33"></span> Lapangan tidak diperkeras</div>
-              <div class="legend-item"><span class="swatch" style="background:#a6a6a6"></span> Lapangan diperkeras</div>
-              <div class="legend-item"><span class="swatch" style="background:#00cc44"></span> Masjid</div>
-              <div class="legend-item"><span class="swatch" style="background:#79d2a6"></span> Pabrik</div>
-              <div class="legend-item"><span class="swatch" style="background:#ffe680"></span> Pekarangan</div>
-              <div class="legend-item"><span class="swatch" style="background:#336644"></span> Pemakaman</div>
-              <div class="legend-item"><span class="swatch" style="background:#ff9933"></span> Pendidikan dasar</div>
-              <div class="legend-item"><span class="swatch" style="background:#ffcc99"></span> Rumah toko</div>
-              <div class="legend-item"><span class="swatch" style="background:#66ff33"></span> Sawah</div>
-              <div class="legend-item"><span class="swatch" style="background:#b3ff66"></span> Semak belukar</div>
-              <div class="legend-item"><span class="swatch" style="background:#00ffff"></span> Sungai</div>
-              <div class="legend-item"><span class="swatch" style="background:#ff0066"></span> Tempat hiburan</div>
-              <div class="legend-item"><span class="swatch" style="background:#d9a366"></span> Tempat penimbunan</div>
-              <div class="legend-item"><span class="swatch" style="background:#e6e6e6"></span> Lainnya</div>
-            </div>
-          </div>
-        </aside>
-        <div id="map"></div>
-      </div>
-    </div>
-  </section>
-
-  <section id="kontak" class="section">
-    <div class="container contact-grid">
-      <div class="contact-card">
-        <div class="eyebrow"><i data-lucide="contact-round"></i> Informasi kontak</div>
-        <h2 style="margin:12px 0 0;font-size:clamp(2rem,3vw,3.2rem);line-height:1.02;font-family:var(--font-display);font-weight:600;letter-spacing:-.03em;">Hubungi Kantor Desa Janti</h2>
-        <p>Untuk informasi lebih lanjut mengenai data pertanahan atau keperluan administrasi desa, silakan menghubungi kantor desa melalui kontak berikut.</p>
-        <div class="contact-list">
-          <div class="contact-item"><i data-lucide="map-pin"></i><div><strong>Alamat</strong><span>Desa Janti, Kecamatan Polanharjo, Kabupaten Klaten, Jawa Tengah</span></div></div>
-          <div class="contact-item"><i data-lucide="phone"></i><div><strong>Telepon</strong><span>+62 857 1269 2071</span></div></div>
-          <div class="contact-item"><i data-lucide="mail"></i><div><strong>Email</strong><span>sipetrajanti.id</span></div></div>
-          <div class="contact-item"><i data-lucide="clock"></i><div><strong>Jam pelayanan</strong><span>Senin – Jumat, 08.00 – 15.00 WIB</span></div></div>
-        </div>
-      </div>
-      <div class="footer-card">
-        <div class="eyebrow"><i data-lucide="database"></i> Sumber data</div>
-        <h3>Data pertanahan Desa Janti.</h3>
-        <p>Data spasial yang ditampilkan bersumber dari hasil pengukuran dan pendataan pertanahan Desa Janti yang disajikan dalam format GeoJSON.</p>
-        <div class="footer-list">
-          <div class="footer-item"><i data-lucide="file-json"></i><div><strong>Batas Administrasi.geojson</strong><span>Batas administrasi desa</span></div></div>
-          <div class="footer-item"><i data-lucide="trees"></i><div><strong>Penggunaan Lahan.geojson</strong><span>Klasifikasi penggunaan lahan</span></div></div>
-          <div class="footer-item"><i data-lucide="scroll-text"></i><div><strong>Status Hak.geojson</strong><span>Status hak kepemilikan tanah</span></div></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <footer>
-    <div class="container footer-grid">
-      <div class="footer-card">
-        <div class="eyebrow"><i data-lucide="badge-info"></i> Tentang SIPETRA</div>
-        <h3>Sistem Informasi Pertanahan Desa Janti.</h3>
-        <p>SIPETRA Janti merupakan portal WebGIS pertanahan yang menyajikan data spasial desa secara terintegrasi untuk mendukung transparansi dan kemudahan akses informasi pertanahan bagi seluruh masyarakat Desa Janti.</p>
-      </div>
-      <div class="footer-card">
-        <div class="eyebrow"><i data-lucide="database"></i> Sumber layer</div>
-        <div class="footer-list">
-          <div class="footer-item"><i data-lucide="file-json"></i><div><strong>Batas Administrasi.geojson</strong><span>Batas administrasi</span></div></div>
-          <div class="footer-item"><i data-lucide="trees"></i><div><strong>Penggunaan Lahan.geojson</strong><span>Layer penggunaan lahan</span></div></div>
-          <div class="footer-item"><i data-lucide="scroll-text"></i><div><strong>Status Hak.geojson</strong><span>Layer status hak tanah</span></div></div>
-        </div>
-      </div>
-    </div>
-  </footer>
-
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-    const map = L.map('map').setView([-7.694, 110.615], 16);
-    const osmBase = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' });
-    const satelliteBase = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: 'Tiles &copy; Esri' });
-    osmBase.addTo(map);
-
-    let admLayer, penggunaanLahanLayer, statusHakLayer, zntLayer;
-
-    let penggunaanFeatures = [];
-    let statusFeatures = [];
-    let zntFeatures = [];
-    let admFeatures = [];
-
-    function getKategoriValue(props) {
-      return props.V4_JB || props.v4_jb || props.penggunaan || props.PENGGUNAAN || props.TEMA || props.tema || props.kategori || props.KATEGORI || props.JENIS || props.jenis || props.nama || props.NAMA || '';
-    }
-
-    function getStatusValue(props) {
-      // Field utama di Status Hak.geojson adalah "Tipe_Hak"
-      return props.Tipe_Hak || props.tipe_hak || props.TIPE_HAK || props.status || props.STATUS || props.hak || props.HAK || props.jenis_hak || props.JENIS_HAK || '';
-    }
-
-    function orderLayers() {
-      if (zntLayer && map.hasLayer(zntLayer)) zntLayer.bringToBack();
-      if (statusHakLayer && map.hasLayer(statusHakLayer)) statusHakLayer.bringToBack();
-      if (penggunaanLahanLayer && map.hasLayer(penggunaanLahanLayer)) penggunaanLahanLayer.bringToFront();
-      if (admLayer && map.hasLayer(admLayer)) admLayer.bringToFront();
-    }
-
-    function getZntValue(props) {
-      return props.ZNT || props.znt || props.zona || props.ZONA || props.kode_znt || props.KODE_ZNT || props.NIZ || props.niz || props.KDZNT || props.kdznt || '';
-    }
-
-    function getNilaiTanah(props) {
-      return props.nilai_tanah || props.NILAI_TANAH || props.njop || props.NJOP || props.NILAI || props.nilai || props.harga || props.HARGA || props.nilai_zona || props.NILAI_ZONA || '';
-    }
-
-    // Point-in-polygon menggunakan ray casting untuk presisi lebih tinggi
-    function pointInRing(pt, ring) {
-      let inside = false;
-      const x = pt.lng, y = pt.lat;
-      for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-        const xi = ring[i][0], yi = ring[i][1];
-        const xj = ring[j][0], yj = ring[j][1];
-        const intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-        if (intersect) inside = !inside;
-      }
-      return inside;
-    }
-
-    function pointInPolygon(pt, geometry) {
-      try {
-        if (geometry.type === 'Polygon') {
-          if (!pointInRing(pt, geometry.coordinates[0])) return false;
-          for (let i = 1; i < geometry.coordinates.length; i++) {
-            if (pointInRing(pt, geometry.coordinates[i])) return false;
-          }
-          return true;
-        }
-        if (geometry.type === 'MultiPolygon') {
-          return geometry.coordinates.some(poly => {
-            if (!pointInRing(pt, poly[0])) return false;
-            for (let i = 1; i < poly.length; i++) {
-              if (pointInRing(pt, poly[i])) return false;
-            }
-            return true;
-          });
-        }
-      } catch(e) {}
-      return false;
-    }
-
-    function findFeatureAtLatLng(latlng, features) {
-      for (const f of features) {
-        try {
-          if (f.geometry && pointInPolygon(latlng, f.geometry)) {
-            return f.properties;
-          }
-        } catch(e) {}
-      }
-      return null;
-    }
-
-    // Pembaruan Struktur Popup Terpadu: 1. Lokasi, 2. Penggunaan Lahan, 3. Status Hak, 4. ZNT
-    function buildUnifiedPopup(latlng, clickedProperties) {
-      // Selalu cari dari masing-masing layer secara mandiri
-      const pLahan  = findFeatureAtLatLng(latlng, penggunaanFeatures) || {};
-      const pStatus = findFeatureAtLatLng(latlng, statusFeatures) || {};
-      const pZNT    = findFeatureAtLatLng(latlng, zntFeatures) || {};
-      const pAdm    = findFeatureAtLatLng(latlng, admFeatures) || {};
-
-      const lokasiDesa = pAdm.NAMOBJ || pAdm.namobj || pAdm.DESA || pAdm.desa || pLahan.DESA || pStatus.DESA || 'Janti';
-      const lokasiKec  = pAdm.WADMKC || pAdm.wadmkc || pAdm.KECAMATAN || pAdm.kecamatan || pLahan.KECAMATAN || 'Polanharjo';
-      const lokasiKab  = pAdm.WADMKAB || pAdm.wadmkab || pAdm.KABUPATEN || pAdm.kabupaten || pLahan.KABUPATEN || 'Klaten';
-
-      // Penggunaan Lahan — dari layer PL
-      const penggunaanVal = getKategoriValue(pLahan) || getKategoriValue(clickedProperties) || '';
-
-      // Status Hak — dari layer Status Hak (field: Tipe_Hak)
-      const statusVal = getStatusValue(pStatus) || getStatusValue(clickedProperties) || '';
-
-      // ZNT — ada di kolom "ZNT" dalam Status Hak.geojson (bukan file terpisah)
-      const zntVal = (pStatus && pStatus.ZNT) || (pStatus && pStatus.znt) || getZntValue(pZNT) || getZntValue(clickedProperties) || '';
-
-      const penggunaanColor = penggunaanVal ? getPenggunaanColor(penggunaanVal.toLowerCase()) : '#e6e6e6';
-      const statusColor     = statusVal ? getStatusColor(statusVal.toLowerCase()) : '#a6a6a6';
-
-      function row(label, val, dot) {
-        const display = val && val !== '' ? val : '–';
-        return `<div class="popup-row">
-          <div class="popup-key">${label}</div>
-          <div class="popup-value">${dot ? `<span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${dot};border:1px solid rgba(0,0,0,.12);margin-right:5px;vertical-align:middle"></span>` : ''}${display}</div>
-        </div>`;
-      }
-
-      function section(icon, title, content) {
-        if (!content || content.trim() === '') return '';
-        return `<div class="popup-section">
-          <div class="popup-section-title">${icon} ${title}</div>
-          <div class="popup-grid">${content}</div>
-        </div>`;
-      }
-
-      const lokasiContent = [
-        row('Desa', lokasiDesa),
-        row('Kecamatan', lokasiKec),
-        row('Kabupaten', lokasiKab),
-      ].join('');
-
-      const penggunaanContent = row('Penggunaan', penggunaanVal, penggunaanColor);
-
-      const statusContent = row('Status Hak', statusVal ? statusVal : '–', statusColor);
-
-      const zntContent = row('Zona', zntVal || '–');
-
-      return `<div class="popup-card">
-        <div class="popup-head">
-          <div class="popup-title">Informasi Bidang Tanah</div>
-          <div class="popup-badge">Terintegrasi</div>
-        </div>
-        ${section('📍', 'Lokasi', lokasiContent)}
-        ${section('🌾', 'Penggunaan Lahan', penggunaanContent)}
-        ${section('📜', 'Status Hak', statusContent)}
-        ${section('🏷️', 'Zona Nilai Tanah (Rp/m²)', zntContent)}
-      </div>`;
-    }
-
-    map.on('click', function(e) {
-      const pLahan = findFeatureAtLatLng(e.latlng, penggunaanFeatures);
-      const pStatus = findFeatureAtLatLng(e.latlng, statusFeatures);
-      
-      if(pLahan || pStatus) {
-        const popupContent = buildUnifiedPopup(e.latlng, pLahan || pStatus || {});
-        L.popup({ className: 'custom-popup', maxWidth: 340 })
-          .setLatLng(e.latlng)
-          .setContent(popupContent)
-          .openOn(map);
-      }
-    });
-
-    function getPenggunaanColor(kategori) {
-      if (kategori.includes('apotek'))                   return '#ff3399';
-      if (kategori.includes('area parkir'))              return '#996633';
-      if (kategori.includes('bangunan hunian'))          return '#ff6600';
-      if (kategori.includes('gereja'))                   return '#33ffff';
-      if (kategori.includes('jalan'))                    return '#ff3333';
-      if (kategori.includes('kantor pemerintahan'))      return '#cc33ff';
-      if (kategori.includes('kolam'))                    return '#3399ff';
-      if (kategori.includes('lapangan tidak diperkeras'))return '#ccff33';
-      if (kategori.includes('lapangan diperkeras'))      return '#a6a6a6';
-      if (kategori.includes('masjid'))                   return '#00cc44';
-      if (kategori.includes('pabrik'))                   return '#79d2a6';
-      if (kategori.includes('pekarangan'))               return '#ffe680';
-      if (kategori.includes('pemakaman'))                return '#336644';
-      if (kategori.includes('pendidikan dasar'))         return '#ff9933';
-      if (kategori.includes('rumah toko'))               return '#ffcc99';
-      if (kategori.includes('sawah'))                    return '#66ff33';
-      if (kategori.includes('semak belukar'))            return '#b3ff66';
-      if (kategori.includes('sungai'))                   return '#00ffff';
-      if (kategori.includes('tempat hiburan'))           return '#ff0066';
-      if (kategori.includes('tempat penimbunan'))        return '#d9a366';
-      return '#e6e6e6';
-    }
-
-    function getStatusColor(status) {
-      if (status.includes('hak milik'))      return '#ffaa00';
-      if (status.includes('hak pakai'))      return '#00ff66';
-      if (status.includes('hak wakaf'))      return '#ff00ff';
-      if (status.includes('kosong'))         return '#b3c6ff';
-      if (status.includes('tidak ada data')) return '#737373';
-      return '#a6a6a6';
-    }
-
-    function getStatusBorderColor(status) {
-      if (status.includes('hak milik'))      return '#cc8800';
-      if (status.includes('hak pakai'))      return '#00cc52';
-      if (status.includes('hak wakaf'))      return '#cc00cc';
-      if (status.includes('kosong'))         return '#809fff';
-      if (status.includes('tidak ada data')) return '#595959';
-      return '#8c8c8c';
-    }
-
-    function shadeColor(hex, percent) {
-      const num = parseInt(hex.replace('#',''),16), amt = Math.round(2.55 * percent),
-      R = (num >> 16) + amt, G = (num >> 8 & 0x00FF) + amt, B = (num & 0x0000FF) + amt;
-      return '#' + (0x1000000 + (R<255?(R<1?0:R):255)*0x10000 + (G<255?(G<1?0:G):255)*0x100 + (B<255?(B<1?0:B):255)).toString(16).slice(1);
-    }
-
-    function setupLayerInteractions(feature, layer) {
-      layer.on('click', function(e) {
-        L.DomEvent.stopPropagation(e);
-        const popupContent = buildUnifiedPopup(e.latlng, feature.properties || {});
-        L.popup({ className: 'custom-popup', maxWidth: 340 })
-          .setLatLng(e.latlng)
-          .setContent(popupContent)
-          .openOn(map);
-      });
-    }
-
-    Promise.all([
-      fetch('./Batas Administrasi.geojson').then(r => r.json()),
-      fetch('./Penggunaan Lahan.geojson').then(r => r.json()),
-      fetch('./Status Hak.geojson').then(r => r.json()),
-      fetch('./ZNT.geojson').then(r => r.json()).catch(() => ({ features: [] })),
-    ])
-    .then(([adminData, penggunaanData, statusData, zntData]) => {
-      admFeatures       = adminData.features || [];
-      penggunaanFeatures = penggunaanData.features || [];
-      statusFeatures    = statusData.features || [];
-      zntFeatures       = zntData.features || [];
-
-      // 1. Layer Batas Administrasi
-      admLayer = L.geoJSON(adminData, {
-        style: { color: '#ff3333', weight: 4, fillOpacity: 0, dashArray: '8, 5' },
-        onEachFeature: setupLayerInteractions
-      }).addTo(map);
-
-      // 2. Layer Status Hak Tanah
-      statusHakLayer = L.geoJSON(statusData, {
-        style: (feature) => {
-          const st = getStatusValue(feature.properties || {}).toLowerCase();
-          const op = parseFloat(document.getElementById('tanahOpacity').value);
-          return { color: getStatusBorderColor(st), weight: 1, fillColor: getStatusColor(st), fillOpacity: op };
-        },
-        onEachFeature: setupLayerInteractions
-      }).addTo(map);
-
-      // 3. Layer ZNT — data dimuat untuk popup tapi TIDAK ditampilkan di peta
-      if (zntFeatures.length > 0) {
-        zntLayer = L.geoJSON(zntData, {
-          style: () => {
-            const op = parseFloat(document.getElementById('zntOpacity').value);
-            return { color: '#4d4dff', weight: 1.5, fillColor: '#4d4dff', fillOpacity: op, dashArray: '3, 3' };
-          },
-          onEachFeature: setupLayerInteractions
-        });
-        // Tidak ditambahkan ke map dengan .addTo(map) — data tetap ada untuk popup
-      }
-
-      // 4. Layer Penggunaan Lahan (PL) - Ditambahkan terakhir agar tumpukan visual berada di atas
-      penggunaanLahanLayer = L.geoJSON(penggunaanData, {
-        style: (feature) => {
-          const kat = getKategoriValue(feature.properties || {}).toLowerCase();
-          const fill = getPenggunaanColor(kat);
-          const op = parseFloat(document.getElementById('wmsOpacity').value);
-          return { color: shadeColor(fill, -18), weight: 0.6, fillColor: fill, fillOpacity: op };
-        },
-        onEachFeature: setupLayerInteractions
-      }).addTo(map);
-
-      orderLayers();
-
-      const allLayers = L.featureGroup([penggunaanLahanLayer, statusHakLayer].filter(l => l !== undefined));
-      if (allLayers.getLayers().length > 0) map.fitBounds(allLayers.getBounds());
-    })
-    .catch((error) => {
-      console.error('Gagal memuat GeoJSON:', error);
-      alert('GeoJSON gagal dimuat. Pastikan penamaan file sudah persis sama.');
-    });
-
-    // Toggle Checkbox Layer
-    document.getElementById('admLayerToggle').addEventListener('change', function() {
-      if (!admLayer) return; this.checked ? map.addLayer(admLayer) : map.removeLayer(admLayer); orderLayers();
-    });
-    document.getElementById('wmsLayerToggle').addEventListener('change', function() {
-      if (!penggunaanLahanLayer) return; this.checked ? map.addLayer(penggunaanLahanLayer) : map.removeLayer(penggunaanLahanLayer); orderLayers();
-    });
-    document.getElementById('tanahLayerToggle').addEventListener('change', function() {
-      if (!statusHakLayer) return; this.checked ? map.addLayer(statusHakLayer) : map.removeLayer(statusHakLayer); orderLayers();
-    });
-    document.getElementById('zntLayerToggle').addEventListener('change', function() {
-      if (!zntLayer) return; this.checked ? map.addLayer(zntLayer) : map.removeLayer(zntLayer); orderLayers();
-    });
-
-    // Slider Transparansi (Opacity)
-    document.getElementById('admOpacity').addEventListener('input', function() {
-      if (!admLayer) return;
-      const val = parseFloat(this.value);
-      admLayer.setStyle({ opacity: val });
-    });
-    document.getElementById('wmsOpacity').addEventListener('input', function() {
-      if (!penggunaanLahanLayer) return;
-      const val = parseFloat(this.value);
-      penggunaanLahanLayer.setStyle({ fillOpacity: val, opacity: val });
-    });
-    document.getElementById('tanahOpacity').addEventListener('input', function() {
-      if (!statusHakLayer) return;
-      const val = parseFloat(this.value);
-      statusHakLayer.setStyle({ fillOpacity: val, opacity: val });
-    });
-    document.getElementById('zntOpacity').addEventListener('input', function() {
-      if (!zntLayer) return;
-      const val = parseFloat(this.value);
-      zntLayer.setStyle({ fillOpacity: val, opacity: val });
-    });
-
-    // Basemap Controller
-    document.getElementById('osmBase').addEventListener('change', function() {
-      if (this.checked) {
-        if (map.hasLayer(satelliteBase)) map.removeLayer(satelliteBase);
-        if (!map.hasLayer(osmBase)) map.addLayer(osmBase);
-        orderLayers();
-      }
-    });
-    document.getElementById('satelliteBase').addEventListener('change', function() {
-      if (this.checked) {
-        if (map.hasLayer(osmBase)) map.removeLayer(osmBase);
-        if (!map.hasLayer(satelliteBase)) map.addLayer(satelliteBase);
-        orderLayers();
-      }
-    });
-
-    window.addEventListener('load', () => { if (window.lucide) lucide.createIcons(); });
-  </script>
-  <script>
-    function showApp(isLoggedIn, user) {
-      document.getElementById('loginGate').style.display = 'none';
-      document.body.classList.toggle('admin-active', isLoggedIn);
-      const badge = document.getElementById('userBadge');
-      const logoutBtn = document.getElementById('logoutBtn');
-      if (isLoggedIn && user) {
-        const name = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
-        const photo = user.photoURL ? `<img src="${user.photoURL}" style="width:18px;height:18px;border-radius:50%;object-fit:cover">` : '&#x2705;';
-        badge.innerHTML = `${photo} ${name}`;
-        badge.className = 'admin-badge';
-        logoutBtn.style.display = 'inline-block';
-      } else {
-        badge.innerHTML = '&#x1F464; Guest';
-        badge.className = 'guest-badge';
-        logoutBtn.style.display = 'none';
-      }
-      if (window.lucide) lucide.createIcons();
-    }
-
-    function loginAsGuest() {
-      showApp(false, null);
-    }
-
-    async function doGoogleLogin() {
-      const btn = document.getElementById('googleLoginBtn');
-      const err = document.getElementById('loginError');
-      err.style.display = 'none';
-      btn.disabled = true;
-      btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg> Memproses...`;
-      try {
-        if (!window._fbSignInGoogle) throw new Error('Firebase belum siap');
-        const result = await window._fbSignInGoogle();
-        showApp(true, result.user);
-      } catch(e) {
-        err.style.display = 'block';
-        btn.disabled = false;
-        btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg> Login dengan Google`;
-      }
-    }
-
-    async function doLogout() {
-      if (window._fbSignOut) await window._fbSignOut();
-      document.body.classList.remove('admin-active');
-      document.getElementById('loginGate').style.display = 'flex';
-    }
-
-    function downloadKepCSV() {
-      const rows = [
-        ['Tahun','Jumlah Penduduk (jiwa)','Kepadatan (jiwa/km2)','Rasio Jenis Kelamin','% thd Kecamatan'],
-        [2020,2566,1758,95.3,6.4],
-        [2021,2597,1755,95.12,6.33],
-        [2022,2609,1762.83,94.556,6.33],
-        [2023,2663,1630.53,95.72,6.44],
-        [2024,2664,1634,95.88,6.43],
-      ];
-      const csv = rows.map(r => r.join(',')).join('\n');
-      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = 'kependudukan_janti_2020-2024.csv';
-      a.click();
-    }
-  </script>
-</body>
-</html>
+              <div class="legend-item"><span class="swatch" style="background:#ccff33"></span> Lap
