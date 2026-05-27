@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SIPETRA Janti -WebDes Janti</title>
+  <title>SIPETRA Janti - Batik Keraton</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -60,7 +60,7 @@
 
     /* Admin-only elements */
     .admin-only{display:none}
-    .admin-active .admin-only{display:inline-flex}
+    .admin-active .admin-only{display:flex}
     .admin-panel-bar{background:linear-gradient(135deg,rgba(0,136,204,.08),rgba(0,179,134,.06));
       border:1px solid rgba(0,136,204,.15);border-radius:var(--radius-sm);padding:14px 20px;
       margin-top:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
@@ -477,11 +477,11 @@
       </div>
 
       <!-- Panel Download Admin -->
-      <div class="admin-only admin-panel-bar" style="display:none">
-        <span>&#x1F510; Fitur Admin — Unduh Data</span>
+      <div class="admin-only admin-panel-bar">
+        <span>&#x2B07; Unduh Data Kependudukan</span>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
           <button class="btn-download green" onclick="downloadKepCSV()">
-            &#x2B07; Export Kependudukan (.csv)
+            Export Kependudukan (.csv)
           </button>
         </div>
       </div>
