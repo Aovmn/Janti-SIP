@@ -241,6 +241,31 @@
   </section>
 
   <!-- ===== KEPENDUDUKAN ===== -->
+  <style>
+    .chart-tab{padding:8px 16px;border-radius:999px;border:1px solid rgba(26,37,48,.14);background:transparent;font-family:var(--font-body);font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s}
+    .chart-tab:hover{background:var(--bg-2);color:var(--primary-deep)}
+    .chart-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+    .kep-metric-card{background:var(--surface);border:1px solid rgba(26,37,48,.08);border-radius:var(--radius-sm);box-shadow:var(--shadow);text-align:center;padding:22px 16px;position:relative;overflow:hidden;transition:transform .2s,box-shadow .2s}
+    .kep-metric-card:hover{transform:translateY(-3px);box-shadow:0 20px 48px rgba(0,68,102,.13)}
+    .kep-metric-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--accent-color)}
+    .trend-badge{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:3px 8px;border-radius:999px;margin-top:6px}
+    .trend-up{background:#d4f5ec;color:#00875a}
+    .trend-down{background:#ffe4e4;color:#cc0000}
+    .trend-flat{background:#f0f0f0;color:#666}
+    .insight-box{background:linear-gradient(135deg,rgba(0,136,204,.06),rgba(0,179,134,.06));border:1px solid rgba(0,136,204,.15);border-radius:var(--radius-sm);padding:16px 20px;margin-top:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    .insight-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text)}
+    .insight-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+    .insight-item strong{color:var(--primary-deep)}
+    .data-table-wrap{overflow-x:auto;margin-top:8px}
+    .data-table{width:100%;border-collapse:collapse;font-size:13px}
+    .data-table th{background:rgba(0,136,204,.08);color:var(--primary-deep);font-weight:700;padding:9px 14px;text-align:center;border-bottom:2px solid rgba(0,136,204,.15)}
+    .data-table td{padding:8px 14px;text-align:center;border-bottom:1px solid rgba(26,37,48,.06)}
+    .data-table tr:last-child td{border-bottom:none;font-weight:700;background:rgba(0,136,204,.04)}
+    .data-table tr:hover td{background:rgba(0,136,204,.05)}
+    .toggle-table-btn{background:none;border:1px solid rgba(26,37,48,.14);border-radius:999px;padding:7px 16px;font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .2s;font-family:var(--font-body)}
+    .toggle-table-btn:hover{background:var(--bg-2);color:var(--primary-deep)}
+  </style>
+
   <section id="kependudukan" class="section">
     <div class="container">
       <div class="section-head">
@@ -251,52 +276,91 @@
         </div>
       </div>
 
-      <!-- Kartu ringkasan tahun terakhir -->
+      <!-- Kartu ringkasan dengan tren & animasi counter -->
       <div class="metric-grid" style="margin-bottom:20px">
-        <div class="basic-card" style="text-align:center;padding:20px 16px">
-          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Jumlah Penduduk (2024)</div>
-          <div style="font-size:2.2rem;font-weight:700;color:var(--primary);font-family:var(--font-display)">2.664</div>
-          <div style="font-size:12px;color:var(--muted)">jiwa</div>
+        <div class="kep-metric-card" style="--accent-color:var(--primary)">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Jumlah Penduduk (2024)</div>
+          <div class="kep-counter" data-target="2664" data-decimals="0" style="font-size:2.4rem;font-weight:700;color:var(--primary);font-family:var(--font-display)">0</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">jiwa</div>
+          <div class="trend-badge trend-up">▲ +98 dari 2020</div>
         </div>
-        <div class="basic-card" style="text-align:center;padding:20px 16px">
-          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Kepadatan (2024)</div>
-          <div style="font-size:2.2rem;font-weight:700;color:var(--sogan);font-family:var(--font-display)">1.634</div>
-          <div style="font-size:12px;color:var(--muted)">jiwa/km²</div>
+        <div class="kep-metric-card" style="--accent-color:var(--sogan)">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Kepadatan (2024)</div>
+          <div class="kep-counter" data-target="1634" data-decimals="0" style="font-size:2.4rem;font-weight:700;color:var(--sogan);font-family:var(--font-display)">0</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">jiwa/km²</div>
+          <div class="trend-badge trend-down">▼ −124 dari 2020</div>
         </div>
-        <div class="basic-card" style="text-align:center;padding:20px 16px">
-          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">Rasio Jenis Kelamin (2024)</div>
-          <div style="font-size:2.2rem;font-weight:700;color:var(--gold);font-family:var(--font-display)">95,88</div>
-          <div style="font-size:12px;color:var(--muted)">laki-laki per 100 perempuan</div>
+        <div class="kep-metric-card" style="--accent-color:var(--gold)">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Rasio Jenis Kelamin (2024)</div>
+          <div class="kep-counter" data-target="95.88" data-decimals="2" style="font-size:2.4rem;font-weight:700;color:var(--gold);font-family:var(--font-display)">0</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">L per 100 P</div>
+          <div class="trend-badge trend-up">▲ +0.58 dari 2020</div>
         </div>
-        <div class="basic-card" style="text-align:center;padding:20px 16px">
-          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px">% thd Kecamatan (2024)</div>
-          <div style="font-size:2.2rem;font-weight:700;color:var(--indigo);font-family:var(--font-display)">6,43%</div>
-          <div style="font-size:12px;color:var(--muted)">dari total penduduk kecamatan</div>
+        <div class="kep-metric-card" style="--accent-color:var(--indigo)">
+          <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">% terhadap Kecamatan (2024)</div>
+          <div style="font-size:2.4rem;font-weight:700;color:var(--indigo);font-family:var(--font-display)"><span class="kep-counter" data-target="6.43" data-decimals="2">0</span>%</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:2px">dari total penduduk kecamatan</div>
+          <div class="trend-badge trend-flat">≈ Stabil sejak 2020</div>
         </div>
       </div>
 
-      <!-- Tab grafik -->
-      <div class="basic-card" style="padding:24px">
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px" id="chartTabs">
-          <button class="chart-tab active" onclick="switchChart('jumlah')">Jumlah Penduduk</button>
-          <button class="chart-tab" onclick="switchChart('kepadatan')">Kepadatan</button>
-          <button class="chart-tab" onclick="switchChart('rasio')">Rasio Jenis Kelamin</button>
-          <button class="chart-tab" onclick="switchChart('persentase')">% thd Kecamatan</button>
+      <!-- Highlight insight otomatis -->
+      <div class="insight-box">
+        <div class="insight-item"><span class="insight-icon">📈</span><div>Pertumbuhan penduduk tertinggi terjadi pada <strong>2022–2023</strong> dengan tambahan <strong>54 jiwa</strong> dalam setahun.</div></div>
+        <div class="insight-item"><span class="insight-icon">🏘️</span><div>Kepadatan tertinggi tercatat pada <strong>2020 (1.758 jiwa/km²)</strong>, menurun setelah penyesuaian batas wilayah.</div></div>
+        <div class="insight-item"><span class="insight-icon">⚖️</span><div>Rasio jenis kelamin <strong>di bawah 100</strong> sepanjang 2020–2024, artinya jumlah perempuan selalu lebih banyak.</div></div>
+        <div class="insight-item"><span class="insight-icon">📊</span><div>Kontribusi penduduk terhadap kecamatan <strong>relatif stabil</strong> di kisaran <strong>6,3–6,4%</strong> selama 5 tahun.</div></div>
+      </div>
+
+      <!-- Tab grafik line + bar perbandingan -->
+      <div class="basic-card" style="padding:24px;margin-top:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+          <div style="display:flex;gap:8px;flex-wrap:wrap" id="chartTabs">
+            <button class="chart-tab active" onclick="switchChart('jumlah',event)">Jumlah Penduduk</button>
+            <button class="chart-tab" onclick="switchChart('kepadatan',event)">Kepadatan</button>
+            <button class="chart-tab" onclick="switchChart('rasio',event)">Rasio Jenis Kelamin</button>
+            <button class="chart-tab" onclick="switchChart('persentase',event)">% terhadap Kecamatan</button>
+            <button class="chart-tab" onclick="switchChart('semua',event)">Semua (Bar)</button>
+          </div>
         </div>
-        <div style="position:relative;height:280px">
+        <div style="position:relative;height:300px">
           <canvas id="kepCanvas"></canvas>
         </div>
-        <div id="chartDesc" style="margin-top:14px;font-size:13px;color:var(--muted);text-align:center"></div>
+        <div id="chartDesc" style="margin-top:14px;font-size:13px;color:var(--muted);text-align:center;font-style:italic"></div>
+
+        <!-- Tabel data toggle -->
+        <div style="display:flex;justify-content:flex-end;margin-top:18px">
+          <button class="toggle-table-btn" id="toggleTableBtn" onclick="toggleTable()">
+            <i data-lucide="table-2" style="width:14px;height:14px"></i> Lihat Tabel Data
+          </button>
+        </div>
+        <div id="dataTableWrap" style="display:none;margin-top:14px">
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Tahun</th>
+                  <th>Jumlah Penduduk (jiwa)</th>
+                  <th>Kepadatan (jiwa/km²)</th>
+                  <th>Rasio Jenis Kelamin</th>
+                  <th>% thd Kecamatan</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>2020</td><td>2.566</td><td>1.758,00</td><td>95,300</td><td>6,40%</td></tr>
+                <tr><td>2021</td><td>2.597</td><td>1.755,00</td><td>95,120</td><td>6,33%</td></tr>
+                <tr><td>2022</td><td>2.609</td><td>1.762,83</td><td>94,556</td><td>6,33%</td></tr>
+                <tr><td>2023</td><td>2.663</td><td>1.630,53</td><td>95,720</td><td>6,44%</td></tr>
+                <tr><td>2024</td><td>2.664</td><td>1.634,00</td><td>95,880</td><td>6,43%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </section>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <style>
-    .chart-tab{padding:8px 16px;border-radius:999px;border:1px solid rgba(26,37,48,.14);background:transparent;font-family:var(--font-body);font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;transition:all .2s}
-    .chart-tab:hover{background:var(--bg-2);color:var(--primary-deep)}
-    .chart-tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
-  </style>
   <script>
     const kepData = {
       tahun: [2020, 2021, 2022, 2023, 2024],
@@ -307,32 +371,86 @@
     };
 
     const chartMeta = {
-      jumlah:     { label: 'Jumlah Penduduk (jiwa)', color: '#0088cc', desc: 'Jumlah penduduk Desa Janti cenderung meningkat dari 2.566 jiwa (2020) menjadi 2.664 jiwa (2024).' },
-      kepadatan:  { label: 'Kepadatan Penduduk (jiwa/km²)', color: '#00b386', desc: 'Kepadatan penduduk mengalami fluktuasi, dengan penurunan pada 2023–2024 karena penyesuaian luas wilayah.' },
-      rasio:      { label: 'Rasio Jenis Kelamin', color: '#ffb300', desc: 'Rasio jenis kelamin di bawah 100 menunjukkan jumlah perempuan lebih banyak dari laki-laki di Desa Janti.' },
-      persentase: { label: '% thd Total Kecamatan', color: '#4d4dff', desc: 'Persentase penduduk Desa Janti terhadap total Kecamatan Polanharjo relatif stabil di kisaran 6,3–6,4%.' },
+      jumlah:     { label: 'Jumlah Penduduk (jiwa)', color: '#0088cc', desc: 'Jumlah penduduk Desa Janti meningkat konsisten dari 2.566 jiwa (2020) menjadi 2.664 jiwa (2024), dengan lonjakan terbesar pada 2022–2023.' },
+      kepadatan:  { label: 'Kepadatan Penduduk (jiwa/km²)', color: '#00b386', desc: 'Kepadatan menurun signifikan pada 2023 dari 1.762 menjadi 1.630 jiwa/km², kemungkinan akibat penyesuaian luas administrasi wilayah.' },
+      rasio:      { label: 'Rasio Jenis Kelamin', color: '#ffb300', desc: 'Rasio jenis kelamin berada di bawah 100 sepanjang periode, artinya penduduk perempuan selalu lebih banyak dari laki-laki.' },
+      persentase: { label: '% terhadap Total Kecamatan', color: '#4d4dff', desc: 'Kontribusi penduduk Desa Janti terhadap Kecamatan Polanharjo sangat stabil di kisaran 6,3–6,4% selama 5 tahun berturut-turut.' },
+      semua:      { label: 'Semua Indikator', color: '#0088cc', desc: 'Perbandingan seluruh indikator kependudukan 2020–2024. Nilai dinormalisasi untuk perbandingan visual.' },
     };
 
     let kepChart = null;
     let activeKey = 'jumlah';
 
-    function switchChart(key) {
+    function switchChart(key, ev) {
       activeKey = key;
       document.querySelectorAll('.chart-tab').forEach(b => b.classList.remove('active'));
-      event.target.classList.add('active');
+      if (ev) ev.target.classList.add('active');
       const meta = chartMeta[key];
       document.getElementById('chartDesc').textContent = meta.desc;
-      if (kepChart) {
-        kepChart.data.datasets[0].data = kepData[key];
-        kepChart.data.datasets[0].label = meta.label;
-        kepChart.data.datasets[0].borderColor = meta.color;
-        kepChart.data.datasets[0].backgroundColor = meta.color + '22';
-        kepChart.data.datasets[0].pointBackgroundColor = meta.color;
-        kepChart.update('active');
+
+      if (!kepChart) return;
+
+      if (key === 'semua') {
+        kepChart.config.type = 'bar';
+        kepChart.data.datasets = [
+          { label: 'Jumlah Penduduk (÷40)', data: kepData.jumlah.map(v=>+(v/40).toFixed(1)), backgroundColor: '#0088cc88', borderColor: '#0088cc', borderWidth: 1.5, borderRadius: 6 },
+          { label: 'Kepadatan (÷28)', data: kepData.kepadatan.map(v=>+(v/28).toFixed(1)), backgroundColor: '#00b38688', borderColor: '#00b386', borderWidth: 1.5, borderRadius: 6 },
+          { label: 'Rasio ×0.7', data: kepData.rasio.map(v=>+(v*0.7).toFixed(1)), backgroundColor: '#ffb30088', borderColor: '#ffb300', borderWidth: 1.5, borderRadius: 6 },
+          { label: '% ×10', data: kepData.persentase.map(v=>+(v*10).toFixed(2)), backgroundColor: '#4d4dff88', borderColor: '#4d4dff', borderWidth: 1.5, borderRadius: 6 },
+        ];
+        kepChart.options.plugins.legend.display = true;
+        kepChart.options.scales.y.ticks.callback = v => v;
+      } else {
+        kepChart.config.type = 'line';
+        kepChart.data.datasets = [{
+          label: meta.label,
+          data: kepData[key],
+          borderColor: meta.color,
+          backgroundColor: meta.color + '22',
+          pointBackgroundColor: meta.color,
+          pointRadius: 6, pointHoverRadius: 9,
+          borderWidth: 2.5, fill: true, tension: 0.35,
+        }];
+        kepChart.options.plugins.legend.display = false;
+        kepChart.options.scales.y.ticks.callback = v => {
+          if (key === 'persentase') return v + '%';
+          return v.toLocaleString('id-ID');
+        };
       }
+      kepChart.update();
+    }
+
+    function toggleTable() {
+      const wrap = document.getElementById('dataTableWrap');
+      const btn  = document.getElementById('toggleTableBtn');
+      const isHidden = wrap.style.display === 'none';
+      wrap.style.display = isHidden ? 'block' : 'none';
+      btn.innerHTML = isHidden
+        ? '<i data-lucide="chevron-up" style="width:14px;height:14px"></i> Sembunyikan Tabel'
+        : '<i data-lucide="table-2" style="width:14px;height:14px"></i> Lihat Tabel Data';
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // Animasi counter saat scroll masuk viewport
+    function animateCounter(el) {
+      const target = parseFloat(el.dataset.target);
+      const decimals = parseInt(el.dataset.decimals) || 0;
+      const duration = 1400;
+      const start = performance.now();
+      function step(now) {
+        const progress = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        const val = target * ease;
+        el.textContent = decimals > 0
+          ? val.toFixed(decimals).replace('.', ',')
+          : Math.round(val).toLocaleString('id-ID');
+        if (progress < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
     }
 
     window.addEventListener('load', () => {
+      // Init chart
       const ctx = document.getElementById('kepCanvas').getContext('2d');
       const meta = chartMeta['jumlah'];
       document.getElementById('chartDesc').textContent = meta.desc;
@@ -346,11 +464,8 @@
             borderColor: meta.color,
             backgroundColor: meta.color + '22',
             pointBackgroundColor: meta.color,
-            pointRadius: 6,
-            pointHoverRadius: 9,
-            borderWidth: 2.5,
-            fill: true,
-            tension: 0.35,
+            pointRadius: 6, pointHoverRadius: 9,
+            borderWidth: 2.5, fill: true, tension: 0.35,
           }]
         },
         options: {
@@ -371,10 +486,28 @@
           },
           scales: {
             x: { grid: { color: 'rgba(26,37,48,.06)' }, ticks: { font: { family: 'Plus Jakarta Sans', size: 12 } } },
-            y: { grid: { color: 'rgba(26,37,48,.06)' }, ticks: { font: { family: 'Plus Jakarta Sans', size: 12 } } }
+            y: {
+              grid: { color: 'rgba(26,37,48,.06)' },
+              ticks: {
+                font: { family: 'Plus Jakarta Sans', size: 12 },
+                callback: v => v.toLocaleString('id-ID')
+              }
+            }
           }
         }
       });
+
+      // Intersection Observer untuk animasi counter
+      const counters = document.querySelectorAll('.kep-counter');
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            animateCounter(entry.target);
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.3 });
+      counters.forEach(el => observer.observe(el));
     });
   </script>
 
