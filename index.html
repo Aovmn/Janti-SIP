@@ -3,12 +3,80 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SIPETRA Janti - Sistem WEBDES</title>
+  <title>SIPETRA Janti - Batik Keraton</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script defer src="https://unpkg.com/lucide@latest"></script>
+  <style id="login-styles">
+    #loginGate{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;
+      background:linear-gradient(135deg,#0a1628 0%,#0d2137 50%,#0a2820 100%);font-family:'Plus Jakarta Sans',sans-serif}
+    #loginGate::before{content:'';position:absolute;inset:0;opacity:.18;
+      background-image:radial-gradient(circle at 25px 25px,rgba(0,136,204,.3) 2px,transparent 2.5px),
+        radial-gradient(circle at 0 0,rgba(0,183,134,.2) 1px,transparent 1.5px);
+      background-size:54px 54px,28px 28px}
+    .login-card{position:relative;background:rgba(255,255,255,.06);backdrop-filter:blur(20px);
+      border:1px solid rgba(255,255,255,.12);border-radius:28px;padding:44px 40px;width:min(420px,calc(100vw - 40px));
+      box-shadow:0 32px 80px rgba(0,0,0,.5)}
+    .login-logo{display:flex;align-items:center;gap:12px;margin-bottom:32px}
+    .login-logo-mark{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,#0088cc,#00b386);
+      display:grid;place-items:center;color:#fff;box-shadow:0 8px 24px rgba(0,136,204,.4)}
+    .login-logo-text{color:#fff;font-weight:700;font-size:16px;line-height:1.2}
+    .login-logo-text small{display:block;color:rgba(255,255,255,.5);font-weight:400;font-size:12px}
+    .login-title{color:#fff;font-size:24px;font-weight:700;margin:0 0 6px}
+    .login-sub{color:rgba(255,255,255,.5);font-size:14px;margin:0 0 28px}
+    .login-divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:rgba(255,255,255,.3);font-size:12px}
+    .login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.1)}
+    .login-field{margin-bottom:14px}
+    .login-field label{display:block;color:rgba(255,255,255,.7);font-size:12px;font-weight:600;margin-bottom:6px;letter-spacing:.04em;text-transform:uppercase}
+    .login-field input{width:100%;padding:12px 16px;border-radius:12px;border:1px solid rgba(255,255,255,.12);
+      background:rgba(255,255,255,.07);color:#fff;font-size:14px;font-family:inherit;outline:none;transition:border .2s;box-sizing:border-box}
+    .login-field input:focus{border-color:rgba(0,136,204,.6);background:rgba(0,136,204,.08)}
+    .login-field input::placeholder{color:rgba(255,255,255,.25)}
+    .btn-login-admin{width:100%;padding:13px;border-radius:12px;border:none;
+      background:linear-gradient(135deg,#0088cc,#0066aa);color:#fff;font-size:14px;font-weight:700;
+      cursor:pointer;transition:all .2s;font-family:inherit;margin-top:4px}
+    .btn-login-admin:hover{background:linear-gradient(135deg,#0099dd,#0077bb);transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,136,204,.4)}
+    .btn-login-admin:disabled{opacity:.6;cursor:not-allowed;transform:none}
+    .btn-login-guest{width:100%;padding:13px;border-radius:12px;border:1px solid rgba(255,255,255,.15);
+      background:rgba(255,255,255,.06);color:rgba(255,255,255,.8);font-size:14px;font-weight:600;
+      cursor:pointer;transition:all .2s;font-family:inherit}
+    .btn-login-guest:hover{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25)}
+    .login-error{color:#ff6b6b;font-size:13px;margin-top:10px;text-align:center;display:none}
+    .login-badge-row{display:flex;gap:10px;margin-bottom:28px}
+    .login-badge{flex:1;text-align:center;padding:10px;border-radius:10px;font-size:11px;font-weight:600;letter-spacing:.04em}
+    .login-badge.admin{background:rgba(0,136,204,.15);color:#5bc8f5;border:1px solid rgba(0,136,204,.2)}
+    .login-badge.guest{background:rgba(0,179,134,.12);color:#5de8c0;border:1px solid rgba(0,179,134,.2)}
+
+    /* Admin badge di navbar */
+    .admin-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:999px;
+      background:linear-gradient(135deg,#0088cc,#00b386);color:#fff;font-size:12px;font-weight:700}
+    .guest-badge{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:999px;
+      background:rgba(26,37,48,.08);color:var(--muted);font-size:12px;font-weight:600;border:1px solid rgba(26,37,48,.12)}
+    .btn-logout{padding:6px 14px;border-radius:999px;border:1px solid rgba(26,37,48,.14);background:transparent;
+      color:var(--muted);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s}
+    .btn-logout:hover{background:#ffe4e4;color:#cc0000;border-color:#ffb3b3}
+
+    /* Admin-only elements */
+    .admin-only{display:none}
+    .admin-active .admin-only{display:inline-flex}
+    .admin-panel-bar{background:linear-gradient(135deg,rgba(0,136,204,.08),rgba(0,179,134,.06));
+      border:1px solid rgba(0,136,204,.15);border-radius:var(--radius-sm);padding:14px 20px;
+      margin-top:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+    .admin-panel-bar span{font-size:13px;color:var(--primary-deep);font-weight:600;display:flex;align-items:center;gap:6px}
+    .btn-download{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:999px;
+      border:none;background:var(--primary);color:#fff;font-size:13px;font-weight:700;cursor:pointer;
+      font-family:inherit;transition:all .2s}
+    .btn-download:hover{background:var(--primary-deep);transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,136,204,.3)}
+    .btn-download.green{background:var(--sogan)}
+    .btn-download.green:hover{background:#009970}
+    .btn-google-login{width:100%;padding:13px 16px;border-radius:12px;border:1px solid rgba(255,255,255,.15);
+      background:rgba(255,255,255,.95);color:#333;font-size:14px;font-weight:600;cursor:pointer;
+      font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s}
+    .btn-google-login:hover{background:#fff;transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+    .btn-google-login:disabled{opacity:.7;cursor:not-allowed;transform:none}
+  </style>
   <style>
     :root {
       --bg: #f3f8fa;
@@ -161,6 +229,37 @@
   </style>
 </head>
 <body>
+  <!-- Login Gate -->
+  <div id="loginGate">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="login-logo-mark">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z" fill="currentColor"/><circle cx="12" cy="9" r="2.6" fill="#ffffff"/></svg>
+        </div>
+        <div class="login-logo-text">SIPETRA Janti<small>Sistem Informasi Pertanahan Desa</small></div>
+      </div>
+      <h2 class="login-title">Selamat datang</h2>
+      <p class="login-sub">Pilih mode akses atau login sebagai admin</p>
+      <div class="login-badge-row">
+        <div class="login-badge guest">👤 Guest — Lihat data publik</div>
+        <div class="login-badge admin">🔐 Admin — Akses penuh + download</div>
+      </div>
+      <button class="btn-login-guest" onclick="loginAsGuest()">Masuk sebagai Guest</button>
+      <div class="login-divider">atau login admin</div>
+      <div class="login-field">
+        <label>Email</label>
+        <input type="email" id="loginEmail" placeholder="admin@email.com" />
+      </div>
+      <div class="login-field">
+        <label>Password</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()" />
+      </div>
+      <div class="login-error" id="loginError">Email atau password salah. Coba lagi.</div>
+      <button class="btn-login-admin" id="loginBtn" onclick="doLogin()">Login Admin</button>
+    </div>
+  </div>
+
+
   <nav class="nav">
     <div class="container nav-inner">
       <a href="#beranda" class="brand">
@@ -178,6 +277,10 @@
         <a href="#kependudukan">Kependudukan</a>
         <a href="#peta">Peta Interaktif</a>
         <a href="#kontak">Kontak</a>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
+        <span id="userBadge" class="guest-badge">&#x1F464; Guest</span>
+        <button id="logoutBtn" class="btn-logout" onclick="doLogout()" style="display:none">Keluar</button>
       </div>
     </div>
   </nav>
@@ -355,6 +458,16 @@
               </tbody>
             </table>
           </div>
+        </div>
+      </div>
+
+      <!-- Panel Download Admin -->
+      <div class="admin-only admin-panel-bar" style="display:none">
+        <span>&#x1F510; Fitur Admin — Unduh Data</span>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn-download green" onclick="downloadKepCSV()">
+            &#x2B07; Export Kependudukan (.csv)
+          </button>
         </div>
       </div>
     </div>
@@ -994,6 +1107,70 @@
     });
 
     window.addEventListener('load', () => { if (window.lucide) lucide.createIcons(); });
+  </script>
+  <script>
+    function showApp(isLoggedIn, user) {
+      document.getElementById('loginGate').style.display = 'none';
+      document.body.classList.toggle('admin-active', isLoggedIn);
+      const badge = document.getElementById('userBadge');
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (isLoggedIn && user) {
+        const name = user.displayName ? user.displayName.split(' ')[0] : user.email.split('@')[0];
+        const photo = user.photoURL ? `<img src="${user.photoURL}" style="width:18px;height:18px;border-radius:50%;object-fit:cover">` : '&#x2705;';
+        badge.innerHTML = `${photo} ${name}`;
+        badge.className = 'admin-badge';
+        logoutBtn.style.display = 'inline-block';
+      } else {
+        badge.innerHTML = '&#x1F464; Guest';
+        badge.className = 'guest-badge';
+        logoutBtn.style.display = 'none';
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function loginAsGuest() {
+      showApp(false, null);
+    }
+
+    async function doGoogleLogin() {
+      const btn = document.getElementById('googleLoginBtn');
+      const err = document.getElementById('loginError');
+      err.style.display = 'none';
+      btn.disabled = true;
+      btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg> Memproses...`;
+      try {
+        if (!window._fbSignInGoogle) throw new Error('Firebase belum siap');
+        const result = await window._fbSignInGoogle();
+        showApp(true, result.user);
+      } catch(e) {
+        err.style.display = 'block';
+        btn.disabled = false;
+        btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg> Login dengan Google`;
+      }
+    }
+
+    async function doLogout() {
+      if (window._fbSignOut) await window._fbSignOut();
+      document.body.classList.remove('admin-active');
+      document.getElementById('loginGate').style.display = 'flex';
+    }
+
+    function downloadKepCSV() {
+      const rows = [
+        ['Tahun','Jumlah Penduduk (jiwa)','Kepadatan (jiwa/km2)','Rasio Jenis Kelamin','% thd Kecamatan'],
+        [2020,2566,1758,95.3,6.4],
+        [2021,2597,1755,95.12,6.33],
+        [2022,2609,1762.83,94.556,6.33],
+        [2023,2663,1630.53,95.72,6.44],
+        [2024,2664,1634,95.88,6.43],
+      ];
+      const csv = rows.map(r => r.join(',')).join('\n');
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'kependudukan_janti_2020-2024.csv';
+      a.click();
+    }
   </script>
 </body>
 </html>
