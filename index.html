@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SIPETRA Janti - Webdes Janti</title>
+  <title>SIPETRA Janti - WebDes Janti</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -180,11 +180,11 @@
     .info-row{display:flex;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px dashed rgba(26,37,48,.14)}
     .info-row span{color:var(--muted)}
     .info-row strong{text-align:right}
-    .map-shell{overflow:hidden;background:linear-gradient(180deg,#ffffff 0%,#edf5f8 100%);display:flex;flex-direction:column}
-    .map-top{display:flex;justify-content:space-between;gap:20px;align-items:start;padding:24px 24px 0}
+    .map-shell{overflow:hidden;background:linear-gradient(180deg,#ffffff 0%,#edf5f8 100%);display:flex;flex-direction:column;height:calc(100vh - 80px);min-height:560px}
+    .map-top{display:flex;justify-content:space-between;gap:20px;align-items:start;padding:16px 20px 0}
     .chip-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:end}
     .chip{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:#e6f4fa;border:1px solid var(--line);font-size:14px;color:var(--primary-deep)}
-    .map-layout{display:grid;grid-template-columns:320px 1fr;height:700px;margin-top:18px;flex:1}
+    .map-layout{display:grid;grid-template-columns:300px 1fr;height:calc(100vh - 180px);min-height:500px;max-height:700px;margin-top:0;flex:1}
     .sidebar{background:linear-gradient(180deg,#edf5f8 0%,#dbe9f0 100%);border-right:1px solid rgba(26,37,48,.08);padding:22px;display:grid;gap:20px;align-content:start;overflow-y:auto}
     .sidebar h3{margin:0 0 10px;font-size:1rem;color:var(--primary-deep)}
     .sidebar-group{display:grid;gap:10px}
@@ -226,7 +226,7 @@
     .popup-section-title{font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;display:flex;align-items:center;gap:5px}
 
     /* Statistik peta */
-    .map-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;padding:16px 24px;background:rgba(0,136,204,.04);border-bottom:1px solid rgba(26,37,48,.07)}
+    .map-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;padding:10px 16px;background:rgba(0,136,204,.04);border-bottom:1px solid rgba(26,37,48,.07)}
     .map-stat-card{background:var(--surface);border:1px solid rgba(26,37,48,.08);border-radius:10px;padding:12px 14px;text-align:center}
     .map-stat-card .stat-val{font-size:1.4rem;font-weight:700;font-family:var(--font-display);color:var(--primary-deep);line-height:1.1}
     .map-stat-card .stat-label{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-top:3px}
@@ -1211,18 +1211,22 @@
       activeFilters[type] = val;
 
       // Update chip UI
-      document.querySelectorAll(`[data-filter="${type}"]`).forEach(btn => {
+      document.querySelectorAll('[data-filter="' + type + '"]').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.val === val);
       });
 
-      // Apply to layers
-      if (type === 'hak' && window.statusHakLayer) {
+      // Apply filter using setStyle opacity trick (works with Leaflet)
+      if (type === 'hak' && statusHakLayer) {
         statusHakLayer.eachLayer(layer => {
-          const tipe = layer.feature?.properties?.Tipe_Hak || '';
+          const tipe = (layer.feature && layer.feature.properties && layer.feature.properties.Tipe_Hak) || '';
           const show = val === 'all' || tipe === val;
-          const el = layer.getElement ? layer.getElement() : null;
-          if (el) el.style.display = show ? '' : 'none';
-          if (layer._path) layer._path.style.display = show ? '' : 'none';
+          const currentStyle = layer.options || {};
+          const baseOp = parseFloat(document.getElementById('tanahOpacity').value) || 0.6;
+          if (show) {
+            layer.setStyle({ fillOpacity: baseOp, opacity: 1, stroke: true });
+          } else {
+            layer.setStyle({ fillOpacity: 0, opacity: 0, stroke: false });
+          }
         });
         // Update stat count
         let count = 0;
@@ -1232,11 +1236,18 @@
         document.getElementById('statTotalBidang').textContent = count.toLocaleString('id-ID');
       }
 
-      if (type === 'lahan' && window.penggunaanLahanLayer) {
+      if (type === 'lahan' && penggunaanLahanLayer) {
         penggunaanLahanLayer.eachLayer(layer => {
-          const tema = layer.feature?.properties?.TEMA || '';
+          const tema = (layer.feature && layer.feature.properties && layer.feature.properties.TEMA) || '';
           const show = val === 'all' || tema === val;
-          if (layer._path) layer._path.style.display = show ? '' : 'none';
+          const baseOp = parseFloat(document.getElementById('wmsOpacity').value) || 0.6;
+          if (show) {
+            const kat = getKategoriValue(layer.feature.properties || {}).toLowerCase();
+            const fill = getPenggunaanColor(kat);
+            layer.setStyle({ fillOpacity: baseOp, opacity: 1, stroke: true, fillColor: fill });
+          } else {
+            layer.setStyle({ fillOpacity: 0, opacity: 0, stroke: false });
+          }
         });
       }
     }
@@ -1254,11 +1265,12 @@
       if (isMuted) hiddenLegendItems.add(val);
       else hiddenLegendItems.delete(val);
 
-      if (window.statusHakLayer) {
+      if (statusHakLayer) {
+        const baseOp = parseFloat(document.getElementById('tanahOpacity').value) || 0.6;
         statusHakLayer.eachLayer(layer => {
-          const tipe = layer.feature?.properties?.Tipe_Hak || '';
+          const tipe = (layer.feature && layer.feature.properties && layer.feature.properties.Tipe_Hak) || '';
           if (tipe === val) {
-            if (layer._path) layer._path.style.display = isMuted ? 'none' : '';
+            layer.setStyle({ fillOpacity: isMuted ? 0 : baseOp, opacity: isMuted ? 0 : 1, stroke: !isMuted });
           }
         });
       }
