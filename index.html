@@ -180,12 +180,12 @@
     .info-row{display:flex;justify-content:space-between;gap:12px;padding-bottom:12px;border-bottom:1px dashed rgba(26,37,48,.14)}
     .info-row span{color:var(--muted)}
     .info-row strong{text-align:right}
-    .map-shell{overflow:hidden;background:linear-gradient(180deg,#ffffff 0%,#edf5f8 100%)}
+    .map-shell{overflow:hidden;background:linear-gradient(180deg,#ffffff 0%,#edf5f8 100%);display:flex;flex-direction:column}
     .map-top{display:flex;justify-content:space-between;gap:20px;align-items:start;padding:24px 24px 0}
     .chip-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:end}
     .chip{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:999px;background:#e6f4fa;border:1px solid var(--line);font-size:14px;color:var(--primary-deep)}
-    .map-layout{display:grid;grid-template-columns:320px 1fr;min-height:700px;margin-top:18px}
-    .sidebar{background:linear-gradient(180deg,#edf5f8 0%,#dbe9f0 100%);border-right:1px solid rgba(26,37,48,.08);padding:22px;display:grid;gap:20px;align-content:start}
+    .map-layout{display:grid;grid-template-columns:320px 1fr;height:700px;margin-top:18px;flex:1}
+    .sidebar{background:linear-gradient(180deg,#edf5f8 0%,#dbe9f0 100%);border-right:1px solid rgba(26,37,48,.08);padding:22px;display:grid;gap:20px;align-content:start;overflow-y:auto}
     .sidebar h3{margin:0 0 10px;font-size:1rem;color:var(--primary-deep)}
     .sidebar-group{display:grid;gap:10px}
     .control{display:flex;flex-direction:column;align-items:stretch;gap:5px;padding:11px 12px;border-radius:14px;background:#ffffff;border:1px solid rgba(26,37,48,.08);font-size:14px}
@@ -198,7 +198,7 @@
     .legend-item{display:flex;align-items:center;gap:10px;font-size:13px;color:var(--muted)}
     .legend-item + .legend-item{margin-top:8px}
     .swatch{width:16px;height:16px;border-radius:5px;border:1px solid rgba(0,0,0,.12);flex:0 0 auto}
-    #map{width:100%;height:100%;min-height:700px}
+    #map{width:100%;height:100%}
     .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
     .contact-card,.footer-card{padding:24px}
     .contact-list,.footer-list{display:grid;gap:12px;margin-top:18px}
