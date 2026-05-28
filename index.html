@@ -321,6 +321,7 @@
         <a href="#beranda">Beranda</a>
         <a href="#dasar-desa">Informasi Desa</a>
         <a href="#kependudukan">Kependudukan</a>
+        <a href="#data-pertanahan">Data Pertanahan</a>
         <a href="#peta">Peta Interaktif</a>
         <a href="#kontak">Kontak</a>
       </div>
@@ -511,7 +512,7 @@
       <div class="admin-only admin-panel-bar">
         <span>&#x2B07; Unduh Data Kependudukan</span>
         <div style="display:flex;gap:10px;flex-wrap:wrap">
-          <button class="btn-download green" onclick="downloadKepCSV()">
+          <button class="btn-download green" onclick="checkLoginAndDo(downloadKepCSV)">
             Export Kependudukan (.csv)
           </button>
         </div>
@@ -820,6 +821,43 @@
           </div>
         </aside>
         <div id="map"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== DATA PERTANAHAN ===== -->
+  <section id="data-pertanahan" class="section">
+    <div class="container">
+      <div class="section-head">
+        <div class="section-copy">
+          <div class="eyebrow"><i data-lucide="landmark"></i> Statistik pertanahan</div>
+          <h2>Data Pertanahan Desa Janti</h2>
+          <p>Rekapitulasi data pertanahan meliputi status hak tanah, zona nilai tanah (ZNT), dan penggunaan lahan berdasarkan data spasial terkini.</p>
+        </div>
+      </div>
+
+      <!-- Tab navigasi -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px" id="pertanahanTabs">
+        <button class="chart-tab active" onclick="switchPertanahan('hak', event)">Status Hak Tanah</button>
+        <button class="chart-tab" onclick="switchPertanahan('znt', event)">Zona Nilai Tanah</button>
+        <button class="chart-tab" onclick="switchPertanahan('lahan', event)">Penggunaan Lahan</button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start" id="pertanahanContent">
+
+        <!-- Grafik -->
+        <div class="basic-card" style="padding:24px">
+          <div style="position:relative;height:300px">
+            <canvas id="pertanahanCanvas"></canvas>
+          </div>
+          <div id="pertanahanDesc" style="margin-top:12px;font-size:13px;color:var(--muted);text-align:center;font-style:italic"></div>
+        </div>
+
+        <!-- Tabel -->
+        <div class="basic-card" style="padding:24px">
+          <div id="pertanahanTable"></div>
+        </div>
+
       </div>
     </div>
   </section>
@@ -1309,6 +1347,32 @@
         window.addEventListener('load', () => { if (window.lucide) lucide.createIcons(); });
   </script>
   <script>
+    // Toast notif
+    function showToast(msg, type) {
+      let t = document.getElementById('sipetraToast');
+      if (!t) {
+        t = document.createElement('div');
+        t.id = 'sipetraToast';
+        t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:99999;padding:12px 20px;border-radius:12px;font-size:13px;font-weight:600;font-family:Plus Jakarta Sans,sans-serif;box-shadow:0 8px 24px rgba(0,0,0,.15);transition:all .3s;opacity:0;transform:translateY(10px)';
+        document.body.appendChild(t);
+      }
+      t.textContent = msg;
+      t.style.background = type === 'error' ? '#ff4444' : '#00b386';
+      t.style.color = '#fff';
+      t.style.opacity = '1';
+      t.style.transform = 'translateY(0)';
+      setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateY(10px)'; }, 3000);
+    }
+
+    function checkLoginAndDo(fn) {
+      if (!document.body.classList.contains('admin-active')) {
+        showToast('⚠️ Login terlebih dahulu untuk mengunduh data!', 'error');
+        setTimeout(() => { document.getElementById('loginGate').style.display = 'flex'; }, 500);
+        return;
+      }
+      fn();
+    }
+
     function showApp(isLoggedIn, user) {
       document.getElementById('loginGate').style.display = 'none';
       document.body.classList.toggle('admin-active', isLoggedIn);
@@ -1374,5 +1438,118 @@
   </script>
   <!-- Print area -->
   <div id="printArea"></div>
+
+  <script>
+    // ===== DATA PERTANAHAN CHARTS =====
+    const pertanahanData = {
+      hak: {
+        labels: ['Hak Milik', 'Kosong', 'Hak Pakai', 'Hak Wakaf', 'Tidak Ada Data'],
+        counts: [1235, 182, 86, 4, 1],
+        luas:   [1206942.69, 191505.39, 223381.31, 487.44, 6804.52],
+        colors: ['#ffaa00','#b3c6ff','#00cc66','#ff44ff','#aaaaaa'],
+        desc: 'Sebagian besar bidang tanah (81,9%) berstatus Hak Milik. Masih terdapat 182 bidang (12,1%) yang belum bersertifikat.',
+      },
+      znt: {
+        labels: ['200rb–500rb', '1jt–2jt', '500rb–1jt', '100rb–200rb', 'Tidak Ada'],
+        counts: [657, 494, 261, 70, 26],
+        luas:   [1059234.46, 232313.57, 125451.46, 137433.92, 74687.93],
+        colors: ['#0088cc','#00b386','#ffaa00','#ff6600','#aaaaaa'],
+        desc: 'Zona nilai tanah terbesar adalah Rp200.000–500.000/m² dengan 657 bidang (43,6%), umumnya lahan sawah.',
+      },
+      lahan: {
+        labels: ['Sawah','Jalan','Permukiman','Sungai','Kolam','Tempat Kegiatan','Lainnya'],
+        counts: [33, 1, 933, 2, 238, 32, 15],
+        luas:   [1595715.12, 613516.78, 514947.68, 506386.45, 108488.77, 44912.86, 52165],
+        colors: ['#66cc33','#888888','#ff6600','#3399ff','#00cccc','#ffaa00','#cc66ff'],
+        desc: 'Sawah mendominasi luas wilayah (46,4%), diikuti Jalan (17,9%) dan Permukiman (15,0%).',
+      }
+    };
+
+    let pertChart = null;
+    let activePertTab = 'hak';
+
+    function buildPertTable(key) {
+      const d = pertanahanData[key];
+      const totalCount = d.counts.reduce((a,b) => a+b, 0);
+      const totalLuas = d.luas.reduce((a,b) => a+b, 0);
+      let rows = d.labels.map((label, i) => {
+        const pct = (d.counts[i]/totalCount*100).toFixed(1);
+        const luasHa = (d.luas[i]/10000).toFixed(2);
+        return `<tr>
+          <td><span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${d.colors[i]};margin-right:6px"></span>${label}</td>
+          <td>${d.counts[i].toLocaleString('id-ID')}</td>
+          <td>${luasHa} ha</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:6px">
+              <div style="flex:1;height:6px;background:#eee;border-radius:3px;overflow:hidden">
+                <div style="width:${pct}%;height:100%;background:${d.colors[i]};border-radius:3px"></div>
+              </div>
+              <span style="font-size:11px;color:var(--muted);width:36px">${pct}%</span>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+      return `<table class="data-table">
+        <thead><tr><th style="text-align:left">Kategori</th><th>Bidang</th><th>Luas</th><th>Proporsi</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+    }
+
+    function switchPertanahan(key, ev) {
+      activePertTab = key;
+      document.querySelectorAll('#pertanahanTabs .chart-tab').forEach(b => b.classList.remove('active'));
+      if (ev) ev.target.classList.add('active');
+      const d = pertanahanData[key];
+      document.getElementById('pertanahanDesc').textContent = d.desc;
+      document.getElementById('pertanahanTable').innerHTML = buildPertTable(key);
+      if (pertChart) {
+        pertChart.data.labels = d.labels;
+        pertChart.data.datasets[0].data = d.counts;
+        pertChart.data.datasets[0].backgroundColor = d.colors.map(c => c + 'cc');
+        pertChart.data.datasets[0].borderColor = d.colors;
+        pertChart.update();
+      }
+    }
+
+    window.addEventListener('load', () => {
+      const ctx = document.getElementById('pertanahanCanvas');
+      if (!ctx) return;
+      const d = pertanahanData['hak'];
+      document.getElementById('pertanahanDesc').textContent = d.desc;
+      document.getElementById('pertanahanTable').innerHTML = buildPertTable('hak');
+      pertChart = new Chart(ctx.getContext('2d'), {
+        type: 'doughnut',
+        data: {
+          labels: d.labels,
+          datasets: [{
+            data: d.counts,
+            backgroundColor: d.colors.map(c => c + 'cc'),
+            borderColor: d.colors,
+            borderWidth: 2,
+            hoverOffset: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'bottom',
+              labels: { font: { family: 'Plus Jakarta Sans', size: 11 }, padding: 12, boxWidth: 12 }
+            },
+            tooltip: {
+              callbacks: {
+                label: ctx => {
+                  const total = ctx.dataset.data.reduce((a,b) => a+b, 0);
+                  const pct = (ctx.parsed/total*100).toFixed(1);
+                  return ` ${ctx.label}: ${ctx.parsed.toLocaleString('id-ID')} bidang (${pct}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    });
+  </script>
 </body>
 </html>
