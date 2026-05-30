@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peta Interaktif — SIPETRA Janti</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Leaflet Draw -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{width:100%;height:100%;overflow:hidden;font-family:'Plus Jakarta Sans',sans-serif}
+
+    /* ---- TOPBAR ---- */
+    #topbar{position:fixed;top:0;left:0;right:0;height:52px;background:#0a1e2e;z-index:1000;
+      display:flex;align-items:center;gap:12px;padding:0 16px;box-shadow:0 2px 12px rgba(0,0,0,.3)}
+    #topbar .logo{display:flex;align-items:center;gap:8px;color:#fff;text-decoration:none;flex-shrink:0}
+    #topbar .logo-mark{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,#0088cc,#00b386);display:grid;place-items:center}
+    #topbar .logo-mark svg{width:16px;height:16px;color:#fff}
+    #topbar .logo-text{font-size:13px;font-weight:700;color:#fff;line-height:1.2}
+    #topbar .logo-text small{display:block;font-size:10px;font-weight:400;color:rgba(255,255,255,.5)}
+    #topbar .divider{width:1px;height:24px;background:rgba(255,255,255,.15);flex-shrink:0}
+    #topbar .back-btn{display:flex;align-items:center;gap:6px;padding:6px 12px;border-radius:8px;
+      border:1px solid rgba(255,255,255,.15);background:transparent;color:rgba(255,255,255,.8);
+      font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;text-decoration:none}
+    #topbar .back-btn:hover{background:rgba(255,255,255,.1);color:#fff}
+    #topbar .coords-display{margin-left:auto;font-size:11px;color:rgba(255,255,255,.5);font-family:monospace}
+
+    /* ---- MAP ---- */
+    #map{position:fixed;top:52px;left:0;right:0;bottom:0;z-index:1}
+
+    /* ---- SIDEBAR ---- */
+    #sidebar{position:fixed;top:52px;left:0;bottom:0;width:280px;background:#fff;z-index:500;
+      display:flex;flex-direction:column;box-shadow:4px 0 20px rgba(0,0,0,.08);transition:transform .3s}
+    #sidebar.collapsed{transform:translateX(-280px)}
+    #sidebar-toggle{position:fixed;top:64px;left:280px;z-index:600;width:28px;height:52px;
+      background:#fff;border:none;border-radius:0 8px 8px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;
+      box-shadow:4px 0 12px rgba(0,0,0,.1);transition:left .3s;color:#666;font-size:16px}
+    #sidebar.collapsed ~ #sidebar-toggle{left:0}
+    #sidebar-inner{flex:1;overflow-y:auto;padding:14px}
+    #sidebar-inner h3{font-size:11px;font-weight:700;color:#0088cc;text-transform:uppercase;letter-spacing:.06em;
+      margin:14px 0 8px;padding-bottom:4px;border-bottom:1px solid rgba(0,136,204,.12)}
+    #sidebar-inner h3:first-child{margin-top:0}
+
+    /* ---- TOOL PANEL (kanan) ---- */
+    #toolpanel{position:fixed;top:64px;right:12px;z-index:500;display:flex;flex-direction:column;gap:6px}
+    .tool-btn{width:40px;height:40px;border-radius:10px;border:none;background:#fff;box-shadow:0 2px 10px rgba(0,0,0,.12);
+      cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .2s;position:relative}
+    .tool-btn:hover{background:#e8f4fc;transform:scale(1.05)}
+    .tool-btn.active{background:#0088cc;color:#fff}
+    .tool-btn title{display:none}
+    .tool-tooltip{position:absolute;right:48px;top:50%;transform:translateY(-50%);background:#0a1e2e;color:#fff;
+      font-size:11px;font-weight:600;white-space:nowrap;padding:5px 10px;border-radius:6px;pointer-events:none;
+      opacity:0;transition:opacity .15s}
+    .tool-btn:hover .tool-tooltip{opacity:1}
+
+    /* ---- INFO PANEL digitasi ---- */
+    #digitasiInfo{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:600;
+      background:#0a1e2e;color:#fff;padding:10px 20px;border-radius:12px;font-size:13px;font-weight:600;
+      box-shadow:0 4px 20px rgba(0,0,0,.3);display:none;text-align:center;max-width:400px}
+    #digitasiResult{position:fixed;bottom:20px;right:12px;z-index:600;background:#fff;border-radius:14px;
+      box-shadow:0 4px 20px rgba(0,0,0,.12);padding:14px 18px;min-width:200px;display:none;
+      border:1px solid rgba(0,136,204,.15)}
+    #digitasiResult h4{font-size:12px;font-weight:700;color:#0088cc;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+    #digitasiResult .result-val{font-size:1.4rem;font-weight:700;color:#0a1e2e;font-family:monospace}
+    #digitasiResult .result-unit{font-size:12px;color:#888;margin-top:2px}
+    #digitasiResult .clear-btn{margin-top:10px;width:100%;padding:6px;border-radius:8px;border:1px solid rgba(26,37,48,.12);
+      background:transparent;font-size:12px;font-weight:600;color:#cc0000;cursor:pointer;font-family:inherit}
+    #digitasiResult .clear-btn:hover{background:#fff3f3}
+
+    /* ---- CONTROLS ---- */
+    .ctrl-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .ctrl-label{font-size:12px;font-weight:600;color:#333;display:flex;align-items:center;gap:6px}
+    .ctrl-label input[type=checkbox]{accent-color:#0088cc}
+    .opacity-wrap{display:flex;align-items:center;gap:6px;margin-top:4px}
+    .opacity-wrap span{font-size:10px;color:#888;flex-shrink:0}
+    .opacity-wrap input{flex:1;accent-color:#0088cc}
+
+    /* ---- FILTER CHIPS ---- */
+    .filter-section{margin-bottom:6px}
+    .filter-label{font-size:10px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+    .chip-wrap{display:flex;flex-direction:column;gap:4px}
+    .chip{padding:5px 10px;border-radius:999px;border:1px solid rgba(26,37,48,.14);background:transparent;
+      font-size:11px;font-weight:600;color:#666;cursor:pointer;transition:all .15s;font-family:inherit;
+      display:flex;align-items:center;gap:6px;text-align:left}
+    .chip:hover{background:#f0f8ff}
+    .chip.active{background:#0088cc;color:#fff;border-color:#0088cc}
+    .chip .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    .chip-reset{padding:5px;border-radius:8px;border:1px dashed rgba(200,0,0,.3);background:transparent;
+      font-size:11px;color:#cc0000;cursor:pointer;font-family:inherit;width:100%;margin-top:4px}
+
+    /* ---- LEGENDA ---- */
+    .legend-box{background:#f8fbfd;border-radius:8px;padding:8px 10px;margin-bottom:8px}
+    .legend-title{font-size:10px;font-weight:700;color:#0088cc;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+    .legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#444;padding:2px 0;cursor:pointer;border-radius:4px;transition:background .15s}
+    .legend-item:hover{background:rgba(0,136,204,.06)}
+    .legend-item.muted{opacity:.3}
+    .swatch{width:12px;height:12px;border-radius:3px;flex-shrink:0;border:1px solid rgba(0,0,0,.08)}
+
+    /* ---- POPUP ---- */
+    .leaflet-popup-content-wrapper{border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.15);padding:0;overflow:hidden}
+    .leaflet-popup-content{margin:0;width:300px!important}
+    .popup-card{font-family:'Plus Jakarta Sans',sans-serif}
+    .popup-head{background:linear-gradient(135deg,#0a1e2e,#0d2e40);padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+    .popup-title{color:#fff;font-weight:700;font-size:14px}
+    .popup-badge{background:rgba(0,183,134,.25);color:#5de8c0;font-size:10px;font-weight:700;padding:3px 8px;border-radius:999px;border:1px solid rgba(0,183,134,.3)}
+    .popup-section{padding:10px 14px 0}
+    .popup-section:last-of-type{padding-bottom:10px}
+    .popup-section-title{font-size:10px;font-weight:700;color:#0088cc;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+    .popup-grid{display:grid;gap:2px}
+    .popup-row{display:grid;grid-template-columns:110px 1fr;gap:6px;padding:3px 0;border-bottom:1px solid rgba(26,37,48,.05);font-size:12px}
+    .popup-row:last-child{border-bottom:none}
+    .popup-key{color:#888;font-weight:500}
+    .popup-value{color:#0a1e2e;font-weight:600}
+    .btn-print-popup{display:flex;align-items:center;justify-content:center;gap:6px;padding:8px 14px;
+      margin:8px 14px 12px;border-radius:999px;border:1px solid rgba(26,37,48,.14);background:#f8fbfd;
+      color:#555;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;width:calc(100% - 28px)}
+    .btn-print-popup:hover{background:#0088cc;color:#fff;border-color:#0088cc}
+
+    /* ---- SEARCH BOX ---- */
+    #searchBox{position:fixed;top:64px;left:300px;z-index:500;transition:left .3s}
+    #sidebar.collapsed ~ #searchBox{left:20px}
+    #searchInput{width:260px;padding:9px 14px 9px 36px;border-radius:10px;border:none;background:#fff;
+      box-shadow:0 2px 10px rgba(0,0,0,.12);font-size:13px;font-family:inherit;outline:none}
+    #searchIcon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#aaa;font-size:14px}
+    #searchWrap{position:relative;display:inline-block}
+    #searchResults{position:absolute;top:100%;left:0;right:0;background:#fff;border-radius:10px;
+      box-shadow:0 4px 20px rgba(0,0,0,.12);margin-top:4px;overflow:hidden;display:none;z-index:700}
+    .search-result-item{padding:9px 14px;font-size:12px;cursor:pointer;border-bottom:1px solid #f0f0f0;transition:background .15s}
+    .search-result-item:hover{background:#e8f4fc}
+    .search-result-item:last-child{border-bottom:none}
+    .search-result-item strong{display:block;color:#0a1e2e;font-size:13px}
+    .search-result-item span{color:#888}
+
+    /* ---- PRINT ---- */
+    #printArea{display:none}
+    @media print{body > *:not(#printArea){display:none!important}#printArea{display:block!important;padding:24px}}
+
+    /* ---- SCROLLBAR ---- */
+    #sidebar-inner::-webkit-scrollbar{width:4px}
+    #sidebar-inner::-webkit-scrollbar-track{background:transparent}
+    #sidebar-inner::-webkit-scrollbar-thumb{background:#c8dde8;border-radius:2px}
+  </style>
+</head>
+<body>
+
+  <!-- TOPBAR -->
+  <div id="topbar">
+    <a href="index.html" class="logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2C8.13 2 5 5.13 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13 15.87 2 12 2Z" fill="currentColor"/><circle cx="12" cy="9" r="2.6" fill="#0a1e2e"/></svg>
+      </div>
+      <div class="logo-text">SIPETRA Janti <small>Peta Interaktif</small></div>
+    </a>
+    <div class="divider"></div>
+    <a href="index.html" class="back-btn">← Kembali ke Beranda</a>
+    <div class="coords-display" id="coordsDisplay">Arahkan kursor ke peta</div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div id="sidebar-inner">
+
+      <h3>Basemap</h3>
+      <label class="ctrl-label"><input type="radio" name="basemap" id="osmBase" checked> OpenStreetMap</label><br>
+      <label class="ctrl-label" style="margin-top:6px"><input type="radio" name="basemap" id="satelliteBase"> Citra Satelit</label>
+
+      <h3>Layer Data</h3>
+      <div style="display:grid;gap:10px">
+        <div>
+          <label class="ctrl-label"><input type="checkbox" id="admLayerToggle" checked> Batas Administrasi</label>
+          <div class="opacity-wrap"><span>Opasitas</span><input type="range" id="admOpacity" min="0" max="1" step="0.1" value="1"></div>
+        </div>
+        <div>
+          <label class="ctrl-label"><input type="checkbox" id="wmsLayerToggle" checked> Penggunaan Lahan</label>
+          <div class="opacity-wrap"><span>Opasitas</span><input type="range" id="wmsOpacity" min="0" max="1" step="0.1" value="0.8"></div>
+        </div>
+        <div>
+          <label class="ctrl-label"><input type="checkbox" id="tanahLayerToggle" checked> Status Hak Tanah</label>
+          <div class="opacity-wrap"><span>Opasitas</span><input type="range" id="tanahOpacity" min="0" max="1" step="0.1" value="0.7"></div>
+        </div>
+        <div style="display:none">
+          <input type="range" id="zntOpacity" min="0" max="1" step="0.1" value="0.3">
+        </div>
+      </div>
+
+      <h3>Filter</h3>
+      <div class="filter-section">
+        <div class="filter-label">Status Hak</div>
+        <div class="chip-wrap">
+          <button class="chip active" data-filter="hak" data-val="all" onclick="applyFilter('hak','all')"><span class="dot" style="background:#0088cc"></span>Semua</button>
+          <button class="chip" data-filter="hak" data-val="Hak Milik" onclick="applyFilter('hak','Hak Milik')"><span class="dot" style="background:#ffaa00"></span>Hak Milik</button>
+          <button class="chip" data-filter="hak" data-val="Kosong" onclick="applyFilter('hak','Kosong')"><span class="dot" style="background:#b3c6ff"></span>Belum Bersertifikat</button>
+          <button class="chip" data-filter="hak" data-val="Hak Pakai" onclick="applyFilter('hak','Hak Pakai')"><span class="dot" style="background:#00ff66"></span>Hak Pakai</button>
+          <button class="chip" data-filter="hak" data-val="Hak Wakaf" onclick="applyFilter('hak','Hak Wakaf')"><span class="dot" style="background:#ff00ff"></span>Hak Wakaf</button>
+        </div>
+      </div>
+      <div class="filter-section">
+        <div class="filter-label">Penggunaan Lahan</div>
+        <div class="chip-wrap">
+          <button class="chip active" data-filter="lahan" data-val="all" onclick="applyFilter('lahan','all')"><span class="dot" style="background:#0088cc"></span>Semua</button>
+          <button class="chip" data-filter="lahan" data-val="Sawah" onclick="applyFilter('lahan','Sawah')"><span class="dot" style="background:#66ff33"></span>Sawah</button>
+          <button class="chip" data-filter="lahan" data-val="Permukiman" onclick="applyFilter('lahan','Permukiman')"><span class="dot" style="background:#ff6600"></span>Permukiman</button>
+          <button class="chip" data-filter="lahan" data-val="Kolam" onclick="applyFilter('lahan','Kolam')"><span class="dot" style="background:#3399ff"></span>Kolam</button>
+          <button class="chip" data-filter="lahan" data-val="Sungai" onclick="applyFilter('lahan','Sungai')"><span class="dot" style="background:#00ffff"></span>Sungai</button>
+          <button class="chip-reset" onclick="resetFilters()">↺ Reset Filter</button>
+        </div>
+      </div>
+
+      <h3>Legenda</h3>
+      <div class="legend-box">
+        <div class="legend-title">Batas Administrasi</div>
+        <div class="legend-item"><span class="swatch" style="background:#ff3333;height:3px;border-radius:0"></span> Batas desa</div>
+      </div>
+      <div class="legend-box">
+        <div class="legend-title">Status Hak Tanah</div>
+        <div class="legend-item" onclick="toggleLegendItem(this,'Hak Milik')"><span class="swatch" style="background:#ffaa00"></span>Hak Milik</div>
+        <div class="legend-item" onclick="toggleLegendItem(this,'Hak Pakai')"><span class="swatch" style="background:#00ff66"></span>Hak Pakai</div>
+        <div class="legend-item" onclick="toggleLegendItem(this,'Hak Wakaf')"><span class="swatch" style="background:#ff00ff"></span>Hak Wakaf</div>
+        <div class="legend-item" onclick="toggleLegendItem(this,'Kosong')"><span class="swatch" style="background:#b3c6ff"></span>Belum Bersertifikat</div>
+        <div class="legend-item"><span class="swatch" style="background:#737373"></span>Tidak Ada Data</div>
+      </div>
+      <div class="legend-box">
+        <div class="legend-title">Penggunaan Lahan (sebagian)</div>
+        <div class="legend-item"><span class="swatch" style="background:#66ff33"></span>Sawah</div>
+        <div class="legend-item"><span class="swatch" style="background:#ff6600"></span>Permukiman</div>
+        <div class="legend-item"><span class="swatch" style="background:#3399ff"></span>Kolam</div>
+        <div class="legend-item"><span class="swatch" style="background:#00ffff"></span>Sungai</div>
+        <div class="legend-item"><span class="swatch" style="background:#ff3333"></span>Jalan</div>
+        <div class="legend-item"><span class="swatch" style="background:#e6e6e6"></span>Lainnya</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- SIDEBAR TOGGLE -->
+  <button id="sidebar-toggle" onclick="toggleSidebar()">◀</button>
+
+  <!-- SEARCH BOX -->
+  <div id="searchBox">
+    <div id="searchWrap">
+      <span id="searchIcon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Cari lokasi..." oninput="onSearchInput(this.value)" onkeydown="if(event.key==='Enter')doSearch()">
+      <div id="searchResults"></div>
+    </div>
+  </div>
+
+  <!-- TOOL PANEL -->
+  <div id="toolpanel">
+    <button class="tool-btn" onclick="setTool('pointer')" id="btn-pointer" title="Pointer">
+      🖱️<span class="tool-tooltip">Pointer / Info</span>
+    </button>
+    <button class="tool-btn" onclick="setTool('polygon')" id="btn-polygon">
+      ⬡<span class="tool-tooltip">Gambar Area (Digitasi)</span>
+    </button>
+    <button class="tool-btn" onclick="setTool('polyline')" id="btn-polyline">
+      📏<span class="tool-tooltip">Ukur Panjang</span>
+    </button>
+    <button class="tool-btn" onclick="setTool('marker')" id="btn-marker">
+      📍<span class="tool-tooltip">Tambah Titik</span>
+    </button>
+    <button class="tool-btn" onclick="clearAll()" id="btn-clear">
+      🗑️<span class="tool-tooltip">Hapus Semua Digitasi</span>
+    </button>
+  </div>
+
+  <!-- INFO DIGITASI -->
+  <div id="digitasiInfo"></div>
+  <div id="digitasiResult">
+    <h4 id="resultTitle">Hasil Pengukuran</h4>
+    <div class="result-val" id="resultVal">—</div>
+    <div class="result-unit" id="resultUnit"></div>
+    <button class="clear-btn" onclick="clearAll()">🗑️ Hapus</button>
+  </div>
+
+  <!-- PRINT AREA -->
+  <div id="printArea"></div>
+
+  <!-- MAP -->
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+  <script>
+    // ===== MAP INIT =====
+    const map = L.map('map', { zoomControl: false }).setView([-7.694, 110.615], 16);
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    const osmBase = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap contributors' });
+    const satelliteBase = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution: 'Tiles &copy; Esri' });
+    osmBase.addTo(map);
+
+    // Koordinat display
+    map.on('mousemove', e => {
+      document.getElementById('coordsDisplay').textContent = `${e.latlng.lat.toFixed(6)}, ${e.latlng.lng.toFixed(6)}`;
+    });
+
+    // ===== LAYERS =====
+    let admLayer, penggunaanLahanLayer, statusHakLayer, zntLayer;
+    let penggunaanFeatures = [], statusFeatures = [], zntFeatures = [], admFeatures = [];
+
+    // ===== HELPER FUNCTIONS =====
+    function getKategoriValue(props) {
+      return props.V4_JB || props.v4_jb || props.penggunaan || props.PENGGUNAAN || props.TEMA || props.tema || props.kategori || props.KATEGORI || props.JENIS || props.jenis || props.nama || props.NAMA || '';
+    }
+    function getStatusValue(props) {
+      return props.Tipe_Hak || props.tipe_hak || props.TIPE_HAK || props.status || props.STATUS || props.hak || props.HAK || '';
+    }
+    function getZntValue(props) {
+      return props.ZNT || props.znt || props.zona || props.ZONA || '';
+    }
+    function orderLayers() {
+      if (statusHakLayer && map.hasLayer(statusHakLayer)) statusHakLayer.bringToBack();
+      if (penggunaanLahanLayer && map.hasLayer(penggunaanLahanLayer)) penggunaanLahanLayer.bringToFront();
+      if (admLayer && map.hasLayer(admLayer)) admLayer.bringToFront();
+    }
+    function getPenggunaanColor(k) {
+      if (k.includes('apotek')) return '#ff3399';
+      if (k.includes('area parkir')) return '#996633';
+      if (k.includes('bangunan hunian')) return '#ff6600';
+      if (k.includes('gereja')) return '#33ffff';
+      if (k.includes('jalan')) return '#ff3333';
+      if (k.includes('kantor pemerintahan')) return '#cc33ff';
+      if (k.includes('kolam')) return '#3399ff';
+      if (k.includes('lapangan tidak diperkeras')) return '#ccff33';
+      if (k.includes('lapangan diperkeras') || k.includes('permukaan')) return '#a6a6a6';
+      if (k.includes('masjid')) return '#00cc44';
+      if (k.includes('pabrik')) return '#79d2a6';
+      if (k.includes('pekarangan')) return '#ffe680';
+      if (k.includes('pemakaman')) return '#336644';
+      if (k.includes('pendidikan')) return '#ff9933';
+      if (k.includes('rumah toko')) return '#ffcc99';
+      if (k.includes('sawah')) return '#66ff33';
+      if (k.includes('semak')) return '#b3ff66';
+      if (k.includes('sungai')) return '#00ffff';
+      if (k.includes('tempat hiburan')) return '#ff0066';
+      if (k.includes('tempat penimbunan') || k.includes('sampah')) return '#d9a366';
+      if (k.includes('ruang terbuka') || k.includes('rtb') || k.includes('rth')) return '#88cc44';
+      return '#e6e6e6';
+    }
+    function getStatusColor(s) {
+      if (s.includes('hak milik')) return '#ffaa00';
+      if (s.includes('hak pakai')) return '#00ff66';
+      if (s.includes('hak wakaf')) return '#ff00ff';
+      if (s.includes('kosong')) return '#b3c6ff';
+      return '#737373';
+    }
+    function getStatusBorderColor(s) {
+      if (s.includes('hak milik')) return '#cc8800';
+      if (s.includes('hak pakai')) return '#00cc52';
+      if (s.includes('hak wakaf')) return '#cc00cc';
+      if (s.includes('kosong')) return '#809fff';
+      return '#595959';
+    }
+    function shadeColor(hex, pct) {
+      const n = parseInt(hex.replace('#',''),16), a = Math.round(2.55*pct);
+      const R=(n>>16)+a, G=(n>>8&0xff)+a, B=(n&0xff)+a;
+      return '#'+(0x1000000+(R<255?(R<1?0:R):255)*0x10000+(G<255?(G<1?0:G):255)*0x100+(B<255?(B<1?0:B):255)).toString(16).slice(1);
+    }
+
+    // ===== POINT IN POLYGON =====
+    function pointInRing(pt, ring) {
+      let inside = false;
+      const x = pt.lng, y = pt.lat;
+      for (let i=0,j=ring.length-1;i<ring.length;j=i++) {
+        const xi=ring[i][0],yi=ring[i][1],xj=ring[j][0],yj=ring[j][1];
+        const intersect=((yi>y)!==(yj>y))&&(x<(xj-xi)*(y-yi)/(yj-yi)+xi);
+        if (intersect) inside=!inside;
+      }
+      return inside;
+    }
+    function pointInPolygon(pt, geo) {
+      try {
+        if (geo.type==='Polygon') {
+          if (!pointInRing(pt,geo.coordinates[0])) return false;
+          for (let i=1;i<geo.coordinates.length;i++) if (pointInRing(pt,geo.coordinates[i])) return false;
+          return true;
+        }
+        if (geo.type==='MultiPolygon') return geo.coordinates.some(poly=>{
+          if (!pointInRing(pt,poly[0])) return false;
+          for (let i=1;i<poly.length;i++) if (pointInRing(pt,poly[i])) return false;
+          return true;
+        });
+      } catch(e) {}
+      return false;
+    }
+    function findFeatureAtLatLng(latlng, features) {
+      for (const f of features) {
+        try { if (f.geometry && pointInPolygon(latlng,f.geometry)) return f.properties; } catch(e) {}
+      }
+      return null;
+    }
+
+    // ===== POPUP =====
+    function buildPopup(latlng, clickedProps) {
+      const pLahan  = findFeatureAtLatLng(latlng, penggunaanFeatures) || {};
+      const pStatus = findFeatureAtLatLng(latlng, statusFeatures) || {};
+      const pAdm    = findFeatureAtLatLng(latlng, admFeatures) || {};
+
+      const desa = pAdm.NAMOBJ||pAdm.DESA||pLahan.DESA||pStatus.DESA||'Janti';
+      const kec  = pAdm.WADMKC||pAdm.KECAMATAN||'Polanharjo';
+      const kab  = pAdm.WADMKAB||pAdm.KABUPATEN||'Klaten';
+      const luas = pStatus.luas ? (parseFloat(pStatus.luas)).toFixed(2)+' m²' : (pLahan.LUAS ? (parseFloat(pLahan.LUAS)).toFixed(2)+' m²' : '–');
+      const penggunaanVal = getKategoriValue(pLahan)||getKategoriValue(clickedProps)||'';
+      const statusVal = getStatusValue(pStatus)||getStatusValue(clickedProps)||'';
+      const zntVal = (pStatus&&pStatus.ZNT)||'';
+
+      const pgColor = penggunaanVal ? getPenggunaanColor(penggunaanVal.toLowerCase()) : '#e6e6e6';
+      const stColor = statusVal ? getStatusColor(statusVal.toLowerCase()) : '#a6a6a6';
+
+      function row(k,v,dot) {
+        return `<div class="popup-row"><div class="popup-key">${k}</div><div class="popup-value">${dot?`<span style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${dot};margin-right:4px;vertical-align:middle"></span>`:''}${v||'–'}</div></div>`;
+      }
+      function sec(icon,title,content) {
+        return `<div class="popup-section"><div class="popup-section-title">${icon} ${title}</div><div class="popup-grid">${content}</div></div>`;
+      }
+
+      return `<div class="popup-card">
+        <div class="popup-head"><div class="popup-title">Informasi Bidang Tanah</div><div class="popup-badge">Terintegrasi</div></div>
+        ${sec('📍','Lokasi', row('Desa',desa)+row('Kecamatan',kec)+row('Kabupaten',kab))}
+        ${sec('🌾','Penggunaan Lahan', row('Penggunaan',penggunaanVal,pgColor))}
+        ${sec('📜','Status Hak', row('Status Hak',statusVal,stColor)+row('Luas',luas))}
+        ${sec('🏷️','Zona Nilai Tanah (Rp/m²)', row('ZNT',zntVal))}
+        <button class="btn-print-popup" onclick="printInfo(this)">🖨️ Cetak Info Bidang</button>
+      </div>`;
+    }
+
+    function setupLayerInteractions(feature, layer) {
+      layer.on('click', function(e) {
+        if (activeTool !== 'pointer') return;
+        L.DomEvent.stopPropagation(e);
+        L.popup({ className:'', maxWidth:320 })
+          .setLatLng(e.latlng)
+          .setContent(buildPopup(e.latlng, feature.properties||{}))
+          .openOn(map);
+      });
+    }
+
+    // ===== LOAD GEOJSON =====
+    Promise.all([
+      fetch('./Batas Administrasi.geojson').then(r=>r.json()),
+      fetch('./Penggunaan Lahan.geojson').then(r=>r.json()),
+      fetch('./Status Hak.geojson').then(r=>r.json()),
+      fetch('./ZNT.geojson').then(r=>r.json()).catch(()=>({features:[]})),
+    ]).then(([adminData, penggunaanData, statusData, zntData]) => {
+      admFeatures        = adminData.features||[];
+      penggunaanFeatures = penggunaanData.features||[];
+      statusFeatures     = statusData.features||[];
+      zntFeatures        = zntData.features||[];
+
+      admLayer = L.geoJSON(adminData, {
+        style:{ color:'#ff3333', weight:4, fillOpacity:0, dashArray:'8,5' },
+        onEachFeature: setupLayerInteractions
+      }).addTo(map);
+
+      statusHakLayer = L.geoJSON(statusData, {
+        style: f => {
+          const st = getStatusValue(f.properties||'').toLowerCase();
+          const op = parseFloat(document.getElementById('tanahOpacity').value);
+          return { color: getStatusBorderColor(st), weight:1, fillColor: getStatusColor(st), fillOpacity: op };
+        },
+        onEachFeature: setupLayerInteractions
+      }).addTo(map);
+
+      penggunaanLahanLayer = L.geoJSON(penggunaanData, {
+        style: f => {
+          const kat = getKategoriValue(f.properties||'').toLowerCase();
+          const fill = getPenggunaanColor(kat);
+          const op = parseFloat(document.getElementById('wmsOpacity').value);
+          return { color: shadeColor(fill,-18), weight:0.6, fillColor:fill, fillOpacity:op };
+        },
+        onEachFeature: setupLayerInteractions
+      }).addTo(map);
+
+      orderLayers();
+      const bounds = L.featureGroup([statusHakLayer,penggunaanLahanLayer]).getBounds();
+      if (bounds.isValid()) map.fitBounds(bounds);
+    }).catch(e => console.error('Gagal load GeoJSON:', e));
+
+    // ===== SIDEBAR TOGGLE =====
+    let sidebarOpen = true;
+    function toggleSidebar() {
+      sidebarOpen = !sidebarOpen;
+      document.getElementById('sidebar').classList.toggle('collapsed', !sidebarOpen);
+      document.getElementById('sidebar-toggle').textContent = sidebarOpen ? '◀' : '▶';
+      setTimeout(()=>map.invalidateSize(),310);
+    }
+
+    // ===== BASEMAP TOGGLE =====
+    document.getElementById('osmBase').addEventListener('change', () => {
+      map.removeLayer(satelliteBase); map.addLayer(osmBase); orderLayers();
+    });
+    document.getElementById('satelliteBase').addEventListener('change', () => {
+      map.removeLayer(osmBase); map.addLayer(satelliteBase); orderLayers();
+    });
+
+    // ===== LAYER TOGGLES =====
+    document.getElementById('admLayerToggle').addEventListener('change', function() {
+      if (!admLayer) return; this.checked ? map.addLayer(admLayer) : map.removeLayer(admLayer); orderLayers();
+    });
+    document.getElementById('wmsLayerToggle').addEventListener('change', function() {
+      if (!penggunaanLahanLayer) return; this.checked ? map.addLayer(penggunaanLahanLayer) : map.removeLayer(penggunaanLahanLayer); orderLayers();
+    });
+    document.getElementById('tanahLayerToggle').addEventListener('change', function() {
+      if (!statusHakLayer) return; this.checked ? map.addLayer(statusHakLayer) : map.removeLayer(statusHakLayer); orderLayers();
+    });
+
+    // ===== OPACITY SLIDERS =====
+    document.getElementById('admOpacity').addEventListener('input', function() {
+      if (admLayer) admLayer.setStyle({ opacity: parseFloat(this.value) });
+    });
+    document.getElementById('wmsOpacity').addEventListener('input', function() {
+      if (penggunaanLahanLayer) penggunaanLahanLayer.setStyle({ fillOpacity: parseFloat(this.value) });
+    });
+    document.getElementById('tanahOpacity').addEventListener('input', function() {
+      if (statusHakLayer) statusHakLayer.setStyle({ fillOpacity: parseFloat(this.value) });
+    });
+
+    // ===== FILTER =====
+    function applyFilter(type, val) {
+      document.querySelectorAll('[data-filter="'+type+'"]').forEach(b => b.classList.toggle('active', b.dataset.val===val));
+      if (type==='hak' && statusHakLayer) {
+        const baseOp = parseFloat(document.getElementById('tanahOpacity').value)||0.7;
+        statusHakLayer.eachLayer(layer => {
+          const tipe=(layer.feature&&layer.feature.properties&&layer.feature.properties.Tipe_Hak)||'';
+          const show = val==='all'||tipe===val;
+          layer.setStyle({fillOpacity:show?baseOp:0,opacity:show?1:0,stroke:show});
+        });
+      }
+      if (type==='lahan' && penggunaanLahanLayer) {
+        const baseOp = parseFloat(document.getElementById('wmsOpacity').value)||0.8;
+        penggunaanLahanLayer.eachLayer(layer => {
+          const tema=(layer.feature&&layer.feature.properties&&layer.feature.properties.TEMA)||'';
+          const show = val==='all'||tema===val;
+          const kat = getKategoriValue(layer.feature.properties||{}).toLowerCase();
+          if (show) layer.setStyle({fillOpacity:baseOp,opacity:1,stroke:true,fillColor:getPenggunaanColor(kat)});
+          else layer.setStyle({fillOpacity:0,opacity:0,stroke:false});
+        });
+      }
+    }
+    function resetFilters() { applyFilter('hak','all'); applyFilter('lahan','all'); }
+
+    // ===== LEGEND TOGGLE =====
+    function toggleLegendItem(el, val) {
+      el.classList.toggle('muted');
+      const isMuted = el.classList.contains('muted');
+      if (statusHakLayer) {
+        const baseOp = parseFloat(document.getElementById('tanahOpacity').value)||0.7;
+        statusHakLayer.eachLayer(layer => {
+          const tipe=(layer.feature&&layer.feature.properties&&layer.feature.properties.Tipe_Hak)||'';
+          if (tipe===val) layer.setStyle({fillOpacity:isMuted?0:baseOp,opacity:isMuted?0:1,stroke:!isMuted});
+        });
+      }
+    }
+
+    // ===== DIGITASI TOOLS =====
+    let activeTool = 'pointer';
+    let drawnItems = new L.FeatureGroup().addTo(map);
+    let drawControl = null;
+    let activeDrawHandler = null;
+
+    function setTool(tool) {
+      // Nonaktifkan draw handler sebelumnya
+      if (activeDrawHandler) { activeDrawHandler.disable(); activeDrawHandler = null; }
+      document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+      activeTool = tool;
+      document.getElementById('btn-'+tool).classList.add('active');
+      document.getElementById('digitasiInfo').style.display = 'none';
+
+      if (tool === 'polygon') {
+        document.getElementById('digitasiInfo').style.display = 'block';
+        document.getElementById('digitasiInfo').textContent = '🖱️ Klik untuk mulai menggambar area. Klik titik pertama untuk menutup polygon.';
+        activeDrawHandler = new L.Draw.Polygon(map, {
+          shapeOptions: { color:'#0088cc', fillColor:'#0088cc', fillOpacity:0.2, weight:2 }
+        });
+        activeDrawHandler.enable();
+      } else if (tool === 'polyline') {
+        document.getElementById('digitasiInfo').style.display = 'block';
+        document.getElementById('digitasiInfo').textContent = '📏 Klik untuk mengukur jarak. Double klik untuk selesai.';
+        activeDrawHandler = new L.Draw.Polyline(map, {
+          shapeOptions: { color:'#ff6600', weight:3 }
+        });
+        activeDrawHandler.enable();
+      } else if (tool === 'marker') {
+        document.getElementById('digitasiInfo').style.display = 'block';
+        document.getElementById('digitasiInfo').textContent = '📍 Klik di peta untuk menambah titik lokasi.';
+        activeDrawHandler = new L.Draw.Marker(map);
+        activeDrawHandler.enable();
+      } else {
+        // pointer mode
+        document.getElementById('btn-pointer').classList.add('active');
+      }
+    }
+
+    // Handle setelah gambar selesai
+    map.on(L.Draw.Event.CREATED, function(e) {
+      const layer = e.layer;
+      const type = e.layerType;
+      drawnItems.addLayer(layer);
+
+      const resultPanel = document.getElementById('digitasiResult');
+      const resultVal = document.getElementById('resultVal');
+      const resultUnit = document.getElementById('resultUnit');
+      const resultTitle = document.getElementById('resultTitle');
+
+      if (type === 'polygon') {
+        // Hitung luas menggunakan Leaflet GeometryUtil (manual)
+        const latlngs = layer.getLatLngs()[0];
+        const areaM2 = Math.abs(calculateArea(latlngs));
+        const areaHa = areaM2 / 10000;
+        resultTitle.textContent = '📐 Luas Area';
+        if (areaHa >= 1) {
+          resultVal.textContent = areaHa.toFixed(4);
+          resultUnit.textContent = 'hektar (ha)';
+        } else {
+          resultVal.textContent = areaM2.toFixed(2);
+          resultUnit.textContent = 'm²';
+        }
+        layer.bindPopup(`<b>Luas:</b> ${areaHa >= 1 ? areaHa.toFixed(4)+' ha' : areaM2.toFixed(2)+' m²'}`).openPopup();
+        resultPanel.style.display = 'block';
+        document.getElementById('digitasiInfo').style.display = 'none';
+      } else if (type === 'polyline') {
+        const latlngs = layer.getLatLngs();
+        let totalDist = 0;
+        for (let i=0;i<latlngs.length-1;i++) totalDist += latlngs[i].distanceTo(latlngs[i+1]);
+        resultTitle.textContent = '📏 Panjang';
+        if (totalDist >= 1000) {
+          resultVal.textContent = (totalDist/1000).toFixed(3);
+          resultUnit.textContent = 'kilometer (km)';
+        } else {
+          resultVal.textContent = totalDist.toFixed(2);
+          resultUnit.textContent = 'meter (m)';
+        }
+        layer.bindPopup(`<b>Panjang:</b> ${totalDist>=1000?(totalDist/1000).toFixed(3)+' km':totalDist.toFixed(2)+' m'}`).openPopup();
+        resultPanel.style.display = 'block';
+        document.getElementById('digitasiInfo').style.display = 'none';
+      } else if (type === 'marker') {
+        const ll = layer.getLatLng();
+        layer.bindPopup(`<b>Koordinat:</b><br>${ll.lat.toFixed(6)}, ${ll.lng.toFixed(6)}`).openPopup();
+        resultTitle.textContent = '📍 Koordinat Titik';
+        resultVal.textContent = `${ll.lat.toFixed(5)},`;
+        resultUnit.textContent = ll.lng.toFixed(5);
+        resultPanel.style.display = 'block';
+        document.getElementById('digitasiInfo').style.display = 'none';
+      }
+
+      // Kembali ke pointer mode
+      activeTool = 'pointer';
+      document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('btn-pointer').classList.add('active');
+      activeDrawHandler = null;
+    });
+
+    // Hitung luas polygon (Shoelace formula + konversi ke m²)
+    function calculateArea(latlngs) {
+      const R = 6371000; // radius bumi dalam meter
+      let area = 0;
+      const n = latlngs.length;
+      for (let i=0;i<n;i++) {
+        const j = (i+1)%n;
+        const xi = latlngs[i].lng * Math.PI/180 * R * Math.cos(latlngs[i].lat*Math.PI/180);
+        const yi = latlngs[i].lat * Math.PI/180 * R;
+        const xj = latlngs[j].lng * Math.PI/180 * R * Math.cos(latlngs[j].lat*Math.PI/180);
+        const yj = latlngs[j].lat * Math.PI/180 * R;
+        area += xi*yj - xj*yi;
+      }
+      return Math.abs(area/2);
+    }
+
+    function clearAll() {
+      drawnItems.clearLayers();
+      document.getElementById('digitasiResult').style.display = 'none';
+      document.getElementById('digitasiInfo').style.display = 'none';
+      if (activeDrawHandler) { activeDrawHandler.disable(); activeDrawHandler = null; }
+      setTool('pointer');
+    }
+
+    // ===== SEARCH =====
+    let searchTimeout = null;
+    function onSearchInput(val) {
+      clearTimeout(searchTimeout);
+      if (val.length < 3) { document.getElementById('searchResults').style.display='none'; return; }
+      // Cek apakah input koordinat (format: lat,lng)
+      const coordMatch = val.match(/^(-?\d+\.?\d*)[,\s]+(-?\d+\.?\d*)$/);
+      if (coordMatch) {
+        const lat = parseFloat(coordMatch[1]), lng = parseFloat(coordMatch[2]);
+        showSearchResult([{ label: `Koordinat: ${lat}, ${lng}`, lat, lng }]);
+        return;
+      }
+      searchTimeout = setTimeout(() => searchNominatim(val), 400);
+    }
+
+    function searchNominatim(q) {
+      fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q+' Janti Klaten')}&format=json&limit=4&accept-language=id`)
+        .then(r=>r.json())
+        .then(data => {
+          const results = data.map(d => ({ label:d.display_name, lat:parseFloat(d.lat), lng:parseFloat(d.lon) }));
+          showSearchResult(results);
+        }).catch(()=>{});
+    }
+
+    function showSearchResult(results) {
+      const box = document.getElementById('searchResults');
+      if (!results.length) { box.style.display='none'; return; }
+      box.innerHTML = results.map((r,i) => `
+        <div class="search-result-item" onclick="goToResult(${r.lat},${r.lng})">
+          <strong>📍 ${r.label.split(',')[0]}</strong>
+          <span>${r.label.split(',').slice(1,3).join(',')}</span>
+        </div>`).join('');
+      box.style.display = 'block';
+    }
+
+    function goToResult(lat, lng) {
+      map.setView([lat, lng], 18);
+      L.marker([lat,lng]).addTo(drawnItems)
+        .bindPopup(`<b>Hasil Pencarian</b><br>${lat.toFixed(6)}, ${lng.toFixed(6)}`).openPopup();
+      document.getElementById('searchResults').style.display = 'none';
+      document.getElementById('searchInput').value = '';
+    }
+
+    function doSearch() {
+      const val = document.getElementById('searchInput').value;
+      if (val) onSearchInput(val);
+    }
+
+    document.addEventListener('click', e => {
+      if (!e.target.closest('#searchWrap')) document.getElementById('searchResults').style.display='none';
+    });
+
+    // ===== PRINT =====
+    function printInfo(btn) {
+      const card = btn.closest('.popup-card');
+      if (!card) return;
+      const clone = card.cloneNode(true);
+      clone.querySelector('.btn-print-popup')?.remove();
+      document.getElementById('printArea').innerHTML = `
+        <div style="font-family:'Plus Jakarta Sans',sans-serif;max-width:400px;margin:0 auto;padding:24px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:16px;border-bottom:2px solid #0088cc">
+            <div style="background:linear-gradient(135deg,#0088cc,#00b386);width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:white;font-size:16px">📍</div>
+            <div><div style="font-weight:700;font-size:15px">SIPETRA Janti</div><div style="font-size:11px;color:#666">Sistem Informasi Pertanahan Desa</div></div>
+            <div style="margin-left:auto;font-size:11px;color:#999">${new Date().toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'})}</div>
+          </div>
+          ${clone.innerHTML}
+          <div style="margin-top:20px;padding-top:12px;border-top:1px solid #eee;font-size:10px;color:#aaa;text-align:center">aovmn.github.io/Janti-SIP</div>
+        </div>`;
+      window.print();
+    }
+
+    // Init pointer active
+    document.getElementById('btn-pointer').classList.add('active');
+  </script>
+</body>
+</html>
