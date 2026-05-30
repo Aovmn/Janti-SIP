@@ -137,6 +137,26 @@
     .search-result-item span{color:#888}
 
 
+
+    /* ---- UPLOAD LAYER ---- */
+    #uploadLayerBtn{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:none}
+    .upload-layer-wrap{margin-top:12px;padding-top:12px;border-top:1px solid rgba(26,37,48,.08)}
+    .btn-upload-layer{display:flex;align-items:center;gap:7px;padding:8px 14px;border-radius:10px;
+      border:1.5px dashed rgba(0,136,204,.4);background:rgba(0,136,204,.04);color:#0088cc;
+      font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;width:100%;justify-content:center;transition:all .2s}
+    .btn-upload-layer:hover{background:rgba(0,136,204,.1);border-color:#0088cc}
+    .custom-layer-item{display:flex;align-items:center;gap:6px;padding:5px 6px;border-radius:8px;
+      background:#f0f8ff;border:1px solid rgba(0,136,204,.12);margin-top:6px;font-size:11px;font-weight:600;color:#0a1e2e}
+    .custom-layer-item .layer-dot{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+    .custom-layer-item .layer-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+    .custom-layer-item .layer-toggle{background:none;border:none;cursor:pointer;font-size:11px;color:#888;padding:0 2px}
+    .custom-layer-item .layer-remove{background:none;border:none;cursor:pointer;font-size:12px;color:#cc0000;padding:0 2px;margin-left:auto}
+    #customLayerList{margin-top:4px}
+    .upload-toast{position:fixed;top:64px;right:12px;z-index:9999;background:#00b386;color:#fff;
+      padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 4px 16px rgba(0,0,0,.2);
+      transform:translateY(-10px);opacity:0;transition:all .3s;pointer-events:none}
+    .upload-toast.show{transform:translateY(0);opacity:1}
+    .upload-toast.error{background:#ff4444}
     /* ---- ROUTING ---- */
     #routePanel{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:600;
       background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.15);padding:16px 20px;
@@ -255,6 +275,15 @@
         <div class="legend-item"><span class="swatch" style="background:#e6e6e6"></span>Lainnya</div>
       </div>
 
+      <h3>Upload Layer</h3>
+      <div class="upload-layer-wrap" style="margin-top:0;padding-top:0;border-top:none">
+        <button class="btn-upload-layer" onclick="document.getElementById('geojsonFileInput').click()">
+          ⬆️ Upload File GeoJSON
+        </button>
+        <input type="file" id="geojsonFileInput" accept=".geojson,.json" style="display:none" onchange="handleGeoJSONUpload(this)">
+        <div id="customLayerList"></div>
+      </div>
+
     </div>
   </div>
 
@@ -323,6 +352,7 @@
     </div>
   </div>
 
+  <div id="uploadToast" class="upload-toast"></div>
   <!-- PRINT AREA -->
   <div id="printArea"></div>
 
@@ -909,6 +939,111 @@
         document.getElementById('btnCalcRoute').textContent = 'Hitung Rute';
         document.getElementById('btnCalcRoute').disabled = false;
       });
+    }
+
+
+    // ===== UPLOAD GEOJSON LAYER =====
+    let customLayers = {};
+    let customLayerColors = ['#e63946','#2a9d8f','#e9c46a','#f4a261','#264653','#a8dadc','#457b9d','#6a4c93','#f72585','#4cc9f0'];
+    let colorIndex = 0;
+
+    function showUploadToast(msg, isError) {
+      const t = document.getElementById('uploadToast');
+      t.textContent = msg;
+      t.className = 'upload-toast' + (isError ? ' error' : '') + ' show';
+      setTimeout(() => t.className = 'upload-toast' + (isError ? ' error' : ''), 3000);
+    }
+
+    function handleGeoJSONUpload(input) {
+      const file = input.files[0];
+      if (!file) return;
+      input.value = '';
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const geojson = JSON.parse(e.target.result);
+          if (!geojson.type || !geojson.features) throw new Error('Bukan GeoJSON valid');
+
+          const layerName = file.name.replace(/\.(geojson|json)$/i, '');
+          const color = customLayerColors[colorIndex % customLayerColors.length];
+          colorIndex++;
+
+          // Hapus layer lama jika nama sama
+          if (customLayers[layerName]) {
+            map.removeLayer(customLayers[layerName].layer);
+          }
+
+          // Buat layer baru
+          const newLayer = L.geoJSON(geojson, {
+            style: () => ({ color: color, weight: 2, fillColor: color, fillOpacity: 0.3 }),
+            pointToLayer: (feature, latlng) => L.circleMarker(latlng, {
+              radius: 6, fillColor: color, color: '#fff', weight: 1.5, fillOpacity: 0.9
+            }),
+            onEachFeature: (feature, layer) => {
+              if (feature.properties && Object.keys(feature.properties).length > 0) {
+                const props = feature.properties;
+                const rows = Object.entries(props)
+                  .filter(([k,v]) => v !== null && v !== '' && v !== undefined)
+                  .slice(0, 8)
+                  .map(([k,v]) => `<div style="display:grid;grid-template-columns:110px 1fr;gap:4px;padding:3px 0;border-bottom:1px solid #f0f0f0;font-size:12px">
+                    <span style="color:#888;font-weight:500">${k}</span>
+                    <span style="color:#0a1e2e;font-weight:600">${v}</span>
+                  </div>`).join('');
+                layer.bindPopup(`
+                  <div style="font-family:'Plus Jakarta Sans',sans-serif;min-width:220px">
+                    <div style="background:#0a1e2e;color:#fff;padding:10px 12px;margin:-1px -1px 10px;border-radius:8px 8px 0 0;font-weight:700;font-size:13px">
+                      📂 ${layerName}
+                    </div>
+                    <div style="padding:0 4px">${rows}</div>
+                  </div>`, { maxWidth: 280 });
+              }
+            }
+          }).addTo(map);
+
+          // Zoom ke layer
+          try { map.fitBounds(newLayer.getBounds(), { padding:[30,30] }); } catch(e) {}
+
+          customLayers[layerName] = { layer: newLayer, color, visible: true };
+          renderCustomLayerList();
+          showUploadToast('✅ Layer "' + layerName + '" berhasil ditambahkan!');
+
+        } catch(err) {
+          showUploadToast('❌ Gagal: ' + (err.message || 'File tidak valid'), true);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function renderCustomLayerList() {
+      const list = document.getElementById('customLayerList');
+      if (Object.keys(customLayers).length === 0) { list.innerHTML = ''; return; }
+      list.innerHTML = Object.entries(customLayers).map(([name, info]) => `
+        <div class="custom-layer-item">
+          <div class="layer-dot" style="background:${info.color}"></div>
+          <span class="layer-name" title="${name}">${name}</span>
+          <button class="layer-toggle" onclick="toggleCustomLayer('${name}')" title="${info.visible?'Sembunyikan':'Tampilkan'}">
+            ${info.visible ? '👁️' : '🙈'}
+          </button>
+          <button class="layer-remove" onclick="removeCustomLayer('${name}')" title="Hapus layer">✕</button>
+        </div>`).join('');
+    }
+
+    function toggleCustomLayer(name) {
+      const info = customLayers[name];
+      if (!info) return;
+      if (info.visible) { map.removeLayer(info.layer); info.visible = false; }
+      else { map.addLayer(info.layer); info.visible = true; }
+      renderCustomLayerList();
+    }
+
+    function removeCustomLayer(name) {
+      const info = customLayers[name];
+      if (!info) return;
+      map.removeLayer(info.layer);
+      delete customLayers[name];
+      renderCustomLayerList();
+      showUploadToast('🗑️ Layer "' + name + '" dihapus');
     }
 
     // Init pointer active
