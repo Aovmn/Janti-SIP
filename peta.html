@@ -7,6 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <!-- Leaflet Routing Machine -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css"/>
   <!-- Leaflet Draw -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.css"/>
   <style>
@@ -134,6 +136,27 @@
     .search-result-item strong{display:block;color:#0a1e2e;font-size:13px}
     .search-result-item span{color:#888}
 
+
+    /* ---- ROUTING ---- */
+    #routePanel{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:600;
+      background:#fff;border-radius:16px;box-shadow:0 4px 24px rgba(0,0,0,.15);padding:16px 20px;
+      width:340px;display:none;border:1px solid rgba(0,136,204,.15)}
+    #routePanel h4{font-size:12px;font-weight:700;color:#0088cc;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+    #routePanel h4 button{background:none;border:none;color:#cc0000;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit}
+    .route-input-wrap{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+    .route-input{display:flex;align-items:center;gap:8px}
+    .route-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+    .route-field{flex:1;padding:8px 12px;border-radius:8px;border:1px solid rgba(26,37,48,.15);font-size:12px;font-family:inherit;outline:none;color:#333}
+    .route-field:focus{border-color:#0088cc}
+    .route-field::placeholder{color:#aaa}
+    .btn-route{width:100%;padding:10px;border-radius:10px;border:none;background:#0088cc;color:#fff;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .2s}
+    .btn-route:hover{background:#0077bb}
+    .route-info{display:flex;gap:12px;margin-top:10px;padding-top:10px;border-top:1px solid rgba(26,37,48,.07)}
+    .route-info-item{flex:1;text-align:center}
+    .route-info-item .val{font-size:1.2rem;font-weight:700;color:#0a1e2e;font-family:monospace}
+    .route-info-item .lbl{font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.04em}
+    .route-hint{font-size:11px;color:#888;text-align:center;margin-top:8px}
+    .leaflet-routing-container{display:none!important}
     /* ---- PRINT ---- */
     #printArea{display:none}
     @media print{body > *:not(#printArea){display:none!important}#printArea{display:block!important;padding:24px}}
@@ -264,6 +287,10 @@
     <button class="tool-btn" onclick="clearAll()" id="btn-clear">
       🗑️<span class="tool-tooltip">Hapus Semua Digitasi</span>
     </button>
+    <div style="width:100%;height:1px;background:rgba(255,255,255,.3);margin:2px 0"></div>
+    <button class="tool-btn" onclick="toggleRoutePanel()" id="btn-route">
+      🧭<span class="tool-tooltip">Navigasi / Rute</span>
+    </button>
   </div>
 
   <!-- INFO DIGITASI -->
@@ -275,6 +302,27 @@
     <button class="clear-btn" onclick="clearAll()">🗑️ Hapus</button>
   </div>
 
+  <!-- ROUTE PANEL -->
+  <div id="routePanel">
+    <h4>🧭 Navigasi Rute <button onclick="closeRoutePanel()">✕ Tutup</button></h4>
+    <div class="route-input-wrap">
+      <div class="route-input">
+        <div class="route-dot" style="background:#00b386"></div>
+        <input class="route-field" id="routeFrom" placeholder="Titik awal (klik peta atau ketik koordinat)" readonly>
+      </div>
+      <div class="route-input">
+        <div class="route-dot" style="background:#ff4444"></div>
+        <input class="route-field" id="routeTo" placeholder="Titik tujuan (klik peta atau ketik koordinat)" readonly>
+      </div>
+    </div>
+    <div class="route-hint" id="routeHint">🖱️ Klik peta untuk set titik awal, lalu klik lagi untuk tujuan</div>
+    <button class="btn-route" onclick="calculateRoute()" id="btnCalcRoute" style="display:none">Hitung Rute</button>
+    <div class="route-info" id="routeInfo" style="display:none">
+      <div class="route-info-item"><div class="val" id="routeDist">—</div><div class="lbl">Jarak</div></div>
+      <div class="route-info-item"><div class="val" id="routeTime">—</div><div class="lbl">Estimasi Waktu</div></div>
+    </div>
+  </div>
+
   <!-- PRINT AREA -->
   <div id="printArea"></div>
 
@@ -283,6 +331,7 @@
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.4/leaflet.draw.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
   <script>
     // ===== MAP INIT =====
     const map = L.map('map', { zoomControl: false }).setView([-7.694, 110.615], 16);
@@ -746,6 +795,117 @@
           <div style="margin-top:20px;padding-top:12px;border-top:1px solid #eee;font-size:10px;color:#aaa;text-align:center">aovmn.github.io/Janti-SIP</div>
         </div>`;
       window.print();
+    }
+
+
+    // ===== ROUTING MACHINE =====
+    let routingControl = null;
+    let routePickMode = false;
+    let routeFrom = null;
+    let routeTo = null;
+
+    function toggleRoutePanel() {
+      const panel = document.getElementById('routePanel');
+      const isVisible = panel.style.display === 'block';
+      if (isVisible) {
+        closeRoutePanel();
+      } else {
+        panel.style.display = 'block';
+        document.getElementById('btn-route').classList.add('active');
+        routePickMode = true;
+        routeFrom = null;
+        routeTo = null;
+        document.getElementById('routeFrom').value = '';
+        document.getElementById('routeTo').value = '';
+        document.getElementById('routeInfo').style.display = 'none';
+        document.getElementById('btnCalcRoute').style.display = 'none';
+        document.getElementById('routeHint').textContent = '🖱️ Klik peta untuk set titik awal';
+        map.getContainer().style.cursor = 'crosshair';
+      }
+    }
+
+    function closeRoutePanel() {
+      document.getElementById('routePanel').style.display = 'none';
+      document.getElementById('btn-route').classList.remove('active');
+      routePickMode = false;
+      routeFrom = null;
+      routeTo = null;
+      map.getContainer().style.cursor = '';
+      if (routingControl) { map.removeControl(routingControl); routingControl = null; }
+    }
+
+    // Intercept map click for route picking
+    map.on('click', function(e) {
+      if (!routePickMode) return;
+      if (!routeFrom) {
+        routeFrom = e.latlng;
+        document.getElementById('routeFrom').value = e.latlng.lat.toFixed(5) + ', ' + e.latlng.lng.toFixed(5);
+        document.getElementById('routeHint').textContent = '🖱️ Sekarang klik peta untuk set titik tujuan';
+      } else if (!routeTo) {
+        routeTo = e.latlng;
+        document.getElementById('routeTo').value = e.latlng.lat.toFixed(5) + ', ' + e.latlng.lng.toFixed(5);
+        document.getElementById('routeHint').textContent = '✅ Titik siap! Klik "Hitung Rute"';
+        document.getElementById('btnCalcRoute').style.display = 'block';
+        map.getContainer().style.cursor = '';
+        routePickMode = false;
+      }
+    });
+
+    function calculateRoute() {
+      if (!routeFrom || !routeTo) return;
+      if (routingControl) { map.removeControl(routingControl); routingControl = null; }
+
+      document.getElementById('btnCalcRoute').textContent = 'Menghitung...';
+      document.getElementById('btnCalcRoute').disabled = true;
+
+      routingControl = L.Routing.control({
+        waypoints: [
+          L.latLng(routeFrom.lat, routeFrom.lng),
+          L.latLng(routeTo.lat, routeTo.lng)
+        ],
+        router: L.Routing.osrmv1({
+          serviceUrl: 'https://router.project-osrm.org/route/v1'
+        }),
+        lineOptions: {
+          styles: [{ color:'#0088cc', weight:5, opacity:0.8 }]
+        },
+        addWaypoints: false,
+        draggableWaypoints: false,
+        fitSelectedRoutes: true,
+        showAlternatives: false,
+        createMarker: function(i, wp) {
+          return L.marker(wp.latLng, {
+            icon: L.divIcon({
+              html: i===0
+                ? '<div style="background:#00b386;width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3)"></div>'
+                : '<div style="background:#ff4444;width:14px;height:14px;border-radius:50%;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3)"></div>',
+              iconSize:[14,14], iconAnchor:[7,7]
+            })
+          });
+        }
+      }).addTo(map);
+
+      routingControl.on('routesfound', function(e) {
+        const route = e.routes[0];
+        const distM = route.summary.totalDistance;
+        const timeS = route.summary.totalTime;
+        const distStr = distM >= 1000 ? (distM/1000).toFixed(2)+' km' : distM.toFixed(0)+' m';
+        const timeStr = timeS >= 3600
+          ? Math.floor(timeS/3600)+'j '+(Math.floor((timeS%3600)/60))+'m'
+          : Math.ceil(timeS/60)+' menit';
+        document.getElementById('routeDist').textContent = distStr;
+        document.getElementById('routeTime').textContent = timeStr;
+        document.getElementById('routeInfo').style.display = 'flex';
+        document.getElementById('btnCalcRoute').textContent = 'Hitung Rute';
+        document.getElementById('btnCalcRoute').disabled = false;
+        document.getElementById('routeHint').textContent = '✅ Rute ditemukan!';
+      });
+
+      routingControl.on('routingerror', function() {
+        document.getElementById('routeHint').textContent = '❌ Rute tidak ditemukan. Coba titik lain.';
+        document.getElementById('btnCalcRoute').textContent = 'Hitung Rute';
+        document.getElementById('btnCalcRoute').disabled = false;
+      });
     }
 
     // Init pointer active
