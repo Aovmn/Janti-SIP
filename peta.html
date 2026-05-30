@@ -478,6 +478,7 @@
 
     function setupLayerInteractions(feature, layer) {
       layer.on('click', function(e) {
+        if (routePickMode) return;
         if (activeTool !== 'pointer') return;
         L.DomEvent.stopPropagation(e);
         L.popup({ className:'', maxWidth:320 })
@@ -837,6 +838,8 @@
     // Intercept map click for route picking
     map.on('click', function(e) {
       if (!routePickMode) return;
+      L.DomEvent.stopPropagation(e);
+      map.closePopup();
       if (!routeFrom) {
         routeFrom = e.latlng;
         document.getElementById('routeFrom').value = e.latlng.lat.toFixed(5) + ', ' + e.latlng.lng.toFixed(5);
