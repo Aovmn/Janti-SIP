@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SIPETRA Janti - WebDes Janti</title>
+  <title>SIPETRA Janti - Batik Keraton</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -322,7 +322,7 @@
         <a href="#dasar-desa">Informasi Desa</a>
         <a href="#kependudukan">Kependudukan</a>
         <a href="#data-pertanahan">Data Pertanahan</a>
-        <a href="#peta">Peta Interaktif</a>
+        <a href="peta.html" target="_blank">🗺️ Peta Interaktif</a>
         <a href="#kontak">Kontak</a>
       </div>
       <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
@@ -670,160 +670,6 @@
       counters.forEach(el => observer.observe(el));
     });
   </script>
-
-  <section id="peta" class="section">
-    <div class="container map-shell">
-      <div class="map-top">
-        <div class="map-intro">
-          <div class="eyebrow"><i data-lucide="map"></i> Peta interaktif</div>
-          <h2>Peta Spasial Pertanahan Desa Janti</h2>
-          <p>Klik pada area peta untuk melihat informasi detail setiap bidang tanah. Aktifkan atau nonaktifkan layer melalui panel kiri, dan pilih basemap sesuai kebutuhan.</p>
-        </div>
-        <div class="chip-row">
-          <span class="chip"><i data-lucide="layers-3"></i> 4 layer data</span>
-          <span class="chip"><i data-lucide="mouse-pointer-click"></i> Klik untuk detail</span>
-          <span class="chip"><i data-lucide="satellite"></i> Citra satelit tersedia</span>
-        </div>
-      </div>
-
-      <!-- Statistik ringkasan peta -->
-      <div class="map-stats" id="mapStats">
-        <div class="map-stat-card">
-          <div class="stat-val" id="statTotalBidang">1.508</div>
-          <div class="stat-label">Total Bidang</div>
-          <div class="stat-sub">Status Hak</div>
-        </div>
-        <div class="map-stat-card">
-          <div class="stat-val" style="color:#ffaa00" id="statHakMilik">1.235</div>
-          <div class="stat-label">Hak Milik</div>
-          <div class="stat-sub">81,9% dari total</div>
-        </div>
-        <div class="map-stat-card">
-          <div class="stat-val" style="color:#b3c6ff" id="statKosong">182</div>
-          <div class="stat-label">Belum Bersertifikat</div>
-          <div class="stat-sub">12,1% dari total</div>
-        </div>
-        <div class="map-stat-card">
-          <div class="stat-val" style="color:#66ff33;filter:brightness(.6)" id="statSawah">159,6 ha</div>
-          <div class="stat-label">Luas Sawah</div>
-          <div class="stat-sub">Penggunaan terbesar</div>
-        </div>
-        <div class="map-stat-card">
-          <div class="stat-val" style="color:#ff6600;filter:brightness(.8)" id="statPermukiman">51,5 ha</div>
-          <div class="stat-label">Luas Permukiman</div>
-          <div class="stat-sub">933 bidang</div>
-        </div>
-      </div>
-      <div class="map-layout">
-        <aside class="sidebar">
-          <div>
-            <h3>Basemap</h3>
-            <div class="sidebar-group">
-              <label class="control"><span class="control-label"><input type="radio" name="basemap" id="osmBase" checked> OpenStreetMap</span></label>
-              <label class="control"><span class="control-label"><input type="radio" name="basemap" id="satelliteBase"> Citra satelit</span></label>
-            </div>
-          </div>
-          <div>
-            <h3>Layer data</h3>
-            <div class="sidebar-group">
-              <div class="control">
-                <label class="control-label"><input type="checkbox" id="admLayerToggle" checked> Batas administrasi</label>
-                <div class="opacity-slider-wrapper">
-                  <span>Transparansi:</span>
-                  <input type="range" class="opacity-slider" id="admOpacity" min="0" max="1" step="0.1" value="1">
-                </div>
-              </div>
-              <div class="control">
-                <label class="control-label"><input type="checkbox" id="wmsLayerToggle" checked> Penggunaan lahan (PL)</label>
-                <div class="opacity-slider-wrapper">
-                  <span>Transparansi:</span>
-                  <input type="range" class="opacity-slider" id="wmsOpacity" min="0" max="1" step="0.1" value="0.8">
-                </div>
-              </div>
-              <div class="control">
-                <label class="control-label"><input type="checkbox" id="tanahLayerToggle" checked> Status hak tanah</label>
-                <div class="opacity-slider-wrapper">
-                  <span>Transparansi:</span>
-                  <input type="range" class="opacity-slider" id="tanahOpacity" min="0" max="1" step="0.1" value="0.7">
-                </div>
-              </div>
-              <div class="control" style="display:none">
-                <label class="control-label"><input type="checkbox" id="zntLayerToggle" checked> ZNT</label>
-                <div class="opacity-slider-wrapper">
-                  <span>Transparansi:</span>
-                  <input type="range" class="opacity-slider" id="zntOpacity" min="0" max="1" step="0.1" value="0.3">
-                </div>
-              </div>
-            </div>
-          </div>
-          <div>
-            <h3>Filter bidang tanah</h3>
-            <div class="filter-group" id="filterStatusHak">
-              <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Status Hak</div>
-              <button class="filter-chip active" data-filter="hak" data-val="all" onclick="applyFilter('hak','all')"><span class="dot" style="background:var(--primary)"></span> Semua</button>
-              <button class="filter-chip" data-filter="hak" data-val="Hak Milik" onclick="applyFilter('hak','Hak Milik')"><span class="dot" style="background:#ffaa00"></span> Hak Milik</button>
-              <button class="filter-chip" data-filter="hak" data-val="Kosong" onclick="applyFilter('hak','Kosong')"><span class="dot" style="background:#b3c6ff"></span> Belum Bersertifikat</button>
-              <button class="filter-chip" data-filter="hak" data-val="Hak Pakai" onclick="applyFilter('hak','Hak Pakai')"><span class="dot" style="background:#00ff66"></span> Hak Pakai</button>
-              <button class="filter-chip" data-filter="hak" data-val="Hak Wakaf" onclick="applyFilter('hak','Hak Wakaf')"><span class="dot" style="background:#ff00ff"></span> Hak Wakaf</button>
-            </div>
-            <div class="filter-group" style="margin-top:10px" id="filterPenggunaan">
-              <div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px">Penggunaan Lahan</div>
-              <button class="filter-chip active" data-filter="lahan" data-val="all" onclick="applyFilter('lahan','all')"><span class="dot" style="background:var(--primary)"></span> Semua</button>
-              <button class="filter-chip" data-filter="lahan" data-val="Sawah" onclick="applyFilter('lahan','Sawah')"><span class="dot" style="background:#66ff33"></span> Sawah</button>
-              <button class="filter-chip" data-filter="lahan" data-val="Permukiman" onclick="applyFilter('lahan','Permukiman')"><span class="dot" style="background:#ff6600"></span> Permukiman</button>
-              <button class="filter-chip" data-filter="lahan" data-val="Kolam" onclick="applyFilter('lahan','Kolam')"><span class="dot" style="background:#3399ff"></span> Kolam</button>
-              <button class="filter-chip" data-filter="lahan" data-val="Sungai" onclick="applyFilter('lahan','Sungai')"><span class="dot" style="background:#00ffff"></span> Sungai</button>
-              <button class="filter-reset" onclick="resetFilters()">↺ Reset semua filter</button>
-            </div>
-          </div>
-          <div>
-            <h3>Legenda peta</h3>
-            <div class="legend-box">
-              <div class="legend-label">Batas administrasi</div>
-              <div class="legend-item"><span class="swatch" style="background:#ff3333; height: 3px; border-radius: 0;"></span> Garis batas desa</div>
-            </div>
-            <div class="legend-box" style="display:none">
-              <div class="legend-label">ZNT</div>
-              <div class="legend-item"><span class="swatch" style="background:#4d4dff;opacity:.5"></span> Zona Nilai Tanah</div>
-            </div>
-            <div class="legend-box">
-              <div class="legend-label">Status Hak Tanah</div>
-              <div class="legend-item legend-item-toggle" onclick="toggleLegendItem(this,'Hak Milik')"><span class="swatch" style="background:#ffaa00"></span> Hak milik</div>
-              <div class="legend-item legend-item-toggle" onclick="toggleLegendItem(this,'Hak Pakai')"><span class="swatch" style="background:#00ff66"></span> Hak pakai</div>
-              <div class="legend-item legend-item-toggle" onclick="toggleLegendItem(this,'Hak Wakaf')"><span class="swatch" style="background:#ff00ff"></span> Hak wakaf</div>
-              <div class="legend-item legend-item-toggle" onclick="toggleLegendItem(this,'Kosong')"><span class="swatch" style="background:#b3c6ff"></span> Kosong</div>
-              <div class="legend-item"><span class="swatch" style="background:#737373"></span> Tidak ada data</div>
-            </div>
-            <div class="legend-box">
-              <div class="legend-label">Penggunaan lahan</div>
-              <div class="legend-item"><span class="swatch" style="background:#ff3399"></span> Apotek</div>
-              <div class="legend-item"><span class="swatch" style="background:#996633"></span> Area parkir</div>
-              <div class="legend-item"><span class="swatch" style="background:#ff6600"></span> Bangunan hunian</div>
-              <div class="legend-item"><span class="swatch" style="background:#33ffff"></span> Gereja</div>
-              <div class="legend-item"><span class="swatch" style="background:#ff3333"></span> Jalan</div>
-              <div class="legend-item"><span class="swatch" style="background:#cc33ff"></span> Kantor pemerintahan</div>
-              <div class="legend-item"><span class="swatch" style="background:#3399ff"></span> Kolam</div>
-              <div class="legend-item"><span class="swatch" style="background:#ccff33"></span> Lapangan tidak diperkeras</div>
-              <div class="legend-item"><span class="swatch" style="background:#a6a6a6"></span> Lapangan diperkeras</div>
-              <div class="legend-item"><span class="swatch" style="background:#00cc44"></span> Masjid</div>
-              <div class="legend-item"><span class="swatch" style="background:#79d2a6"></span> Pabrik</div>
-              <div class="legend-item"><span class="swatch" style="background:#ffe680"></span> Pekarangan</div>
-              <div class="legend-item"><span class="swatch" style="background:#336644"></span> Pemakaman</div>
-              <div class="legend-item"><span class="swatch" style="background:#ff9933"></span> Pendidikan dasar</div>
-              <div class="legend-item"><span class="swatch" style="background:#ffcc99"></span> Rumah toko</div>
-              <div class="legend-item"><span class="swatch" style="background:#66ff33"></span> Sawah</div>
-              <div class="legend-item"><span class="swatch" style="background:#b3ff66"></span> Semak belukar</div>
-              <div class="legend-item"><span class="swatch" style="background:#00ffff"></span> Sungai</div>
-              <div class="legend-item"><span class="swatch" style="background:#ff0066"></span> Tempat hiburan</div>
-              <div class="legend-item"><span class="swatch" style="background:#d9a366"></span> Tempat penimbunan</div>
-              <div class="legend-item"><span class="swatch" style="background:#e6e6e6"></span> Lainnya</div>
-            </div>
-          </div>
-        </aside>
-        <div id="map"></div>
-      </div>
-    </div>
-  </section>
 
   <!-- ===== DATA PERTANAHAN ===== -->
   <section id="data-pertanahan" class="section">
